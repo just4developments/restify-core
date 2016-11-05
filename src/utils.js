@@ -7,9 +7,13 @@ const restify = require('restify');
  *************************************/
 
 module.exports = {
+    has: (params) => {
+      return params !== undefined && params !== null;  
+    },
     fileUploadHandler: (config) => {
         let defaultConfig = {
             mapFiles: true,
+            mapParams: true,
             keepExtensions: true,
             multiples: false
             // multipartHandler: function (part) {
@@ -27,8 +31,13 @@ module.exports = {
         }
         return restify.bodyParser(defaultConfig);
     },
-    getPathUpload: (file, returnPath) => {
-        return returnPath + path.basename(file.path);
+    getPathUpload: (file, returnPath, multiples) => {
+        if(file instanceof Array){
+            return file.map((f)=>{
+                return returnPath + path.basename(f)
+            });
+        }
+        return returnPath + path.basename(file);
     }
 }
 

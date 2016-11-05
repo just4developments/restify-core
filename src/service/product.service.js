@@ -2,9 +2,9 @@ const DB = require('../db');
 const utils = require('../utils');
 
 /************************************
-** SERVICE:      ${tbl}Controller
+** SERVICE:      productController
 ** AUTHOR:       Unknown
-** CREATED DATE: ${createdDate}
+** CREATED DATE: 11/5/2016, 3:59:34 PM
 *************************************/
 
 module.exports = (tbl) => {
@@ -13,10 +13,21 @@ module.exports = (tbl) => {
         validate: (obj, action) => {
             switch (action) {
                 case 0: // For inserting
-                    ${ivalidation}
+                    if(!utils.has(obj.name)) throw 'name is required!';
+					if(!utils.has(obj.des)) throw 'des is required!';
+					if(!utils.has(obj.category_id)) throw 'category_id is required!';
+					if(!utils.has(obj.createdDate)) throw 'createdDate is required!';
+					if(!utils.has(obj.images)) throw 'images is required!';
+					if(!utils.has(obj.details)) throw 'details is required!';
                     break;
                 case 1: // For updating
-                    ${uvalidation}
+                    if(!utils.has(obj._id)) throw '_id is required!';
+					if(!utils.has(obj.name)) throw 'name is required!';
+					if(!utils.has(obj.des)) throw 'des is required!';
+					if(!utils.has(obj.category_id)) throw 'category_id is required!';
+					if(!utils.has(obj.createdDate)) throw 'createdDate is required!';
+					if(!utils.has(obj.images)) throw 'images is required!';
+					if(!utils.has(obj.details)) throw 'details is required!';
                     break;
             }
             return obj;
@@ -25,9 +36,9 @@ module.exports = (tbl) => {
             return db.find(fil);
         },
 
-        get: (${key}) => {
+        get: (_id) => {
             return db.get({
-                ${key}: ${key}
+                _id: _id
             });
         },
 
@@ -48,7 +59,7 @@ module.exports = (tbl) => {
                     self.validate(obj, 0);
                     db.update(obj, {
                         where: {
-                            ${key}: obj.${key}
+                            _id: obj._id
                         }
                     }).then(resolve).catch(reject);
                 } catch (e) {
@@ -57,8 +68,8 @@ module.exports = (tbl) => {
             });
         },
 
-        delete: (${key}) => {
-            return db.delete(${key});
+        delete: (_id) => {
+            return db.delete(_id);
         }
     };
     return self;
