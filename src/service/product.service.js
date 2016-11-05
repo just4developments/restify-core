@@ -4,7 +4,7 @@ const utils = require('../utils');
 /************************************
 ** SERVICE:      productController
 ** AUTHOR:       Unknown
-** CREATED DATE: 11/5/2016, 3:59:34 PM
+** CREATED DATE: 11/5/2016, 9:17:02 PM
 *************************************/
 
 module.exports = (tbl) => {

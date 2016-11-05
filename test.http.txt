@@ -1,10 +1,11 @@
 {
-    method: 'POST',
-    url: 'http://localhost:8080/product',
+    method: 'PUT',
+    url: 'http://localhost:8080/product/123',
     requestHeader: {
         'content-type': 'multipart/form-data'
     },
     requestBody: {
-        'file:images': ['C:\\Users\\doanthuanthanh88\\Downloads\\Quan ao phu kien.xls', 'C:\\Users\\doanthuanthanh88\\Downloads\\Quan ao phu kien.xls']
+        'file:images': ['C:\\Users\\doanthuanthanh88\\Downloads\\Quan ao phu kien.xls',
+        'C:\\Users\\doanthuanthanh88\\Downloads\\Quan ao phu kien.xls']
     }
 }

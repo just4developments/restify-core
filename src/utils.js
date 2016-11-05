@@ -13,7 +13,7 @@ module.exports = {
     fileUploadHandler: (config) => {
         let defaultConfig = {
             mapFiles: true,
-            mapParams: true,
+            mapParams: false,
             keepExtensions: true,
             multiples: false
             // multipartHandler: function (part) {
@@ -34,10 +34,10 @@ module.exports = {
     getPathUpload: (file, returnPath, multiples) => {
         if(file instanceof Array){
             return file.map((f)=>{
-                return returnPath + path.basename(f)
+                return returnPath + path.basename(f.path)
             });
         }
-        return returnPath + path.basename(file);
+        return returnPath + path.basename(file.path);
     }
 }
 

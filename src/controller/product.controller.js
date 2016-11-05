@@ -7,7 +7,7 @@ const productService = require('../service/product.service')('product');
 /************************************
 ** CONTROLLER:   productController
 ** AUTHOR:       Unknown
-** CREATED DATE: 11/5/2016, 3:59:06 PM
+** CREATED DATE: 11/5/2016, 9:17:02 PM
 *************************************/
 
 server.get('/product', (req, res, next) => {
