@@ -4,22 +4,23 @@ let DB = require('../db');
 let utils = require('../utils');
 
 /************************************
-** SERVICE:      ${tbl}Controller
+** SERVICE:      categoryController
 ** AUTHOR:       Unknown
-** CREATED DATE: ${createdDate}
+** CREATED DATE: 11/9/2016, 5:35:07 PM
 *************************************/
 
 module.exports = () => {
-    let db = DB('${tbl}');
+    let db = DB('category');
     let self = {
 
         validate: (obj, action) => {
             switch (action) {
                 case 0: // For inserting
-                    ${ivalidation}
+                    if(!utils.has(obj.name)) throw new restify.BadRequestError('name is required!');
                     break;
                 case 1: // For updating
-                    ${uvalidation}
+                    if(!utils.has(obj._id)) throw new restify.BadRequestError('_id is required!');
+					if(!utils.has(obj.name)) throw new restify.BadRequestError('name is required!');
                     break;
             }
             return obj;
@@ -33,10 +34,10 @@ module.exports = () => {
             });
         },
 
-        get: (${key}) => {
+        get: (_id) => {
             return new Promise((resolve, reject) => {
                 db().open().then((db) => {
-                    db.get(${key}).then(resolve).catch(reject);; 
+                    db.get(_id).then(resolve).catch(reject);; 
                 }).catch(reject);
             });
         },
@@ -58,16 +59,20 @@ module.exports = () => {
             return new Promise((resolve, reject0) => {
                 try {
                     self.validate(obj, 1);
-                    ${removeFileWhenUpdate}                   
+                    db().open().then((db) => {
+                        db.update(obj).then(resolve).catch(reject);
+                    }).catch(reject)                   
                 } catch (e) {
                     reject(e);
                 }
             });
         },
 
-        delete: (${key}) => {
+        delete: (_id) => {
             return new Promise((resolve, reject0) => {
-                ${removeFileWhenDelete}
+                db().open().then((db) => {
+                    db.delete(_id).then(resolve).catch(reject);
+                }).catch(reject)
             });
         }
     };
