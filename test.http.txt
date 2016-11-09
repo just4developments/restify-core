@@ -11,16 +11,13 @@
 
 
 {
-    method: 'POST',
-    url: 'http://localhost:8080/ShellClass/install/58217c00874d2b1e54bff506',
-    requestHeader: {
-        'content-type': 'application/json'
-    }
+    method: 'GET',
+    url: 'http://localhost:8080/ShellClass'
 }
 
 {
     method: 'POST',
-    url: 'http://localhost:8080/ShellClass/execute/58217c00874d2b1e54bff506',
+    url: 'http://localhost:8080/ShellClass/execute/5822cd27ea0d0f789cc90cab',
     requestHeader: {
         'content-type': 'application/json'
     },

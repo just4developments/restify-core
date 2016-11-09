@@ -1,4 +1,9 @@
-global.appconfig = {
+module.exports = {
+    listen: 8080,
+    staticUrl: 'http://192.168.0.111:8080',
+    db: {
+        url: 'mongodb://localhost:27017/mydb'
+    },
     rabbit: {
         url: 'amqp://192.168.0.140',
         timeout: 500,
@@ -14,6 +19,5 @@ global.appconfig = {
         shells: {
             whiteList: undefined //['192.168.0.11'] // IP can download to install shell scripts
         }
-    },
-    staticUrl: 'http://192.168.0.111:8080'
+    }
 }

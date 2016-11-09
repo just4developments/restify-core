@@ -1,5 +1,6 @@
-const path = require('path');
-const restify = require('restify');
+let path = require('path');
+let restify = require('restify');
+let fs = require('fs');
 
 /************************************
  ** CLASS HELPER
@@ -8,7 +9,10 @@ const restify = require('restify');
 
 module.exports = {
     has: (params) => {
-      return params !== undefined && params !== null;  
+        return params !== undefined && params !== null;
+    },
+    jsonHandler: (config) => {
+        return restify.bodyParser(config);
     },
     fileUploadHandler: (config) => {
         let defaultConfig = {
@@ -16,37 +20,56 @@ module.exports = {
             mapParams: false,
             keepExtensions: true,
             multiples: false
-            // multipartHandler: function (part) {
-            //     part.on('data', function (data) { });
-            // },
-            // multipartFileHandler: function (part) {
-            //     part.on('data', function (data) { });
-            // }
+                // multipartHandler: function (part) {
+                //     part.on('data', function (data) { });
+                // },
+                // multipartFileHandler: function (part) {
+                //     part.on('data', function (data) { });
+                // }
         };
         if (config instanceof Object) {
             defaultConfig = Object.assign(defaultConfig, config);
-            defaultConfig.uploadDir = path.join(__dirname, '..', defaultConfig.uploadDir);
+            if (defaultConfig.uploadDir) defaultConfig.uploadDir = path.join(__dirname, '..', defaultConfig.uploadDir);
         } else {
             defaultConfig.uploadDir = path.join(__dirname, '..', config);
         }
         return restify.bodyParser(defaultConfig);
     },
+    getAbsoluteUpload: (files) => {
+        if (!files) return files;
+        this.getPath = (f) => {
+            return path.join(__dirname, '..', 'assets', f);
+        };
+        if (!(files instanceof Array)) {
+            return this.getPath(files);
+        }
+        let rs = [];
+        for (let f of files) {
+            rs.push(this.getPath(f));
+        }
+        return rs;
+
+    },
+    deleteFile: (files) => {        
+        this.remove = (f) => {
+            try {
+                fs.statSync(f);
+                fs.unlinkSync(f);
+            } catch (e) { /*File was removed before that*/ }
+        };
+        if (!(files instanceof Array)) {
+            return this.remove(files);
+        }
+        for (var f of files) {
+            this.remove(f);
+        }
+    },
     getPathUpload: (file, returnPath, multiples) => {
-        if(file instanceof Array){
-            return file.map((f)=>{
+        if (file instanceof Array) {
+            return file.map((f) => {
                 return returnPath + path.basename(f.path)
             });
         }
         return returnPath + path.basename(file.path);
     }
 }
-
-// FileUpload.prototype.config = `restify.bodyParser(${JSON.stringify(Object.assign({
-//         // maxBodySize: 0, mapParams: true, overrideParams: false,                
-//         //multipartHandler: function (part) {part.on('data', function (data) { /* do something with the multipart data */ });},multipartFileHandler: function (part) {part.on('data', function (data) { /* do something with the multipart file data */ });},
-//         mapFiles: true,
-//         keepExtensions: true,
-//         // uploadDir: 'path.join(__dirname)',
-//         // multiples: false,
-//         // hash: 'sha1'
-//     }, config), null, '\t').replace(/"path.join\(([^\)]+)\)"/, 'path.join($1)')}),`;

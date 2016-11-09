@@ -120,7 +120,6 @@ module.exports = () => {
         updateUploadingShell: (_id, shellPath) => {
             return new Promise((resolve, reject) => {
                 self.get(_id).then((item) => {
-                    let oldShell = path.join(__dirname, '..', '..', 'assets', item.content);
                     let newShell = path.join(__dirname, '..', '..', 'assets', shellPath);
                     self.handleShellFile(newShell).then((meta) => {
                         try {
@@ -134,12 +133,7 @@ module.exports = () => {
                             };
                             self.validate(obj, 1);
                             self.update(obj).then((rs) => {
-                                try {
-                                    fs.statSync(oldShell);
-                                    fs.unlinkSync(oldShell);
-                                } catch (e) {
-                                    console.log('Not found file');
-                                }
+                                utils.deleteFile(utils.getAbsoluteUpload(item.content));
                                 resolve(rs);
                             }).catch(reject);
                         } catch (e) {
