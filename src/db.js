@@ -7,8 +7,6 @@ let ObjectID = require('mongodb').ObjectID;
  ** `npm install mongodb --save`
  *************************************/
 
-const URL = 'mongodb://localhost:27017/validium'
-
 exports = module.exports = (tbl) => {
     return (db, isManualClose) => {
         let self = this;
@@ -17,7 +15,7 @@ exports = module.exports = (tbl) => {
         };
         this.open = () => {
             return new Promise((resolve, reject) => {
-                MongoClient.connect(URL, function (err, db0) {
+                MongoClient.connect(global.appconfig.db.url, function (err, db0) {
                     if (err) return reject(err);
                     db = db0;
                     resolve(self);

@@ -1,20 +1,30 @@
-var restify = require('restify'),
-    fs = require('fs'),
-    path = require('path');
+let restify = require('restify');
+let fs = require('fs');
+let path = require('path');
 
-global.server = restify.createServer({
-    name: 'Name',
-});
+/************************************
+ ** SERVER LISTENER
+ ** 
+ *************************************/
 
-server.use(restify.acceptParser(server.acceptable));
+global.appconfig = require('./src/appconfig');
+
+global.server = restify.createServer();
+
 server.use(restify.queryParser());
+// server.use(restify.acceptParser(server.acceptable));
+// server.use(restify.dateParser());
+// server.use(restify.jsonp());
+// server.use(restify.gzipResponse());
+// server.use(restify.bodyParser());
+// server.use(restify.requestExpiry());
+// server.use(restify.conditionalRequest());
+server.use(restify.CORS());
+// server.use(restify.fullResponse());
 
-server.on('InternalServer', function (req, res, err, cb) {
-  console.log(err);
-  return cb();
-});
-
-//server.use(restify.bodyParser({// maxBodySize: 0,mapParams: true,mapFiles: true,overrideParams: false,multipartHandler: function (part) {part.on('data', function (data) {/* do something with the multipart data */});},multipartFileHandler: function (part) {part.on('data', function (data) {/* do something with the multipart file data */});},keepExtensions: true,uploadDir: path.join(__dirname),multiples: true,hash: 'sha1'}));
+server.get(/\/images\/?.*/, restify.serveStatic({
+  directory: './assets'
+}));
 
 fs.readdir(path.join(__dirname, 'src', 'controller'), function (err, files) {
     if (err) return console.error(err);
@@ -23,6 +33,6 @@ fs.readdir(path.join(__dirname, 'src', 'controller'), function (err, files) {
     }
 });
 
-server.listen(8080, () => {
-    console.log("Server is running at 8080");
+server.listen(appconfig.listen, () => {
+    console.log("Server is running at %d", appconfig.listen);
 });

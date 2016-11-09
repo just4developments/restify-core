@@ -1,11 +1,44 @@
+
+
 {
-    method: 'PUT',
-    url: 'http://localhost:8080/product/123',
+    method: 'GET',
+    url: 'http://localhost:8080/product'
+}
+
+{
+    method: 'POST',
+    url: 'http://localhost:8080/product',
     requestHeader: {
         'content-type': 'multipart/form-data'
     },
     requestBody: {
-        'file:images': ['C:\\Users\\doanthuanthanh88\\Downloads\\Quan ao phu kien.xls',
-        'C:\\Users\\doanthuanthanh88\\Downloads\\Quan ao phu kien.xls']
+        'name': 'Product 01',
+        'des': 'Description for product 01',
+        'category_id': 1,
+        'details': [
+            {'size': 'M', 'quantity': 10}
+        ],
+        'money': 100000,
+        'file:images': [
+            'C:\\Users\\thanhdt\\Downloads\\iToGo_Flow_part_1(1).jpg',
+            'C:\\Users\\thanhdt\\Downloads\\iToGo_Flow_part_1(1).jpg'
+        ]
+    }
+}
+
+{
+    method: 'PUT',
+    url: 'http://localhost:8080/product/58229fcc2a02a179c0a7e4b5',
+    requestHeader: {
+        'content-type': 'multipart/form-data'
+    },
+    requestBody: {
+        'name': 'Product 02',
+        'category_id': 2, 
+        'money': 5000,
+        'file:images': [
+            'C:\\Users\\thanhdt\\Downloads\\iToGo_Flow_part_1(1).jpg',
+            'C:\\Users\\thanhdt\\Downloads\\iToGo_Flow_part_1(1).jpg'
+        ]
     }
 }
