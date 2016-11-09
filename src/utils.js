@@ -50,7 +50,8 @@ module.exports = {
         return rs;
 
     },
-    deleteFile: (files) => {        
+    deleteFile: (files) => {
+        if(!files) return;
         this.remove = (f) => {
             try {
                 fs.statSync(f);
