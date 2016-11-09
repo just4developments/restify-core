@@ -1,0 +1,21 @@
+{
+	"name": "sum batch",
+	"des": "sub des",
+	"target": "test1",
+	"input": [
+		{
+			"x": {
+				"type": "Number",
+				"default": 1,
+				"in": [
+					{"0": "None"},
+					{"1": "Pick someone"}
+				]
+			},
+			"y": {
+				"type": "Number",
+				"default": 2
+			}
+		}
+	]
+}

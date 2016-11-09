@@ -1,11 +1,31 @@
 {
-    method: 'PUT',
-    url: 'http://localhost:8080/product/123',
+    method: 'POST',
+    url: 'http://localhost:8080/ShellClass/upload',
     requestHeader: {
         'content-type': 'multipart/form-data'
     },
     requestBody: {
-        'file:images': ['C:\\Users\\doanthuanthanh88\\Downloads\\Quan ao phu kien.xls',
-        'C:\\Users\\doanthuanthanh88\\Downloads\\Quan ao phu kien.xls']
+        'file:shells': 'D:\\sources\\restify-core\\test\\sum.zip'
+    }
+}
+
+
+{
+    method: 'POST',
+    url: 'http://localhost:8080/ShellClass/install/58217c00874d2b1e54bff506',
+    requestHeader: {
+        'content-type': 'application/json'
+    }
+}
+
+{
+    method: 'POST',
+    url: 'http://localhost:8080/ShellClass/execute/58217c00874d2b1e54bff506',
+    requestHeader: {
+        'content-type': 'application/json'
+    },
+    requestBody: {
+        'x': 10,
+        'y': 20
     }
 }
