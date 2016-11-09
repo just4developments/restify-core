@@ -1,5 +1,5 @@
-const path = require('path');
-const restify = require('restify');
+let path = require('path');
+let restify = require('restify');
 
 /************************************
  ** CLASS HELPER
@@ -9,6 +9,9 @@ const restify = require('restify');
 module.exports = {
     has: (params) => {
       return params !== undefined && params !== null;  
+    },
+    jsonHandler: (config) => {
+        return restify.bodyParser(config);
     },
     fileUploadHandler: (config) => {
         let defaultConfig = {
@@ -25,7 +28,7 @@ module.exports = {
         };
         if (config instanceof Object) {
             defaultConfig = Object.assign(defaultConfig, config);
-            defaultConfig.uploadDir = path.join(__dirname, '..', defaultConfig.uploadDir);
+            if(defaultConfig.uploadDir) defaultConfig.uploadDir = path.join(__dirname, '..', defaultConfig.uploadDir);
         } else {
             defaultConfig.uploadDir = path.join(__dirname, '..', config);
         }

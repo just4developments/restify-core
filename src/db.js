@@ -1,54 +1,99 @@
+let MongoClient = require('mongodb').MongoClient;
+let ObjectID = require('mongodb').ObjectID;
 
 /************************************
-** DATABASE ADAPTER
-** 
-*************************************/
+ ** DATABASE ADAPTER FOR MONGODB
+ ** Installation
+ ** `npm install mongodb --save`
+ *************************************/
+
+const URL = 'mongodb://localhost:27017/validium'
 
 exports = module.exports = (tbl) => {
-    return {
-        uuid: () => {
-            return "123123";
-        },
-        find: ({
+    return (db, isManualClose) => {
+        let self = this;
+        this.uuid = (id) => {
+            return ObjectID(id);
+        };
+        this.open = () => {
+            return new Promise((resolve, reject) => {
+                MongoClient.connect(URL, function (err, db0) {
+                    if (err) return reject(err);
+                    db = db0;
+                    resolve(self);
+                });
+            });
+        };
+        this.close = () => {
+            if (db) db.close();
+        };
+        this.find = ({
             where,
             sortBy,
             page = 1,
             recordsPerPage = 20
         }) => {
             return new Promise((resolve, reject) => {
-                if (where) return resolve(where);
-                reject('error');
+                let collection = db.collection(tbl);
+                collection.find(where).toArray((err, result) => {
+                    if (!isManualClose || err) self.close();
+                    if (err) return reject(err);
+                    resolve(result);
+                });
             });
-        },
-        get: (where) => {
+        };
+        this.get = (_id) => {
             return new Promise((resolve, reject) => {
-                if (where) return resolve(where);
-                reject('error');
+                let collection = db.collection(tbl);
+                collection.find({_id: self.uuid(_id)}).toArray((err, result) => {
+                    if (!isManualClose || err) self.close();
+                    if (err) return reject(err);
+                    resolve(result.length > 0 ? result[0] : undefined);
+                });
             });
-        },
-        insert: (obj) => {
+        };
+        this.insert = (obj) => {
             return new Promise((resolve, reject) => {
-                if (obj) return resolve(obj);
-                reject('error');
+                let collection = db.collection(tbl);
+                if (obj instanceof Array) {
+                    collection.insertMany(obj, (err, result) => {
+                        if (!isManualClose || err) self.close();
+                        if (err) return reject(err);
+                        resolve(result);
+                    });
+                } else {
+                    collection.insert(obj, (err, result) => {
+                        if (!isManualClose || err) self.close();
+                        if (err) return reject(err);
+                        resolve(result);
+                    });
+                }
             });
-        },
-        updates: (obj, where, fcDone) => {
+        };
+        this.update = (obj) => {
+            let id = self.uuid(obj._id);
+            delete obj._id;
             return new Promise((resolve, reject) => {
-                if (obj) return resolve(obj);
-                reject('error');
+                let collection = db.collection(tbl);                
+                collection.updateOne({_id: id}, {
+                    $set: obj
+                }, (err, result) => {
+                    if (!isManualClose || err) self.close();
+                    if (err) return reject(err);
+                    resolve(result);
+                });
             });
-        },
-        update: (obj) => {
+        };
+        this.delete = (_id) => {
             return new Promise((resolve, reject) => {
-                if (obj) return resolve(obj);
-                reject('error');
+                let collection = db.collection(tbl);
+                collection.deleteOne({_id: self.uuid(_id)}, (err, result) => {
+                    if (!isManualClose || err) self.close();
+                    if (err) return reject(err);
+                    resolve(result);
+                });
             });
-        },
-        delete: (id) => {
-            return new Promise((resolve, reject) => {
-                if (id) return resolve(id);
-                reject('error');
-            });
-        }
+        };
+        return this;
     }
 }
