@@ -23,7 +23,7 @@ module.exports = {
         "selectBox": {
             "type": "object",
             "properties": {
-                "var": {
+                "param": {
                     "type": "string"
                 },
                 "label": {
@@ -42,7 +42,7 @@ module.exports = {
                     "type": "array"
                 }
             },
-            "required": ["var", "label", "type", "component"],
+            "required": ["param", "label", "type", "component"],
         }
     }
 }
