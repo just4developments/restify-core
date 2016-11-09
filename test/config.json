@@ -4,18 +4,23 @@
 	"target": "test1",
 	"input": [
 		{
-			"x": {
-				"type": "Number",
-				"default": 1,
-				"in": [
-					{"0": "None"},
-					{"1": "Pick someone"}
-				]
-			},
-			"y": {
-				"type": "Number",
-				"default": 2
-			}
+			"var": "x",
+			"label": "So thu 1",
+			"type": "Number",
+			"default": 1,
+			"in": [
+				{"0": "None"},
+				{"1": "Pick someone"}
+			]
+		}, {
+			"var": "y",
+			"label": "So thu 2",
+			"type": "Number",
+			"default": 1,
+			"in": [
+				{"0": "None"},
+				{"1": "Pick someone"}
+			]
 		}
 	]
 }

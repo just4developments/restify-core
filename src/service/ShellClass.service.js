@@ -1,9 +1,10 @@
-let DB = require('../db');
+let restify = require('restify');
 let fs = require('fs');
 let path = require('path');
 let AdmZip = require('adm-zip');
 let amqp = require('amqplib/callback_api');
 
+let DB = require('../db');
 let utils = require('../utils');
 let executingLogs = require('./ExecutingLogs.service')();
 
@@ -178,6 +179,7 @@ module.exports = () => {
                         try {
                             meta = zipEntry.getData().toString();
                             meta = JSON.parse(meta);
+                            utils.validateJson(meta, require('../validation/ShellClass.validation'));
                         } catch (e) {
                             reject(e);
                         }
@@ -198,13 +200,13 @@ module.exports = () => {
         validate: (obj, action) => {
             switch (action) {
                 case 0: // For inserting
-                    if (!utils.has(obj.name)) throw new Error('name is required!');
-                    if (!utils.has(obj.target)) throw new Error('target is required!');
+                    if (!utils.has(obj.name)) throw new restify.BadRequestError('name is required!');
+                    if (!utils.has(obj.target)) throw new restify.BadRequestError('target is required!');
                     break;
                 case 1: // For updating
-                    if (!utils.has(obj._id)) throw new Error('_id is required!');
-                    if (!utils.has(obj.name)) throw new Error('name is required!');
-                    if (!utils.has(obj.target)) throw new Error('target is required!');
+                    if (!utils.has(obj._id)) throw new restify.BadRequestError('_id is required!');
+                    if (!utils.has(obj.name)) throw new restify.BadRequestError('name is required!');
+                    if (!utils.has(obj.target)) throw new restify.BadRequestError('target is required!');
                     break;
                 case 3: // For executing                    
                     break;

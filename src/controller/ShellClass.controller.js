@@ -40,16 +40,24 @@ server.post('/ShellClass/install/:id', utils.jsonHandler(), (req, res, next) => 
     }).catch(next);
 });
 
-server.post('/ShellClass/upload/:id', utils.fileUploadHandler('assets/shells/'), (req, res, next) => {    
-    ShellClassService.updateUploadingShell(req.params.id, utils.getPathUpload(req.files.shells, '/shells/')).then((rs) => {
+server.post('/ShellClass/upload/:id', utils.fileUploadHandler('assets/shells/'), (req, res, next) => {
+    let files = utils.getPathUpload(req.files.shells, '/shells/');                    
+    ShellClassService.updateUploadingShell(req.params.id, files).then((rs) => {
         res.send(rs);
-    }).catch(next);
+    }).catch((err) => {
+        utils.deleteFile(utils.getAbsoluteUpload(files));
+        next(err);
+    });
 });
 
 server.post('/ShellClass/upload', utils.fileUploadHandler('assets/shells/'), (req, res, next) => {
-    ShellClassService.insertUploadingShell(utils.getPathUpload(req.files.shells, '/shells/')).then((rs) => {
+    let files = utils.getPathUpload(req.files.shells, '/shells/');
+    ShellClassService.insertUploadingShell(files).then((rs) => {
         res.send(rs);
-    }).catch(next);    
+    }).catch((err) => {
+        utils.deleteFile(utils.getAbsoluteUpload(files));
+        next(err);
+    });    
 });
 
 // server.put('/ShellClass/:_id', utils.jsonHandler(), (req, res, next) => {

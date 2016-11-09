@@ -11,10 +11,11 @@
   "license": "ISC",
   "dependencies": {
     "adm-zip": "^0.4.7",
+    "ajv": "^4.8.2",
     "amqplib": "^0.5.0",
-    "restify": "^4.2.0"
+    "mongodb": "^2.2.11",
+    "restify": "^4.2.0",
+    "socket.io": "^1.5.1"
   },
-  "devDependencies": {
-    "mongodb": "^2.2.11"
-  }
+  "devDependencies": {}
 }

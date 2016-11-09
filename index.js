@@ -8,6 +8,10 @@ let path = require('path');
  *************************************/
 
 global.appconfig = require('./src/appconfig');
+Error.prototype.manual = (status) => {
+    this.status = status;
+    return this;
+};
 
 global.server = restify.createServer();
 
@@ -38,6 +42,11 @@ fs.readdir(path.join(__dirname, 'src', 'controller'), function (err, files) {
     for (var file of files) {
         require(`./src/controller/${file}`);
     }
+});
+
+server.on('InternalServer', function (req, res, err, cb) {
+    console.log(err);
+    return cb();
 });
 
 // ##################WEB SOCKET#######################

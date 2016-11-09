@@ -51,7 +51,7 @@ module.exports = {
 
     },
     deleteFile: (files) => {
-        if(!files) return;
+        if (!files) return;
         this.remove = (f) => {
             try {
                 fs.statSync(f);
@@ -72,5 +72,16 @@ module.exports = {
             });
         }
         return returnPath + path.basename(file.path);
+    },
+    validateJson: (data, schema) => {
+        var Ajv = require('ajv');
+        var ajv = new Ajv();
+        var validate = ajv.compile(schema);
+        var valid = validate(data);
+        if (!valid) {
+            throw new restify.BadRequestError(validate.errors.map((e) => {
+                return e.message + '\n' + (Object.keys(e.params).length > 0 ? JSON.stringify(e.params, null, '\t') : '');
+            }).join('\n'));
+        };
     }
 }

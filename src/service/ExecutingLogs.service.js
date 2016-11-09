@@ -1,6 +1,7 @@
+let restify = require('restify');
+
 let DB = require('../db');
 let utils = require('../utils');
-
 /************************************
 ** SERVICE:      ExecutingLogsController
 ** AUTHOR:       Unknown
@@ -24,15 +25,15 @@ module.exports = () => {
             switch (action) {
                 case 0: // For inserting
                     obj.started_time = new Date();
-                    if(!utils.has(obj.event_type)) throw new Error('event_type is required!');
-					if(!utils.has(obj.status)) throw new Error('status is required!');					
-					if(!utils.has(obj.title)) throw new Error('title is required!');
-					if(!utils.has(obj.shellclass_id)) throw new Error('shellclass_id is required!');
+                    if(!utils.has(obj.event_type)) throw new restify.BadRequestError('event_type is required!');
+					if(!utils.has(obj.status)) throw new restify.BadRequestError('status is required!');					
+					if(!utils.has(obj.title)) throw new restify.BadRequestError('title is required!');
+					if(!utils.has(obj.shellclass_id)) throw new restify.BadRequestError('shellclass_id is required!');
                     break;
                 case 1: // For updating
                     obj.finished_time = new Date();
-                    if(!utils.has(obj.status)) throw new Error('status is required!');
-					if(!utils.has(obj.result)) throw new Error('result is required!');
+                    if(!utils.has(obj.status)) throw new restify.BadRequestError('status is required!');
+					if(!utils.has(obj.result)) throw new restify.BadRequestError('result is required!');
 					break;
             }
             return obj;
