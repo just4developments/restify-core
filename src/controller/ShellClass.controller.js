@@ -50,6 +50,10 @@ server.post('/ShellClass/upload/:id', utils.fileUploadHandler('assets/shells/'),
     });
 });
 
+server.opts('/ShellClass/upload', (req, res, next) => {
+    res.end();    
+});
+
 server.post('/ShellClass/upload', utils.fileUploadHandler('assets/shells/'), (req, res, next) => {
     let files = utils.getPathUpload(req.files.shells, '/shells/');
     ShellClassService.insertUploadingShell(files).then((rs) => {

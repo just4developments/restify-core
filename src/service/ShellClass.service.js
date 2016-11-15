@@ -130,7 +130,8 @@ module.exports = () => {
                                 des: meta.des,
                                 target: meta.target,
                                 input: meta.input,
-                                content: shellPath
+                                content: shellPath,
+                                updated_date: new Date()
                             };
                             self.validate(obj, 1);
                             self.update(obj).then((rs) => {
@@ -154,7 +155,9 @@ module.exports = () => {
                             des: meta.des,
                             input: meta.input,
                             target: meta.target,
-                            content: newShell
+                            content: newShell,
+                            created_date: new Date(),
+                            updated_date: new Date()
                         };
                         self.validate(obj, 0);
                         self.insert(obj).then((rs) => {

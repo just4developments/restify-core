@@ -16,15 +16,14 @@ Error.prototype.manual = (status) => {
 global.server = restify.createServer();
 
 server.use(restify.queryParser());
-// server.use(restify.acceptParser(server.acceptable));
+server.use(restify.acceptParser(server.acceptable));
 // server.use(restify.dateParser());
 // server.use(restify.jsonp());
 // server.use(restify.gzipResponse());
 // server.use(restify.bodyParser());
 // server.use(restify.requestExpiry());
 // server.use(restify.conditionalRequest());
-server.use(restify.CORS());
-// server.use(restify.fullResponse());
+// server.use(restify.CORS());
 
 server.get(/\/shells\/?.*/, (req, res, next) => {
     let clientIP = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
@@ -36,6 +35,13 @@ server.get(/\/shells\/?.*/, (req, res, next) => {
 }, restify.serveStatic({
   directory: './assets'
 }));
+
+server.pre(function (req, res, next) {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', '*');
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+    return next();
+});
 
 fs.readdir(path.join(__dirname, 'src', 'controller'), function (err, files) {
     if (err) return console.error(err);

@@ -11,7 +11,7 @@ let ExecutingLogsService = require('../service/ExecutingLogs.service')();
 *************************************/
 
 server.get('/ExecutingLogs', utils.jsonHandler(), (req, res, next) => {
-    return ExecutingLogsService.find({}).then((rs) => {
+    return ExecutingLogsService.find({sortBy: {started_time: -1}}).then((rs) => {
         res.send(rs);
     }).catch(next);
 });

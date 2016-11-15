@@ -16,6 +16,7 @@ module.exports = {
     },
     fileUploadHandler: (config) => {
         let defaultConfig = {
+            maxBodySize: 0,
             mapFiles: true,
             mapParams: false,
             keepExtensions: true,

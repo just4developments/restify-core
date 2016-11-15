@@ -26,14 +26,14 @@ exports = module.exports = (tbl) => {
             if (db) db.close();
         };
         this.find = ({
-            where,
-            sortBy,
+            where = {},
+            sortBy = {},
             page = 1,
             recordsPerPage = 20
         }) => {
             return new Promise((resolve, reject) => {
                 let collection = db.collection(tbl);
-                collection.find(where).toArray((err, result) => {
+                collection.find(where).sort(sortBy).toArray((err, result) => {
                     if (!isManualClose || err) self.close();
                     if (err) return reject(err);
                     resolve(result);
