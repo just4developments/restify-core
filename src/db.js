@@ -33,7 +33,7 @@ exports = module.exports = (tbl) => {
         }) => {
             return new Promise((resolve, reject) => {
                 let collection = db.collection(tbl);
-                collection.find(where).sort(sortBy).toArray((err, result) => {
+                collection.find(where).sort(sortBy).skip(page > 0 ? ((page-1)*recordsPerPage) : 0).limit(recordsPerPage).toArray((err, result) => {
                     if (!isManualClose || err) self.close();
                     if (err) return reject(err);
                     resolve(result);

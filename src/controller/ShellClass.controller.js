@@ -11,7 +11,7 @@ let ShellClassService = require('../service/ShellClass.service')();
  *************************************/
 
 server.get('/ShellClass', utils.jsonHandler(), (req, res, next) => {
-    return ShellClassService.find({}).then((rs) => {
+    return ShellClassService.find({page: +req.query.page, recordsPerPage: +req.query.recordsPerPage, sortBy: {updatedDate: -1}}).then((rs) => {
         res.send(rs);
     }).catch(next);
 });
