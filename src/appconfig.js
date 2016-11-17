@@ -1,6 +1,6 @@
 module.exports = {
-    listen: 8001,
-    staticUrl: 'http://localhost:8001',
+    listen: 9000,
+    staticUrl: 'http://localhost:9000',
     db: {
         url: 'mongodb://localhost:27017/nanacloset01'
     }
