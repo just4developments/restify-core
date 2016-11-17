@@ -1,44 +1,56 @@
+{
+    method: 'POST',
+    url: 'http://localhost:8000/category',
+    requestHeader: {
+        'content-type': 'application/json'
+    },
+    requestBody: {
+        "name": "Category 2"
+    }
+}
+
 
 
 {
     method: 'GET',
-    url: 'http://localhost:8080/product'
+    url: 'http://localhost:8000/product'
 }
 
 {
     method: 'POST',
-    url: 'http://localhost:8080/product',
+    url: 'http://localhost:8000/product',
     requestHeader: {
         'content-type': 'multipart/form-data'
     },
     requestBody: {
-        'name': 'Product 01',
+        'name': 'Product 05',
         'des': 'Description for product 01',
         'category_id': 1,
-        'details': [
-            {'size': 'M', 'quantity': 10}
-        ],
+        'details': JSON.stringify([
+            {'size': 'M', 'quantity': 15},
+            {'size': 'L', 'quantity': 20},
+            {'size': 'S', 'quantity': 10},
+        ]),
         'money': 100000,
         'file:images': [
-            'C:\\Users\\thanhdt\\Downloads\\iToGo_Flow_part_1(1).jpg',
-            'C:\\Users\\thanhdt\\Downloads\\iToGo_Flow_part_1(1).jpg'
+            'C:\\Users\\thanhdt\\Desktop\\avatar.jpg',
+            'C:\\Users\\thanhdt\\Desktop\\pic1.jpg'
         ]
     }
 }
 
 {
     method: 'PUT',
-    url: 'http://localhost:8080/product/58229fcc2a02a179c0a7e4b5',
+    url: 'http://localhost:8000/product/5822a5c9ee5d6659445bf9f1',
     requestHeader: {
         'content-type': 'multipart/form-data'
     },
     requestBody: {
-        'name': 'Product 02',
+        'name': 'Product 03',
         'category_id': 2, 
         'money': 5000,
         'file:images': [
-            'C:\\Users\\thanhdt\\Downloads\\iToGo_Flow_part_1(1).jpg',
-            'C:\\Users\\thanhdt\\Downloads\\iToGo_Flow_part_1(1).jpg'
+            'C:\\Users\\thanhdt\\Desktop\\pic2.png'
         ]
     }
 }

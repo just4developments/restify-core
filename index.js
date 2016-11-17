@@ -19,12 +19,19 @@ server.use(restify.queryParser());
 // server.use(restify.bodyParser());
 // server.use(restify.requestExpiry());
 // server.use(restify.conditionalRequest());
-server.use(restify.CORS());
+// server.use(restify.CORS());
 // server.use(restify.fullResponse());
 
 server.get(/\/images\/?.*/, restify.serveStatic({
   directory: './assets'
 }));
+
+server.pre(function (req, res, next) {
+    res.setHeader("Access-Control-Allow-Origin", "*");
+    res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+    return next();
+});
 
 fs.readdir(path.join(__dirname, 'src', 'controller'), function (err, files) {
     if (err) return console.error(err);

@@ -51,7 +51,7 @@ module.exports = {
 
     },
     deleteFile: (files) => {
-        if(!files) return;
+        if (!files) return;
         this.remove = (f) => {
             try {
                 fs.statSync(f);
@@ -71,6 +71,7 @@ module.exports = {
                 return returnPath + path.basename(f.path)
             });
         }
+        if (multiples) return [returnPath + path.basename(file.path)];
         return returnPath + path.basename(file.path);
     }
 }
