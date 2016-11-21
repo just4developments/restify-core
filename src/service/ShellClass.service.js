@@ -261,9 +261,11 @@ module.exports = () => {
         },
 
         delete: (_id) => {
-            return db().open().then((db) => {
-                db.delete(_id);
-            }).catch(reject);
+            return new Promise((resolve, reject) => {
+                db().open().then((db) => {
+                    db.delete(_id).then(resolve).catch(reject);
+                }).catch(reject);
+            });
         }
     };
     return self;

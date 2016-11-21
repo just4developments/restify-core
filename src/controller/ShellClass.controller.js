@@ -34,16 +34,18 @@ server.post('/ShellClass/execute/:id', utils.jsonHandler(), (req, res, next) => 
     }).catch(next);
 });
 
-server.post('/ShellClass/install/:id', utils.jsonHandler(), (req, res, next) => {
-    ShellClassService.install(req.params.id).then((rs) => {
-       res.send(rs); 
-    }).catch(next);
-});
+// server.post('/ShellClass/install/:id', utils.jsonHandler(), (req, res, next) => {
+//     ShellClassService.install(req.params.id).then((rs) => {
+//        res.send(rs); 
+//     }).catch(next);
+// });
 
 server.post('/ShellClass/upload/:id', utils.fileUploadHandler('assets/shells/'), (req, res, next) => {
     let files = utils.getPathUpload(req.files.shells, '/shells/');                    
     ShellClassService.updateUploadingShell(req.params.id, files).then((rs) => {
-        res.send(rs);
+        ShellClassService.install(req.params.id).then((rs) => {
+            res.send(rs); 
+        }).catch(next);
     }).catch((err) => {
         utils.deleteFile(utils.getAbsoluteUpload(files));
         next(err);
@@ -57,7 +59,9 @@ server.opts('/ShellClass/upload', (req, res, next) => {
 server.post('/ShellClass/upload', utils.fileUploadHandler('assets/shells/'), (req, res, next) => {
     let files = utils.getPathUpload(req.files.shells, '/shells/');
     ShellClassService.insertUploadingShell(files).then((rs) => {
-        res.send(rs);
+        ShellClassService.install(rs.ops[0]._id).then((rs0) => {
+            res.send(rs); 
+        }).catch(next);
     }).catch((err) => {
         utils.deleteFile(utils.getAbsoluteUpload(files));
         next(err);
