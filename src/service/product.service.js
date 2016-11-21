@@ -71,7 +71,7 @@ module.exports = () => {
                             reject0(err);
                         };
                         db.get(obj._id).then((item) => {
-                            let oldimages = item.images;
+                            let oldimages = obj.images ? item.images : [];
                             db.update(obj).then((rs) => {
                                 db.close();                            
                                 utils.deleteFile(utils.getAbsoluteUpload(oldimages));

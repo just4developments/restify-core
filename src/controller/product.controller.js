@@ -3,6 +3,7 @@ let path = require('path');
 
 let utils = require('../utils');
 let productService = require('../service/product.service')();
+let transactionService = require('../service/transaction.service')();
 
 /************************************
 ** CONTROLLER:   productController
@@ -11,7 +12,11 @@ let productService = require('../service/product.service')();
 *************************************/
 
 server.get('/product', utils.jsonHandler(), (req, res, next) => {
-    let where = {};
+    let where = {
+        quantity: {
+            $gt: 0
+        }
+    };
     let sortBy = {
 
     };
@@ -47,14 +52,34 @@ server.post('/product', utils.fileUploadHandler({
     if(req.body.special) body.special = JSON.parse(req.body.special);
 	body.created_date = new Date();
     body.updated_date = new Date();
+    body.quantity = 0;
 	if(req.files.images) body.images = utils.getPathUpload(req.files.images, '/images/', true);
-	if(req.body.sizes) body.sizes = JSON.parse(req.body.sizes);
+	if(req.body.sizes) {
+        body.sizes = JSON.parse(req.body.sizes);
+        for(var i in body.sizes){
+            body.sizes[i].quantity0 = body.sizes[i].quantity; 
+            body.quantity += body.sizes[i].quantity;
+        }
+    }    
+
     productService.insert(body).then((rs) => {
         res.send(rs.ops[0]);
     }).catch((err) => {
         utils.deleteFile(utils.getAbsoluteUpload(body.images));
         next(err);
     });
+});
+
+server.opts('/product/sell', (req, res, next) => {
+    res.end();
+});
+
+server.post('/product/sell', utils.jsonHandler(), (req, res, next) => {
+    productService.update(req.body.product).then((rs0) => {
+        transactionService.insert(req.body).then((rs) => {
+            res.send(rs);
+        }).catch(next);
+    }).catch(next);
 });
 
 server.put('/product', utils.fileUploadHandler({
@@ -70,7 +95,13 @@ server.put('/product', utils.fileUploadHandler({
 	body.updated_date = new Date();
 	if(req.files.images) body.images = utils.getPathUpload(req.files.images, '/images/', true);
     else if(req.body.images) body.images = JSON.parse(req.body.images);
-	if(req.body.sizes) body.sizes = JSON.parse(req.body.sizes);
+	if(req.body.sizes) {
+        body.quantity = 0;
+        body.sizes = JSON.parse(req.body.sizes);
+        for(var i in body.sizes){ 
+            body.quantity += body.sizes[i].quantity;
+        }
+    }    
     productService.update(body).then((rs) => {
         res.send(body);
     }).catch((err) => {
