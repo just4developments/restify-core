@@ -26,7 +26,6 @@ module.exports = () => {
 					if(!utils.has(obj.name)) throw new restify.BadRequestError('name is required!');
 					if(!utils.has(obj.category_id)) throw new restify.BadRequestError('category_id is required!');
 					if(!utils.has(obj.money)) throw new restify.BadRequestError('money is required!');
-					if(!utils.has(obj.images)) throw new restify.BadRequestError('images is required!');
                     break;
             }
             return obj;
@@ -71,7 +70,7 @@ module.exports = () => {
                             reject0(err);
                         };
                         db.get(obj._id).then((item) => {
-                            let oldimages = obj.images ? item.images : [];
+                            let oldimages = obj.images ? item.images : undefined;
                             db.update(obj).then((rs) => {
                                 db.close();                            
                                 utils.deleteFile(utils.getAbsoluteUpload(oldimages));
@@ -80,7 +79,7 @@ module.exports = () => {
                         }).catch(reject);
                     }).catch(reject0);                   
                 } catch (e) {
-                    reject(e);
+                    reject0(e);
                 }
             });
         },

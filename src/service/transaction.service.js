@@ -46,6 +46,12 @@ module.exports = () => {
         },
 
         insert: (obj) => {
+            if(!obj.created_date) obj.created_date = new Date();
+            else obj.created_date = new Date(obj.created_date);
+            obj.created_date.setHours(0);
+            obj.created_date.setMinutes(0);
+            obj.created_date.setSeconds(0);
+            obj.created_date.setMilliseconds(0);
             return new Promise((resolve, reject) => {
                 try {
                     obj = self.validate(obj, 0);

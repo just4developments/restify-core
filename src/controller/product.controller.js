@@ -47,6 +47,7 @@ server.post('/product', utils.fileUploadHandler({
     var body = {};
 	if(req.body.name) body.name = req.body.name;
 	if(req.body.des) body.des = req.body.des;
+    if(req.body.size) body.size = req.body.size;
 	if(req.body.category_id) body.category_id = req.body.category_id;
 	if(req.body.money) body.money = +req.body.money;
     if(req.body.special) body.special = JSON.parse(req.body.special);
@@ -89,12 +90,13 @@ server.put('/product', utils.fileUploadHandler({
     var body = { _id: req.body._id };
     if(req.body.name) body.name = req.body.name;
 	if(req.body.des) body.des = req.body.des;
+    if(req.body.size) body.size = req.body.size;
 	if(req.body.category_id) body.category_id = req.body.category_id;
     if(req.body.special) body.special = JSON.parse(req.body.special);
 	if(req.body.money) body.money = +req.body.money;
 	body.updated_date = new Date();
 	if(req.files.images) body.images = utils.getPathUpload(req.files.images, '/images/', true);
-    else if(req.body.images) body.images = JSON.parse(req.body.images);
+    // else if(req.body.images) body.images = JSON.parse(req.body.images);
 	if(req.body.sizes) {
         body.quantity = 0;
         body.sizes = JSON.parse(req.body.sizes);

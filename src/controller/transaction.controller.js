@@ -12,7 +12,18 @@ let productService = require('../service/product.service')();
 *************************************/
 
 server.get('/transaction', utils.jsonHandler(), (req, res, next) => {
-    return transactionService.find({orderBy: {created_date : -1, status: -1}}).then((rs) => {
+    let days = +req.query.days || 0;
+    let status = +req.query.status;
+    let where = {};
+    let minDay = new Date();
+    minDay.setHours(0);
+    minDay.setMinutes(0);
+    minDay.setSeconds(0);
+    minDay.setMilliseconds(0);
+    minDay.setDate(days-1);
+    where.created_date = { $gt: minDay};
+    if(status) where.status = status;
+    return transactionService.find({where: where, sortBy: {created_date : -1, status: -1}}).then((rs) => {
         res.send(rs);
     }).catch(next);
 });
@@ -29,11 +40,7 @@ server.post('/transaction', utils.jsonHandler(), (req, res, next) => {
 	if(req.body.quantity) body.quantity = +req.body.quantity;
 	if(req.body.money) body.money = +req.body.money;
 	if(req.body.status) body.status = +req.body.status;
-    if(req.body.created_date) body.created_date = new Date(req.body.created_date);
-    body.created_date.setHours(0);
-    body.created_date.setMinutes(0);
-    body.created_date.setSeconds(0);
-    body.created_date.setMilliseconds(0);
+    if(req.body.created_date) body.created_date = req.body.created_date;    
     transactionService.insert(body).then((rs) => {
         res.send(rs);
     }).catch(next);
@@ -46,11 +53,6 @@ server.opts('/transaction/:_id', (req, res, next) => {
 server.put('/transaction/:_id', utils.jsonHandler(), (req, res, next) => {
     var body = { _id: req.params._id };
     if(req.body.status) body.status = +req.body.status;
-    if(req.body.created_date) body.created_date = new Date(req.body.created_date);
-    body.created_date.setHours(0);
-    body.created_date.setMinutes(0);
-    body.created_date.setSeconds(0);
-    body.created_date.setMilliseconds(0);
     transactionService.update(body).then((rs) => {
         if(body.status === -1) {
             productService.get(req.body.product._id).then((item) => {
