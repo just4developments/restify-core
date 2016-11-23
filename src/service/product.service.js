@@ -1,4 +1,5 @@
 let restify = require('restify');
+let path = require('path');
 
 let DB = require('../db');
 let utils = require('../utils');
@@ -55,6 +56,7 @@ module.exports = () => {
                         db.insert(obj).then(resolve).catch(reject);
                     }).catch(reject);
                 } catch (e) {
+                    utils.deleteFile(utils.getAbsoluteUpload(obj.images, path.join(__dirname, '..', '..', 'assets', 'images', '')), global.appconfig.app.imageResize.product);
                     reject(e);
                 }
             });
@@ -73,12 +75,13 @@ module.exports = () => {
                             let oldimages = obj.images ? item.images : undefined;
                             db.update(obj).then((rs) => {
                                 db.close();                            
-                                utils.deleteFile(utils.getAbsoluteUpload(oldimages));
+                                utils.deleteFile(utils.getAbsoluteUpload(oldimages, path.join(__dirname, '..', '..', 'assets', 'images', '')), global.appconfig.app.imageResize.product);
                                 resolve(rs);
                             }).catch(reject);
                         }).catch(reject);
                     }).catch(reject0);                   
                 } catch (e) {
+                    utils.deleteFile(utils.getAbsoluteUpload(obj.images, path.join(__dirname, '..', '..', 'assets', 'images', '')), global.appconfig.app.imageResize.product);
                     reject0(e);
                 }
             });
@@ -95,7 +98,7 @@ module.exports = () => {
                         let oldimages = item.images;                        
                         db.delete(_id).then((rs) => {
                             db.close();
-                            utils.deleteFile(utils.getAbsoluteUpload(oldimages));
+                            utils.deleteFile(utils.getAbsoluteUpload(oldimages, path.join(__dirname, '..', '..', 'assets', 'images', '')), global.appconfig.app.imageResize.product);
                             resolve(rs);
                         }).catch(reject);                        
                     }).catch(reject);

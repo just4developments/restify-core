@@ -1,4 +1,28 @@
 {
+    method: 'PUT',
+    url: 'http://localhost:9000/test1',
+    requestHeader: {
+        'content-type': 'multipart/form-data'
+    },
+    requestBody: {
+        'name': 'Product 05',
+        'file:images': [
+            'C:\\Users\\thanhdt\\Desktop\\logo.png'
+        ]
+    }
+}
+
+{
+    method: 'GET',
+    url: 'http://localhost:9000/test1/583553c053477215c84b2f15'
+}
+
+{
+    method: 'DELETE',
+    url: 'http://localhost:9000/test1/583553c053477215c84b2f15'
+}
+
+{
     method: 'POST',
     url: 'http://localhost:8000/category',
     requestHeader: {

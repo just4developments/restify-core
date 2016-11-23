@@ -42,7 +42,9 @@ server.opts('/product', (req, res, next) => {
 
 server.post('/product', utils.fileUploadHandler({
 	"uploadDir": "assets/images/",
-	"multiples": true
+	"multiples": true,
+	"httpPath": "/images/${filename}",
+	"resize": global.appconfig.app.imageResize.product
 }), (req, res, next) => {
     var body = {};
 	if(req.body.name) body.name = req.body.name;
@@ -54,7 +56,7 @@ server.post('/product', utils.fileUploadHandler({
 	body.created_date = new Date();
     body.updated_date = new Date();
     body.quantity = 0;
-	if(req.files.images) body.images = utils.getPathUpload(req.files.images, '/images/', true);
+	if(req.file.images) body.images = req.file.images;
 	if(req.body.sizes) {
         body.sizes = JSON.parse(req.body.sizes);
         for(var i in body.sizes){
@@ -65,10 +67,7 @@ server.post('/product', utils.fileUploadHandler({
 
     productService.insert(body).then((rs) => {
         res.send(rs.ops[0]);
-    }).catch((err) => {
-        utils.deleteFile(utils.getAbsoluteUpload(body.images));
-        next(err);
-    });
+    }).catch(next);
 });
 
 server.opts('/product/sell', (req, res, next) => {
@@ -85,7 +84,9 @@ server.post('/product/sell', utils.jsonHandler(), (req, res, next) => {
 
 server.put('/product', utils.fileUploadHandler({
 	"uploadDir": "assets/images/",
-	"multiples": true
+	"multiples": true,
+	"httpPath": "/images/${filename}",
+	"resize": global.appconfig.app.imageResize.product
 }), (req, res, next) => {
     var body = { _id: req.body._id };
     if(req.body.name) body.name = req.body.name;
@@ -95,7 +96,7 @@ server.put('/product', utils.fileUploadHandler({
     if(req.body.special) body.special = JSON.parse(req.body.special);
 	if(req.body.money) body.money = +req.body.money;
 	body.updated_date = new Date();
-	if(req.files.images) body.images = utils.getPathUpload(req.files.images, '/images/', true);
+	if(req.file.images) body.images = req.file.images;
     // else if(req.body.images) body.images = JSON.parse(req.body.images);
 	if(req.body.sizes) {
         body.quantity = 0;
@@ -106,10 +107,7 @@ server.put('/product', utils.fileUploadHandler({
     }    
     productService.update(body).then((rs) => {
         res.send(body);
-    }).catch((err) => {
-        utils.deleteFile(utils.getAbsoluteUpload(body.images));
-        next(err);
-    });
+    }).catch(next);
 });
 
 server.del('/product/:_id', utils.jsonHandler(), (req, res, next) => {
