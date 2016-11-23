@@ -56,7 +56,9 @@ module.exports = () => {
                     item.status = data.error ? executingLogs.STATUS.FAILED : executingLogs.STATUS.SUCCESSED;
                     item.result = data; 
                     executingLogs.update(item).then((rs) => {
-                        self.broadcastIO(executingLogId, item);
+                        setTimeout(() => {
+                            self.broadcastIO(executingLogId, item);
+                        }, 2000);                        
                         resolve(item);
                     }).catch(reject); 
                 }).catch(reject);
