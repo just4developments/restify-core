@@ -26,8 +26,7 @@ exports = module.exports = {
             sizes.forEach((size) => {
                 rstasks.push(((file, size, cb) => {
                     let fileout = file.substr(0, file.lastIndexOf('.')) + '.' + size.ext + file.substr(file.lastIndexOf('.'));
-                    Jimp.read(file, function (err, image) {
-                        if (err) return fcError(err);
+                    Jimp.read(file).then((image) => {
                         var w, h;
                         if (image.bitmap.width > image.bitmap.height) {
                             w = image.bitmap.width * size.h / image.bitmap.height;
@@ -42,12 +41,13 @@ exports = module.exports = {
                             .crop(x, y, size.w, size.h)
                             .quality(100)
                             .write(fileout, (params) => {
+                                image = null;
                                 cb(null, fileout);
                             });
-                    });
+                    }).catch(reject);
                 }).bind(null, file, size));
             });
-            async.parallel(rstasks, (err, results) => {
+            async.series(rstasks, (err, results) => {
                 if (err) return reject(err);
                 resolve(results);
             });
@@ -63,23 +63,27 @@ exports = module.exports = {
             keepExtensions: false,
             multiples: false,
             multipartFileHandler: (part, req) => {
-                    let datas = new Buffer(0);
+                    let buf;
                     let filename = exports.uuid() + (part.filename.indexOf('.') !== -1 ? part.filename.substr(part.filename.lastIndexOf('.')) : '');
                     let fileout = path.join(defaultConfig.uploadDir, filename);
                     part.on('data', function (data) {
-                        datas = Buffer.concat([datas, data]);
+                        if(!buf) buf = Buffer.from(data, 'binary');
+                        else buf = Buffer.concat([buf, data]);
                     });
                     part.on('end', () => {
-                        fs.writeFileSync(fileout, datas);
-                        if (!req.file) req.file = {};
-                        if (!req.file[part.name]) req.file[part.name] = defaultConfig.multiples ? [] : {};
-                        if (req.file[part.name] instanceof Array) req.file[part.name].push(defaultConfig.httpPath.replace('${filename}', filename));
-                        else req.file[part.name] = defaultConfig.httpPath.replace('${filename}', filename);
-                        if (defaultConfig.resize) {
-                            exports.resizeImage(fileout, defaultConfig.resize).catch((err) => {
-                                console.error('RESIZE_IMAGE', err);
-                            });
-                        }
+                        fs.writeFile(fileout, buf, 'binary', (err) => {
+                            buf = null;
+                            if(err) return console.error('UPLOAD_FILE', err);
+                            if (!req.file) req.file = {};
+                            if (!req.file[part.name]) req.file[part.name] = defaultConfig.multiples ? [] : {};
+                            if (req.file[part.name] instanceof Array) req.file[part.name].push(defaultConfig.httpPath.replace('${filename}', filename));
+                            else req.file[part.name] = defaultConfig.httpPath.replace('${filename}', filename);
+                            if (defaultConfig.resize) {
+                                exports.resizeImage(fileout, defaultConfig.resize).catch((err) => {
+                                    console.error('RESIZE_IMAGE', err);
+                                });
+                            }    
+                        });                        
                     });
                 }
                 // multipartHandler: function (part) {
