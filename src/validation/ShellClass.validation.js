@@ -9,17 +9,11 @@ module.exports = {
             "type": "string"
         },
         "scripts": {
-            "type": "object",
-            "patternProperties": {
-                ".+": {
-                    "type": "object",
-                    "properties": {
-                        "name": {
-                            "type": "string"
-                        }
-                    },
-                    "required": ["name"]
-                }
+            "type": "array",
+            "items": {
+                "anyOf": [{
+                    "$ref": "#/definitions/scriptObject"
+                }]
             }            
         },
         "input": {
@@ -46,17 +40,11 @@ module.exports = {
                     "type": "string"
                 },
                 "scripts": {
-                    "type": "object",
-                    "patternProperties": {
-                        ".+": {
-                            "type": "object",
-                            "properties": {
-                                "name": {
-                                    "type": "string"
-                                }
-                            },
-                            "required": ["name"]
-                        }
+                    "type": "array",
+                    "items": {
+                        "anyOf": [{
+                            "$ref": "#/definitions/scriptObject"
+                        }]
                     }            
                 },
                 "input": {
@@ -75,6 +63,18 @@ module.exports = {
     },
     "required": ["name"],
     "definitions": {
+        "scriptObject": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "script": {
+                    "type": "string"
+                }
+            },
+            "required": ["name", "script"]
+        },
         "targetRequired": {
             "type": "object",
             "properties": {

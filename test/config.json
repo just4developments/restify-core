@@ -1,12 +1,9 @@
 {
     "name": "Script 2",
     "des": "Description script 2",
-    "scripts": {
-        "infor": {
-            "name": "Deploy to server",
-            "target": "${target}"
-        }
-    },
+    "scripts": [
+        { "script": "infor.sh", "name": "Deploy to server", "target": "${target}" }
+    ],
     "input": [{
         "param": "target",
         "label": "Chon may ao",
@@ -34,13 +31,12 @@
     "plugins": [{
         "name": "Item chidl 1",
         "script": "tst.sh",
-        "scripts": {
-            "infor-child": {
-                "name": "Testcase information",
-                "x": "${x}",
-                "y": "${y}"
-            }
-        },
+        "scripts": [{
+            "script": "infor-child.sh",
+            "name": "Testcase information",
+            "x": "${x}",
+            "y": "${y}"
+        }],
         "des": "Description script 2",
         "input": [{
             "param": "x",

@@ -3,13 +3,9 @@ var schema = require('./src/validation/ShellClass.validation');
 var data = {
     "name": "Script 2",
     "des": "Description script 2",
-    "scripts": {
-        "infor": {
-            "name": "Deploy to server",
-            "x": "10",
-            "y": "${y}"
-        }
-    },
+    "scripts": [
+        { "script": "infor.sh", "name": "Deploy to server", "target": "${target}" }
+    ],
     "input": [{
         "param": "target",
         "label": "Chon may ao",
@@ -37,13 +33,12 @@ var data = {
     "plugins": [{
         "name": "Item chidl 1",
         "script": "tst.sh",
-        "scripts": {
-            "infor": {
-                "name": "Deploy to server",
-                "x": "10",
-                "y": "${y}"
-            }
-        },
+        "scripts": [{
+            "script": "infor-child.sh",
+            "name": "Testcase information",
+            "x": "${x}",
+            "y": "${y}"
+        }],
         "des": "Description script 2",
         "input": [{
             "param": "x",

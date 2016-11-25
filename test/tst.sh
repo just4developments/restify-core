@@ -1,1 +1,1 @@
-echo "tst.sh was called";
+echo "msg:tst.sh was called";

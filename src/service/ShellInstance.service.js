@@ -1,6 +1,7 @@
 let restify = require('restify');
 let path = require('path');
-
+var extend = require('util')._extend;
+                                
 let DB = require('../db');
 let utils = require('../utils');
 let BroadcastService = require('./Broadcast.service');
@@ -25,28 +26,29 @@ module.exports = () => {
             return data;
         },
         // Call via rabbit mq to execute script
-        executeScript: (_id, name, index) => {
+        executeScript: (_id, parentIndex, index) => {
             return new Promise((resolve, reject) => {
                 self.get(_id).then((shellInstance) => {
                     ShellClassService.get(shellInstance.data.shellclass_id).then((shellClass) => {
                         try {
                             let scripts = index === undefined ? shellClass.scripts : shellClass.plugins[index].scripts;
-                            if(!scripts || !scripts[name]) return reject(`Could not find command "${name}" in plugin ${index}`);
+                            if(!scripts || !scripts[parentIndex]) {
+                                return reject(`Could not find command at "${parentIndex}" in plugin ${index}`);
+                            }
+                            let data = extend({}, scripts[parentIndex]);
                             // TODO: check data truoc khi gui ? data = self.validate(data, 3);
                             executingLogs.insert({
                                 event_type: executingLogs.EVENT_TYPE.SCRIPT,
                                 status: executingLogs.STATUS.RUNNING,
                                 title: shellClass.name,
-                                event_name: scripts[name].name,
+                                event_name: data.name,
                                 shellclass_id: shellInstance.data.shellclass_id
-                            }).then((rs) => {
-                                let data = Object.assign(scripts[name]);
+                            }).then((rs) => {                                
                                 delete data.name;
-                                data.script = name;
                                 data = self.bindDataInShellInstanceScript(data, index === undefined ? shellInstance.data : shellInstance.shell_instances[index]);
                                 data['#'] = rs.insertedIds[0].toString();
                                 data['#NS'] = shellClass._id.toString();
-                                BroadcastService.broadcastToRabQ(shellInstance.target, appconfig.rabbit.executing.channelType, data).then((data) => {
+                                BroadcastService.broadcastToRabQ(shellInstance.data.target, appconfig.rabbit.executing.channelType, data).then((data) => {
                                     resolve(data);
                                 }).catch(reject);
                             }).catch(reject);
@@ -72,7 +74,7 @@ module.exports = () => {
                                 title: shellClass.name,
                                 shellclass_id: shellInstance.data.shellclass_id
                             }).then((rs) => {
-                                let data = Object.assign(index === undefined ? shellInstance.data : shellInstance.shell_instances[index]);
+                                let data = extend({}, index === undefined ? shellInstance.data : shellInstance.shell_instances[index]);
                                 data['#'] = rs.insertedIds[0].toString();
                                 data['#NS'] = shellClass._id.toString();
                                 delete data.shellclass_id;

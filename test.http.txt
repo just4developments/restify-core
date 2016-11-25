@@ -23,11 +23,16 @@
         'content-type': 'application/json'
     },
     requestBody: {
-        'shellclass_id': '5837ed470e481d06c4607859',
+        'shellclass_id': '5838015bb282cc0320f4d062',
         'target': 'test1',
         'x': 30,
         'y': 40
     }
+}
+
+{
+    method: 'GET',
+    url: 'http://localhost:8080/ExecutingLogs'
 }
 
 {
@@ -38,7 +43,7 @@
 {
     des: 'Deploy instance',
     method: 'POST',
-    url: 'http://localhost:8080/ShellInstance/execute/5837ed520e481d06c460785a',
+    url: 'http://localhost:8080/ShellInstance/execute/583801753b91931994f142cc',
     requestHeader: {
         'content-type': 'application/json'
     }
@@ -47,7 +52,7 @@
 {
     des: 'Get Infor instance',
     method: 'POST',
-    url: 'http://localhost:8080/ShellInstance/execute/5837e94caed6a23b00ff8119/infor',
+    url: 'http://localhost:8080/ShellInstance/execute/583801753b91931994f142cc/0',
     requestHeader: {
         'content-type': 'application/json'
     }
@@ -56,7 +61,7 @@
 {
     des: 'Create new instance for child plugin',
     method: 'PUT',
-    url: 'http://localhost:8080/ShellInstance/5837e94caed6a23b00ff8119',
+    url: 'http://localhost:8080/ShellInstance/583801753b91931994f142cc',
     requestHeader: {
         'content-type': 'application/json'
     },
@@ -85,7 +90,7 @@
 {
     des: 'Execute script plugin test case',
     method: 'PUT',
-    url: 'http://localhost:8080/ShellInstance/execute/5837e94caed6a23b00ff8119/infor-child/0',
+    url: 'http://localhost:8080/ShellInstance/execute/583801753b91931994f142cc/0/0',
     requestHeader: {
         'content-type': 'application/json'
     }

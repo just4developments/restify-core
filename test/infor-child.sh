@@ -1,1 +1,1 @@
-echo "infor-child.sh was called";
+echo "msg:infor-child.sh was called";
