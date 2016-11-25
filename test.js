@@ -1,10 +1,23 @@
 var schema = require('./src/validation/ShellClass.validation');
 
 var data = {
-    name: "thanh",
-    input: [{
-        "var": "a",
-        "label": "A",
+    "name": "Script 2",
+    "des": "Description script 2",
+    "scripts": {
+        "infor": {
+            "name": "Deploy to server",
+            "x": "10",
+            "y": "${y}"
+        }
+    },
+    "input": [{
+        "param": "target",
+        "label": "Chon may ao",
+        "default": "May ao 01",
+        "component": "text"
+    }, {
+        "param": "x",
+        "label": "Parameter for X",
         "type": "Number",
         "default": 1,
         "component": "select-box",
@@ -14,48 +27,41 @@ var data = {
             "1": "Pick someone"
         }]
     }, {
-        "var": "b",
-        "label": "B",
+        "param": "y",
+        "label": "Parameter for Y",
         "type": "Number",
         "default": 2,
         "component": "text"
-    }, {
-        "var": "c",
-        "label": "C",
-        "type": "String",
-        "default": "Hello world",
-        "component": "text"
-    }, {
-        "var": "d",
-        "label": "D",
-        "type": "Date",
-        "default": "",
-        "component": "date"
-    }, {
-        "var": "e",
-        "label": "E",
-        "type": "Number",
-        "default": 1,
-        "component": "radio",
-        "data": [{
-            "0": "1st choice"
+    }
+    ],
+    "plugins": [{
+        "name": "Item chidl 1",
+        "script": "tst.sh",
+        "scripts": {
+            "infor": {
+                "name": "Deploy to server",
+                "x": "10",
+                "y": "${y}"
+            }
+        },
+        "des": "Description script 2",
+        "input": [{
+            "param": "x",
+            "label": "Parameter for X",
+            "type": "Number",
+            "default": 1,
+            "component": "select-box",
+            "data": [{
+                "0": "None"
+            }, {
+                "1": "Pick someone"
+            }]
         }, {
-            "1": "2nd choice"
-        }]
-    }, {
-        "var": "f",
-        "label": "F",
-        "type": "Number",
-        "default": 1,
-        "component": "multi-choice",
-        "data": [{
-            "0": "Hi"
-        }, {
-            "1": "The"
-        }, {
-            "2": "World"
-        }, {
-            "3": "You"
+            "param": "y",
+            "label": "Parameter for Y",
+            "type": "Number",
+            "default": 2,
+            "component": "text"
         }]
     }]
 };

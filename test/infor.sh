@@ -1,0 +1,1 @@
+echo "infor.sh was called";

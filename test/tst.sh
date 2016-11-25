@@ -1,0 +1,1 @@
+echo "tst.sh was called";

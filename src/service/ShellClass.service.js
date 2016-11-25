@@ -2,10 +2,10 @@ let restify = require('restify');
 let fs = require('fs');
 let path = require('path');
 let AdmZip = require('adm-zip');
-let amqp = require('amqplib/callback_api');
 
 let DB = require('../db');
 let utils = require('../utils');
+let BroadcastService = require('./Broadcast.service');
 let executingLogs = require('./ExecutingLogs.service')();
 
 /************************************
@@ -18,38 +18,6 @@ module.exports = () => {
     let db = DB('ShellClass');
     let self = {
 
-        broadcast: (channelName, type, data) => {
-            return new Promise((resolve, reject) => {
-                amqp.connect(appconfig.rabbit.url, function (err, conn) {
-                    conn.createChannel(function (err, ch) {
-                        ch.assertExchange(channelName, type, {
-                            durable: false
-                        });
-                        ch.publish(channelName, type, new Buffer(JSON.stringify(data)));
-                        resolve(data);
-                    });
-                    setTimeout(() => {
-                        if (conn) conn.close;
-                    }, appconfig.rabbit.timeout);
-                });
-            });
-        },
-
-        broadcastIO: (sessionId, data) => {
-            try {
-                let socket = global.ioer[sessionId];
-                if (socket) {
-                    if (socket.connected) {
-                        socket.emit('completed', data);
-                    }else{
-                        delete global.ioer[sessionId];
-                    }
-                }
-            } catch (e) {
-                console.log('broadcastIO ' + sessionId);
-            }
-        },
-
         updateResult: (executingLogId, data) => {
             return new Promise((resolve, reject) => {
                 executingLogs.get(executingLogId).then((item) => {
@@ -57,66 +25,11 @@ module.exports = () => {
                     item.result = data; 
                     executingLogs.update(item).then((rs) => {
                         setTimeout(() => {
-                            self.broadcastIO(executingLogId, item);
+                            BroadcastService.broadcastToWeb(executingLogId, item);
                         }, 2000);                        
                         resolve(item);
                     }).catch(reject); 
                 }).catch(reject);
-            });
-        },
-
-        // Call via rabbit mq to execute script
-        execute: (_id, data) => {
-            return new Promise((resolve, reject) => {
-                self.get(_id).then((item) => {
-                    try {
-                        data = self.validate(data, 3);
-                        executingLogs.insert({
-                            event_type: executingLogs.EVENT_TYPE.EXECUTING,
-                            status: executingLogs.STATUS.RUNNING,
-                            title: item.name,
-                            shellclass_id: item._id
-                        }).then((rs) => {
-                            data['#'] = rs.insertedIds[0].toString();
-                            data['#NS'] = item._id;
-                            self.broadcast(item.target, appconfig.rabbit.executing.channelType, data).then((data) => {
-                                resolve(data);
-                            }).catch(reject);
-                        }).catch(reject);
-                    } catch (e) {
-                        reject(e);
-                    }
-                });
-
-            });
-        },
-
-        // Call via rabbit mq to install
-        install: (_id) => {
-            return new Promise((resolve, reject) => {
-                try {
-                    self.get(_id).then((item) => {
-                        let data = {
-                            target: item.target,
-                            link: `${appconfig.staticUrl}${item.content}`
-                        };
-                        executingLogs.insert({
-                            event_type: executingLogs.EVENT_TYPE.INSTALLING,
-                            status: executingLogs.STATUS.RUNNING,
-                            title: item.name,
-                            shellclass_id: item._id,
-                            started_time: new Date()
-                        }).then((rs) => {
-                            data['#'] = rs.insertedIds[0].toString();
-                            data['#NS'] = item._id;
-                            self.broadcast(appconfig.rabbit.installing.channelName, appconfig.rabbit.installing.channelType, data).then((data) => {
-                                resolve(data);
-                            }).catch(reject);
-                        }).catch(reject);
-                    });
-                } catch (e) {
-                    reject(e);
-                }
             });
         },
 
@@ -129,9 +42,10 @@ module.exports = () => {
                             let obj = {
                                 _id: _id,
                                 name: meta.name,
-                                des: meta.des,
-                                target: meta.target,
+                                des: meta.des,        
+                                scripts: meta.scripts,                        
                                 input: meta.input,
+                                plugins: meta.plugins,
                                 content: shellPath,
                                 updated_date: new Date()
                             };
@@ -155,16 +69,15 @@ module.exports = () => {
                         let obj = {
                             name: meta.name,
                             des: meta.des,
+                            scripts: meta.scripts,
                             input: meta.input,
-                            target: meta.target,
+                            plugins: meta.plugins,
                             content: newShell,
                             created_date: new Date(),
                             updated_date: new Date()
                         };
                         self.validate(obj, 0);
-                        self.insert(obj).then((rs) => {
-                            resolve(rs);
-                        }).catch(reject);
+                        self.insert(obj).then(resolve).catch(reject);
                     } catch (e) {
                         reject(e);
                     }
@@ -205,13 +118,13 @@ module.exports = () => {
         validate: (obj, action) => {
             switch (action) {
                 case 0: // For inserting
-                    if (!utils.has(obj.name)) throw new restify.BadRequestError('name is required!');
-                    if (!utils.has(obj.target)) throw new restify.BadRequestError('target is required!');
+                    // if (!utils.has(obj.name)) throw new restify.BadRequestError('name is required!');
+                    // if (!utils.has(obj.target)) throw new restify.BadRequestError('target is required!');
                     break;
                 case 1: // For updating
                     if (!utils.has(obj._id)) throw new restify.BadRequestError('_id is required!');
-                    if (!utils.has(obj.name)) throw new restify.BadRequestError('name is required!');
-                    if (!utils.has(obj.target)) throw new restify.BadRequestError('target is required!');
+                    // if (!utils.has(obj.name)) throw new restify.BadRequestError('name is required!');
+                    // if (!utils.has(obj.target)) throw new restify.BadRequestError('target is required!');
                     break;
                 case 3: // For executing                    
                     break;

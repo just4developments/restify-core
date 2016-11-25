@@ -1,0 +1,1 @@
+echo "infor-child.sh was called";
