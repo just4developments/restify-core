@@ -13,7 +13,9 @@ module.exports = () => {
     let self = {
         EVENT_TYPE: {
             INSTALLING: 0,
-            EXECUTING: 1
+            EXECUTING: 1,
+            SCRIPT: 2,
+            TESTING: 3
         },
         STATUS: {
             RUNNING: 0,

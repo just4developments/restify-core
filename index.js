@@ -2,6 +2,8 @@ let restify = require('restify');
 let fs = require('fs');
 let path = require('path');
 
+let BroadcastService = require('./src/service/Broadcast.service');
+
 /************************************
  ** SERVER LISTENER
  ** 
@@ -37,9 +39,10 @@ server.get(/\/shells\/?.*/, (req, res, next) => {
 }));
 
 server.pre(function (req, res, next) {
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', '*');
-    res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+    res.setHeader("Access-Control-Allow-Origin", "*");
+    res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+    res.setHeader("Access-Control-Allow-Headers", "Origin, Content-Type, Accept");
+    // res.setHeader("Access-Control-Allow-Credentials", true);
     return next();
 });
 
@@ -55,7 +58,6 @@ server.on('InternalServer', function (req, res, err, cb) {
     return cb();
 });
 
-// ##################WEB SOCKET#######################
 global.ioer = {};
 let io = require('socket.io')(server.server);
 io.sockets.on('connection', function (socket) {
@@ -64,6 +66,12 @@ io.sockets.on('connection', function (socket) {
         socket.cuzId = sessionId;
         global.ioer[sessionId] = socket;
     });
+});
+
+BroadcastService.listenFromRabQ(appconfig.rabbit.api.channelName, appconfig.rabbit.api.channelType).then(() => {
+    console.log('RabitQ Listened');
+}).catch((err) => {
+    console.error(err);
 });
 
 server.listen(appconfig.listen, () => {

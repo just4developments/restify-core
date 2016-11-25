@@ -68,12 +68,16 @@ exports = module.exports = (tbl) => {
                 }
             });
         };
-        this.update = (obj) => {
-            let id = self.uuid(obj._id);
-            delete obj._id;
+        this.update = (obj0) => {
+            let obj = obj0 instanceof Array ? [] : {};
+            for(var i in obj0){
+                if(i !== '_id'){
+                    obj[i] = obj0[i];
+                }
+            }
             return new Promise((resolve, reject) => {
                 let collection = db.collection(tbl);                
-                collection.updateOne({_id: id}, {
+                collection.updateOne({_id: self.uuid(obj0._id)}, {
                     $set: obj
                 }, (err, result) => {
                     if (!isManualClose || err) self.close();

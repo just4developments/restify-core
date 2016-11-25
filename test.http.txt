@@ -1,14 +1,14 @@
 {
     method: 'POST',
+    des: 'Upload plugin but not install yet',
     url: 'http://localhost:8080/ShellClass/upload',
     requestHeader: {
         'content-type': 'multipart/form-data'
     },
     requestBody: {
-        'file:shells': 'D:\\sources\\restify-core\\test\\sum.zip'
+        'file:shells': 'D:\\sources\\validium\\test\\test.zip'
     }
 }
-
 
 {
     method: 'GET',
@@ -16,13 +16,84 @@
 }
 
 {
+    des: 'Create new instance from new plugin',
     method: 'POST',
-    url: 'http://localhost:8080/ShellClass/execute/5822cd27ea0d0f789cc90cab',
+    url: 'http://localhost:8080/ShellInstance',
     requestHeader: {
         'content-type': 'application/json'
     },
     requestBody: {
-        'x': 10,
-        'y': 20
+        'shellclass_id': '5837ed470e481d06c4607859',
+        'target': 'test1',
+        'x': 30,
+        'y': 40
     }
 }
+
+{
+    method: 'GET',
+    url: 'http://localhost:8080/ShellInstance'
+}
+
+{
+    des: 'Deploy instance',
+    method: 'POST',
+    url: 'http://localhost:8080/ShellInstance/execute/5837ed520e481d06c460785a',
+    requestHeader: {
+        'content-type': 'application/json'
+    }
+}
+
+{
+    des: 'Get Infor instance',
+    method: 'POST',
+    url: 'http://localhost:8080/ShellInstance/execute/5837e94caed6a23b00ff8119/infor',
+    requestHeader: {
+        'content-type': 'application/json'
+    }
+}
+
+{
+    des: 'Create new instance for child plugin',
+    method: 'PUT',
+    url: 'http://localhost:8080/ShellInstance/5837e94caed6a23b00ff8119',
+    requestHeader: {
+        'content-type': 'application/json'
+    },
+    requestBody: {
+        'shell_instances': [
+            { 'x': 1, 'y': 2, script: 'tst.sh' }
+        ]
+    }
+}
+
+
+{
+    method: 'GET',
+    url: 'http://localhost:8080/ShellInstance'
+}
+
+{
+    des: 'Execute plugin test case',
+    method: 'PUT',
+    url: 'http://localhost:8080/ShellInstance/execute/5837e94caed6a23b00ff8119/0',
+    requestHeader: {
+        'content-type': 'application/json'
+    }
+}
+
+{
+    des: 'Execute script plugin test case',
+    method: 'PUT',
+    url: 'http://localhost:8080/ShellInstance/execute/5837e94caed6a23b00ff8119/infor-child/0',
+    requestHeader: {
+        'content-type': 'application/json'
+    }
+}
+
+{
+    method: 'GET',
+    url: 'http://localhost:8080/ShellClass'
+}
+
+
