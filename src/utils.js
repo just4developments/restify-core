@@ -72,6 +72,7 @@ exports = module.exports = {
                     });
                     part.on('end', () => {
                         fs.writeFileSync(fileout, datas);
+                        datas = null;
                         if (!req.file) req.file = {};
                         if (!req.file[part.name]) req.file[part.name] = defaultConfig.multiples ? [] : {};
                         if (req.file[part.name] instanceof Array) req.file[part.name].push(defaultConfig.httpPath.replace('${filename}', filename));
