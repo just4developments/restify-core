@@ -42,12 +42,13 @@ exports = module.exports = {
                             .crop(x, y, size.w, size.h)
                             .quality(100)
                             .write(fileout, (params) => {
+                                image = null;
                                 cb(null, fileout);
                             });
                     });
                 }).bind(null, file, size));
             });
-            async.parallel(rstasks, (err, results) => {
+            async.series(rstasks, (err, results) => {
                 if (err) return reject(err);
                 resolve(results);
             });
