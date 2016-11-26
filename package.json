@@ -12,6 +12,7 @@
   "dependencies": {
     "async": "^2.1.4",
     "jimp": "^0.2.27",
+    "mongo": "^0.1.0",
     "node-uuid": "^1.4.7",
     "restify": "^4.2.0"
   }
