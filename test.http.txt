@@ -1,5 +1,5 @@
 {
-    method: 'PUT',
+    method: 'POST',
     url: 'http://localhost:9000/test1',
     requestHeader: {
         'content-type': 'multipart/form-data'
@@ -7,7 +7,7 @@
     requestBody: {
         'name': 'Product 05',
         'file:images': [
-            'C:\\Users\\thanhdt\\Desktop\\logo.png'
+            'C:\\Users\\doanthuanthanh88\\Desktop\\logo.png'
         ]
     }
 }

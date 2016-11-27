@@ -42,5 +42,5 @@ fs.readdir(path.join(__dirname, 'src', 'controller'), function (err, files) {
 });
 
 server.listen(appconfig.listen, () => {
-    console.log("Server is running at %d", appconfig.listen);
+    console.info("Server is running at %d", appconfig.listen);
 });
