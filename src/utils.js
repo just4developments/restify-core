@@ -106,7 +106,7 @@ exports = module.exports = {
                                 console.error(err);
                             };
                             let resolve = (file) => {
-                                console.debug("Resize done ", file);
+                                console.log("Resize done ", file);
                             };
                             let resizeNow = sizes.find((e) => {
                                 return e.ext === undefined;
