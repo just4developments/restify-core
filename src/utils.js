@@ -46,12 +46,32 @@ exports = module.exports = {
                             size.h = h = image.bitmap.height * size.w / image.bitmap.width;
                             w = size.w;
                         }else{
+                            let getSizeByWidth = (w, h, size) => {
+                                return {
+                                    h : image.bitmap.height * size.w / image.bitmap.width,
+                                    w : size.w
+                                };
+                            };
+                            let getSizeByHeight = (w, h, size) => {
+                                return {
+                                    w : image.bitmap.width * size.h / image.bitmap.height,
+                                    h : size.h
+                                };
+                            };
                             if (image.bitmap.width > image.bitmap.height) {
-                                w = image.bitmap.width * size.h / image.bitmap.height;
-                                h = size.h;
+                                let tmp = getSizeByHeight(w, h, size);
+                                if(tmp.w < size.w || tmp.h < size.h){
+                                    tmp = getSizeByWidth(w, h, size);                                    
+                                }
+                                w = tmp.w;
+                                h = tmp.h;
                             } else {
-                                h = image.bitmap.height * size.w / image.bitmap.width;
-                                w = size.w;
+                                let tmp = getSizeByWidth(w, h, size);
+                                if(tmp.w < size.w || tmp.h < size.h){
+                                    tmp = getSizeByHeight(w, h, size);                                    
+                                }
+                                w = tmp.w;
+                                h = tmp.h;
                             }                            
                         }
                         // let x = 0; //Math.abs((w-size.w)/2)*-1;
@@ -60,6 +80,7 @@ exports = module.exports = {
                         let y = Math.abs((h-size.h)/2);
                         
                         image.resize(w, h)
+                            // .scaleToFit(size.w, size.h)
                             .crop(x, y, size.w, size.h)
                             .quality(100)
                             .write(fileout, (params) => {
