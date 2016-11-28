@@ -24,69 +24,37 @@ exports = module.exports = {
         return new Promise((resolve, reject) => {
             let Jimp = require('jimp');
             let rstasks = [];
-            if(!(sizes instanceof Array)) sizes = [sizes];
-            for(let size of sizes){
+            if (!(sizes instanceof Array)) sizes = [sizes];
+            for (let size of sizes) {
                 rstasks.push(((file, size, cb) => {
-                    if(!size.w && !size.h) return cb('Need enter size to resize image');
+                    if (!size.w && !size.h) return cb('Need enter size to resize image');
                     let fileout = file.substr(0, file.lastIndexOf('.')) + (size.ext ? ('.' + size.ext) : '') + file.substr(file.lastIndexOf('.'));
                     Jimp.read(file).then((image) => {
-                        var w, h;
-                        if(!size.w && size.h){
-                            if(size.h < 0) {
-                                size.h = Math.abs(size.h);
-                                size.h = image.bitmap.height > size.h ? size.h : image.bitmap.height;
-                            } 
-                            size.w = w = image.bitmap.width * size.h / image.bitmap.height;
-                            h = size.h;
-                        }else if(!size.h && size.w){
-                            if(size.w < 0) {
-                                size.w = Math.abs(size.w);
-                                size.w = image.bitmap.width > size.w ? size.w : image.bitmap.width;
-                            }
-                            size.h = h = image.bitmap.height * size.w / image.bitmap.width;
-                            w = size.w;
-                        }else{
-                            let getSizeByWidth = (w, h, size) => {
-                                return {
-                                    h : image.bitmap.height * size.w / image.bitmap.width,
-                                    w : size.w
-                                };
-                            };
-                            let getSizeByHeight = (w, h, size) => {
-                                return {
-                                    w : image.bitmap.width * size.h / image.bitmap.height,
-                                    h : size.h
-                                };
-                            };
-                            if (image.bitmap.width > image.bitmap.height) {
-                                let tmp = getSizeByHeight(w, h, size);
-                                if(tmp.w < size.w || tmp.h < size.h){
-                                    tmp = getSizeByWidth(w, h, size);                                    
-                                }
-                                w = tmp.w;
-                                h = tmp.h;
-                            } else {
-                                let tmp = getSizeByWidth(w, h, size);
-                                if(tmp.w < size.w || tmp.h < size.h){
-                                    tmp = getSizeByHeight(w, h, size);                                    
-                                }
-                                w = tmp.w;
-                                h = tmp.h;
-                            }                            
+                        if (size.h < 0) {
+                            size.h = Math.abs(size.h);
+                            size.h = image.bitmap.height > size.h ? size.h : image.bitmap.height;
                         }
-                        // let x = 0; //Math.abs((w-size.w)/2)*-1;
-                        // let y = 0; //Math.abs((h-size.h)/2)*-1;
-                        let x = Math.abs((w-size.w)/2);
-                        let y = Math.abs((h-size.h)/2);
-                        
-                        image.resize(w, h)
-                            // .scaleToFit(size.w, size.h)
-                            .crop(x, y, size.w, size.h)
-                            .quality(100)
-                            .write(fileout, (params) => {
-                                image = null;
-                                cb(null, fileout);
-                            });
+                        if (size.w < 0) {
+                            size.w = Math.abs(size.w);
+                            size.w = image.bitmap.width > size.w ? size.w : image.bitmap.width;
+                        }
+                        if(!size.w) size.w = Jimp.AUTO;
+                        if(!size.h) size.h = Jimp.AUTO;
+                        if(size.w === Jimp.AUTO || size.h === Jimp.AUTO){
+                            image.resize(size.w, size.h)
+                                .quality(size.quality || 100)
+                                .write(fileout, (err) => {
+                                    image = null;
+                                    cb(null, fileout);
+                                });
+                        }else{
+                            image.cover(size.w, size.h)
+                                .quality(size.quality || 100)
+                                .write(fileout, (err) => {
+                                    image = null;
+                                    cb(null, fileout);
+                                });
+                        }                        
                     }).catch(cb);
                 }).bind(null, file, size));
             }
@@ -107,20 +75,24 @@ exports = module.exports = {
             keepExtensions: false,
             multiples: false,
             multipartFileHandler: (part, req) => {
-                    let buf;
+                    // let buf;
                     let filename = exports.uuid() + (part.filename.indexOf('.') !== -1 ? part.filename.substr(part.filename.lastIndexOf('.')) : '');
                     let fileout = path.join(defaultConfig.uploadDir, filename);
+                    let stream = fs.createWriteStream(fileout, {
+                        flags: 'w',
+                        defaultEncoding: 'binary',
+                        fd: null,
+                        autoClose: true
+                    });
                     part.on('data', function (data) {
-                        if(!buf) buf = Buffer.from(data, 'binary');
-                        else buf = Buffer.concat([buf, data]);
+                        stream.write(data);
                     });
                     part.on('end', () => {
+                        stream.end();
                         if (!req.file) req.file = {};
                         if (!req.file[part.name]) req.file[part.name] = defaultConfig.multiples ? [] : {};
                         if (req.file[part.name] instanceof Array) req.file[part.name].push(defaultConfig.httpPath.replace('${filename}', filename));
                         else req.file[part.name] = defaultConfig.httpPath.replace('${filename}', filename);
-                        fs.writeFileSync(fileout, buf, 'binary');
-                        buf = null;
                         if (defaultConfig.resize) {
                             let sizes = _.clone(defaultConfig.resize);
                             let reject = (err) => {
@@ -132,15 +104,15 @@ exports = module.exports = {
                             let resizeNow = sizes.find((e) => {
                                 return e.ext === undefined;
                             });
-                            if(resizeNow){
+                            if (resizeNow) {
                                 exports.resizeImage(fileout, _.clone(resizeNow)).then((file) => {
                                     sizes.splice(sizes.indexOf(resizeNow), 1);
                                     exports.resizeImage(fileout, sizes).then(resolve).catch(reject);
                                 }).catch(reject);
-                            }else{
+                            } else {
                                 exports.resizeImage(fileout, sizes).then(resolve).catch(reject);
                             }
-                        }      
+                        }
                     });
                 }
                 // multipartHandler: function (part) {
@@ -177,7 +149,7 @@ exports = module.exports = {
                 fs.statSync(f);
                 fs.unlinkSync(f);
             } catch (e) { /*File was removed before that*/ }
-            if(sizes){
+            if (sizes) {
                 sizes.forEach((s) => {
                     remove(f.substr(0, f.lastIndexOf('.')) + '.' + s.ext + f.substr(f.lastIndexOf('.')));
                 });

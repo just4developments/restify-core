@@ -7,7 +7,7 @@
     requestBody: {
         'name': 'Product 05',
         'file:images': [
-            'C:\\Users\\doanthuanthanh88\\Desktop\\logo.png'
+            'C:\\Users\\thanhdt\\Desktop\\bg.jpg'
         ]
     }
 }
