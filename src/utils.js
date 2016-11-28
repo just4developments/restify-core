@@ -39,7 +39,9 @@ exports = module.exports = {
                             size.w = image.bitmap.width > size.w ? size.w : image.bitmap.width;
                         }
                         if(!size.w) size.w = Jimp.AUTO;
+                        else if(size.ratio) size.w = size.w * size.ratio;
                         if(!size.h) size.h = Jimp.AUTO;
+                        else if(size.ratio) size.h = size.h * size.ratio;
                         if(size.w === Jimp.AUTO || size.h === Jimp.AUTO){
                             image.resize(size.w, size.h)
                                 .quality(size.quality || 100)

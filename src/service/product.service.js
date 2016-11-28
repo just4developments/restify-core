@@ -20,6 +20,7 @@ module.exports = () => {
                     if(!utils.has(obj.name)) throw new restify.BadRequestError('name is required!');
 					if(!utils.has(obj.category_id)) throw new restify.BadRequestError('category_id is required!');
 					if(!utils.has(obj.money)) throw new restify.BadRequestError('money is required!');
+                    if(!utils.has(obj.money0)) throw new restify.BadRequestError('input money is required!');
 					if(!utils.has(obj.images)) throw new restify.BadRequestError('images is required!');
                     break;
                 case 1: // For updating
@@ -27,6 +28,7 @@ module.exports = () => {
 					if(!utils.has(obj.name)) throw new restify.BadRequestError('name is required!');
 					if(!utils.has(obj.category_id)) throw new restify.BadRequestError('category_id is required!');
 					if(!utils.has(obj.money)) throw new restify.BadRequestError('money is required!');
+                    if(!utils.has(obj.money0)) throw new restify.BadRequestError('input money is required!');
                     break;
                 case 2: // For update without images ...
                     if(!utils.has(obj._id)) throw new restify.BadRequestError('_id is required!');
@@ -36,10 +38,10 @@ module.exports = () => {
             return obj;
         },
 
-        find: (fil) => {
+        find: (fil, fields={}) => {
             return new Promise((resolve, reject) => {
                 db().open().then((db) => {
-                    db.find(fil).then(resolve).catch(reject); 
+                    db.find(fil, fields).then(resolve).catch(reject); 
                 }).catch(reject); 
             });
         },
@@ -70,6 +72,7 @@ module.exports = () => {
             return new Promise((resolve, reject0) => {
                 try {
                     self.validate(obj, obj.images ? 1 : 2);
+                    if(obj.quantity === 0) obj.status = 0;
                     db(undefined, true).open().then((db) => {
                         let reject = (err) => {
                             db.close();

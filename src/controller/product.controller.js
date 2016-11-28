@@ -12,15 +12,12 @@ let transactionService = require('../service/transaction.service')();
 *************************************/
 
 server.get('/product', utils.jsonHandler(), (req, res, next) => {
-    let where = {
-        quantity: {
-            $gt: 0
-        }
-    };
+    let where = {};
     let sortBy = {
         position: 1
     };
     let recordsPerPage = 20;
+    if(!req.query.quantity) where.quantity = { $gt: 0 };
     if(!req.query.status) where.status = 1;
     if(req.query.recordsPerPage) recordsPerPage = +req.query.recordsPerPage;    
     let type = req.query.type || 'newest';
@@ -28,7 +25,7 @@ server.get('/product', utils.jsonHandler(), (req, res, next) => {
     if(type === 'hot'){
         where.special = true;
     }
-    return productService.find({where: where, sortBy: sortBy, recordsPerPage: recordsPerPage}).then((rs) => {
+    return productService.find({where: where, sortBy: sortBy, recordsPerPage: recordsPerPage, fields: {money0: 0 }}).then((rs) => {
         res.send(rs);
     }).catch(next);
 });
@@ -113,6 +110,7 @@ server.put('/product', utils.fileUploadHandler({
 	if(req.body.category_id) body.category_id = req.body.category_id;
     if(req.body.special !== undefined) body.special = JSON.parse(req.body.special);
 	if(req.body.money !== undefined) body.money = +req.body.money;
+    if(req.body.money0 !== undefined) body.money0 = +req.body.money0;
 	body.updated_date = new Date();
 	if(req.file && req.file.images) body.images = req.file.images;
     // else if(req.body.images) body.images = JSON.parse(req.body.images);
