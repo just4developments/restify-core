@@ -96,7 +96,7 @@ server.put('/product', utils.fileUploadHandler({
     if(req.body.special) body.special = JSON.parse(req.body.special);
 	if(req.body.money) body.money = +req.body.money;
 	body.updated_date = new Date();
-	if(req.file.images) body.images = req.file.images;
+	if(req.file && req.file.images) body.images = req.file.images;
     // else if(req.body.images) body.images = JSON.parse(req.body.images);
 	if(req.body.sizes) {
         body.quantity = 0;
