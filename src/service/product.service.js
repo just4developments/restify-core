@@ -28,6 +28,10 @@ module.exports = () => {
 					if(!utils.has(obj.category_id)) throw new restify.BadRequestError('category_id is required!');
 					if(!utils.has(obj.money)) throw new restify.BadRequestError('money is required!');
                     break;
+                case 2: // For update without images ...
+                    if(!utils.has(obj._id)) throw new restify.BadRequestError('_id is required!');
+					// if(!utils.has(obj.status)) throw new restify.BadRequestError('status is required!');
+                    break;
             }
             return obj;
         },
@@ -65,7 +69,7 @@ module.exports = () => {
         update: (obj) => {
             return new Promise((resolve, reject0) => {
                 try {
-                    self.validate(obj, 1);
+                    self.validate(obj, obj.images ? 1 : 2);
                     db(undefined, true).open().then((db) => {
                         let reject = (err) => {
                             db.close();

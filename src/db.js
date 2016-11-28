@@ -35,6 +35,8 @@ exports = module.exports = (tbl) => {
                 let collection = db.collection(tbl);
                 let query = collection.find(where);
                 if(sortBy) query = query.sort(sortBy);
+                if(page) query = query.skip((page -1 ) * recordsPerPage);
+                if(recordsPerPage) query = query.limit(recordsPerPage);
                 query.toArray((err, result) => {
                     if (!isManualClose || err) self.close();
                     if (err) return reject(err);

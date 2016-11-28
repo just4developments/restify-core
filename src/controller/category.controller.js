@@ -11,7 +11,7 @@ let categoryService = require('../service/category.service')();
 *************************************/
 
 server.get('/category', utils.jsonHandler(), (req, res, next) => {
-    return categoryService.find({}).then((rs) => {
+    return categoryService.find({sortBy: {position: 1}}).then((rs) => {
         res.send(rs);
     }).catch(next);
 });
