@@ -13,13 +13,32 @@
 }
 
 {
+    method: 'PUT',
+    url: 'http://localhost:9000/test1/583d30a2f6cf571f20e10720',
+    requestHeader: {
+        'content-type': 'multipart/form-data'
+    },
+    requestBody: {
+        'name': 'Product 051',
+        'file:images': [
+            'C:\\Users\\thanhdt\\Desktop\\bg.jpg'
+        ]
+    }
+}
+
+{
     method: 'GET',
-    url: 'http://localhost:9000/test1/583553c053477215c84b2f15'
+    url: 'http://localhost:9000/test1'
+}
+
+{
+    method: 'GET',
+    url: 'http://localhost:9000/test1/583d30a2f6cf571f20e10720'
 }
 
 {
     method: 'DELETE',
-    url: 'http://localhost:9000/test1/583553c053477215c84b2f15'
+    url: 'http://localhost:9000/test1/583d2fe358f518168c547fdf'
 }
 
 {

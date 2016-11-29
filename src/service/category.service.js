@@ -11,7 +11,7 @@ let utils = require('../utils');
 
 const COLLECTION = 'category';
 
-module.exports = {
+exports = module.exports = {
 
     validate: (obj, action) => {
         switch (action) {
@@ -29,7 +29,7 @@ module.exports = {
     find: (fil) => {
         return new Promise((resolve, reject) => {
             db.open(COLLECTION).then((db) => {
-                db.find(fil, true).then(resolve).catch(reject);
+                db.find(fil, db.CLOSE_AFTER_DONE).then(resolve).catch(reject);
             }).catch(reject);
         });
     },
@@ -37,7 +37,7 @@ module.exports = {
     get: (_id) => {
         return new Promise((resolve, reject) => {
             db.open(COLLECTION).then((db) => {
-                db.get(_id, true).then(resolve).catch(reject);;
+                db.get(_id, db.CLOSE_AFTER_DONE).then(resolve).catch(reject);;
             }).catch(reject);
         });
     },
@@ -45,9 +45,9 @@ module.exports = {
     insert: (obj) => {
         return new Promise((resolve, reject) => {
             try {
-                obj = self.validate(obj, 0);
+                obj = exports.validate(obj, 0);
                 db.open(COLLECTION).then((db) => {
-                    db.insert(obj, true).then(resolve).catch(reject);
+                    db.insert(obj, db.CLOSE_AFTER_DONE).then(resolve).catch(reject);
                 }).catch(reject);
             } catch (e) {
                 reject(e);
@@ -58,9 +58,9 @@ module.exports = {
     update: (obj) => {
         return new Promise((resolve, reject0) => {
             try {
-                self.validate(obj, 1);
+                exports.validate(obj, 1);
                 db.open(COLLECTION).then((db) => {
-                    db.update(obj, true).then(resolve).catch(reject);
+                    db.update(obj, db.CLOSE_AFTER_DONE).then(resolve).catch(reject);
                 }).catch(reject)
             } catch (e) {
                 reject(e);
@@ -71,7 +71,7 @@ module.exports = {
     delete: (_id) => {
         return new Promise((resolve, reject0) => {
             db.open(COLLECTION).then((db) => {
-                db.delete(_id, true).then(resolve).catch(reject);
+                db.delete(_id, db.CLOSE_AFTER_DONE).then(resolve).catch(reject);
             }).catch(reject)
         });
     }

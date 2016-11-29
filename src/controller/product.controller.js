@@ -25,7 +25,8 @@ server.get('/product', utils.jsonHandler(), (req, res, next) => {
     if(type === 'hot'){
         where.special = true;
     }
-    return productService.find({where: where, sortBy: sortBy, recordsPerPage: recordsPerPage, fields: {money0: 0 }}).then((rs) => {
+    //  fields: {money0: 0 }
+    return productService.find({where: where, sortBy: sortBy, recordsPerPage: recordsPerPage}).then((rs) => {
         res.send(rs);
     }).catch(next);
 });
@@ -52,6 +53,7 @@ server.post('/product', utils.fileUploadHandler({
     if(req.body.size) body.size = req.body.size;
     if(req.body.category_id) body.category_id = req.body.category_id;
 	if(req.body.money !== undefined) body.money = +req.body.money;
+    if(req.body.piece !== undefined) body.piece = +req.body.piece;
     if(req.body.special !== undefined) body.special = JSON.parse(req.body.special);
 	body.created_date = new Date();
     body.updated_date = new Date();
@@ -107,6 +109,7 @@ server.put('/product', utils.fileUploadHandler({
     if(req.body.size) body.size = req.body.size;
     if(req.body.status !== undefined) body.status = +req.body.status;
     if(req.body.position !== undefined) body.position = +req.body.position;
+    if(req.body.piece !== undefined) body.piece = +req.body.piece;
 	if(req.body.category_id) body.category_id = req.body.category_id;
     if(req.body.special !== undefined) body.special = JSON.parse(req.body.special);
 	if(req.body.money !== undefined) body.money = +req.body.money;

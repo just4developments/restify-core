@@ -12,7 +12,7 @@ let utils = require('../utils');
 
 const COLLECTION = 'product';
 
-module.exports = {
+exports = module.exports = {
 
     validate: (obj, action) => {
         switch (action) {
@@ -20,12 +20,14 @@ module.exports = {
                 if (!utils.has(obj.name)) throw new restify.BadRequestError('name is required!');
                 if (!utils.has(obj.category_id)) throw new restify.BadRequestError('category_id is required!');
                 if (!utils.has(obj.money)) throw new restify.BadRequestError('money is required!');
+                if (!utils.has(obj.piece)) throw new restify.BadRequestError('piece is required!');
                 if (!utils.has(obj.money0)) throw new restify.BadRequestError('input money is required!');
                 if (!utils.has(obj.images)) throw new restify.BadRequestError('images is required!');
                 break;
             case 1: // For updating
                 if (!utils.has(obj._id)) throw new restify.BadRequestError('_id is required!');
                 if (!utils.has(obj.name)) throw new restify.BadRequestError('name is required!');
+                if (!utils.has(obj.piece)) throw new restify.BadRequestError('piece is required!');
                 if (!utils.has(obj.category_id)) throw new restify.BadRequestError('category_id is required!');
                 if (!utils.has(obj.money)) throw new restify.BadRequestError('money is required!');
                 if (!utils.has(obj.money0)) throw new restify.BadRequestError('input money is required!');
@@ -41,7 +43,7 @@ module.exports = {
     find: (fil) => {
         return new Promise((resolve, reject) => {
             db.open(COLLECTION).then((db) => {
-                db.find(fil, true).then(resolve).catch(reject);
+                db.find(fil, db.CLOSE_AFTER_DONE).then(resolve).catch(reject);
             }).catch(reject);
         });
     },
@@ -49,7 +51,7 @@ module.exports = {
     get: (_id) => {
         return new Promise((resolve, reject) => {
             db.open(COLLECTION).then((db) => {
-                db.get(_id, true).then(resolve).catch(reject);;
+                db.get(_id, db.CLOSE_AFTER_DONE).then(resolve).catch(reject);;
             }).catch(reject);
         });
     },
@@ -57,9 +59,9 @@ module.exports = {
     insert: (obj) => {
         return new Promise((resolve, reject) => {
             try {
-                obj = self.validate(obj, 0);
+                obj = exports.validate(obj, 0);
                 db.open(COLLECTION).then((db) => {
-                    db.insert(obj, true).then(resolve).catch(reject);
+                    db.insert(obj, db.CLOSE_AFTER_DONE).then(resolve).catch(reject);
                 }).catch(reject);
             } catch (e) {
                 utils.deleteFile(utils.getAbsoluteUpload(obj.images, path.join(__dirname, '..', '..', 'assets', 'images', '')), global.appconfig.app.imageResize.product);
@@ -71,12 +73,12 @@ module.exports = {
     update: (obj) => {
         return new Promise((resolve, reject) => {
             try {
-                self.validate(obj, obj.images ? 1 : 2);
+                exports.validate(obj, obj.images ? 1 : 2);
                 if (obj.quantity === 0) obj.status = 0;
                 db.open(COLLECTION).then((db) => {
-                    db.get(obj._id, false).then((item) => {
+                    db.get(obj._id, db.CLOSE_AFTER_ERROR).then((item) => {
                         let oldimages = obj.images ? item.images : undefined;
-                        db.update(obj, true).then((rs) => {
+                        db.update(obj, db.CLOSE_AFTER_DONE).then((rs) => {
                             utils.deleteFile(utils.getAbsoluteUpload(oldimages, path.join(__dirname, '..', '..', 'assets', 'images', '')), global.appconfig.app.imageResize.product);
                             resolve(rs);
                         }).catch(reject);
@@ -92,9 +94,9 @@ module.exports = {
     delete: (_id) => {
         return new Promise((resolve, reject) => {
             db.open(COLLECTION).then((db) => {
-                db.get(_id, false).then((item) => {
+                db.get(_id, db.CLOSE_AFTER_ERROR).then((item) => {
                     let oldimages = item.images;
-                    db.delete(_id, true).then((rs) => {
+                    db.delete(_id, db.CLOSE_AFTER_DONE).then((rs) => {
                         utils.deleteFile(utils.getAbsoluteUpload(oldimages, path.join(__dirname, '..', '..', 'assets', 'images', '')), global.appconfig.app.imageResize.product);
                         resolve(rs);
                     }).catch(reject);
