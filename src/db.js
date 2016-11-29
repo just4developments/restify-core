@@ -26,14 +26,19 @@ exports = module.exports = (tbl) => {
             if (db) db.close();
         };
         this.find = ({
-            where,
+            where = {},
+            fields = {},
             sortBy,
             page = 1,
             recordsPerPage = 20
         }) => {
             return new Promise((resolve, reject) => {
                 let collection = db.collection(tbl);
-                collection.find(where).toArray((err, result) => {
+                let query = collection.find(where, fields);
+                if(sortBy) query = query.sort(sortBy);
+                if(page) query = query.skip((page -1 ) * recordsPerPage);
+                if(recordsPerPage) query = query.limit(recordsPerPage);
+                query.toArray((err, result) => {
                     if (!isManualClose || err) self.close();
                     if (err) return reject(err);
                     resolve(result);
