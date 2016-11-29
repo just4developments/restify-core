@@ -16,9 +16,14 @@ server.get('/product', utils.jsonHandler(), (req, res, next) => {
     let sortBy = {
         position: 1
     };
+    let fields = {};
     let recordsPerPage = 20;
-    if(!req.headers.isNana) where.quantity = { $gt: 0 };
-    if(!req.headers.isNana) where.status = 1;
+    if(!req.headers.isnana) where.quantity = { $gt: 0 };
+    if(!req.headers.isnana) where.status = 1;
+    if(!req.headers.isnana) {
+        fields.money0 = 0;
+        fields.piece = 0;
+    }
     if(req.query.recordsPerPage) recordsPerPage = +req.query.recordsPerPage;    
     let type = req.query.type || 'newest';
     if(req.query.categoryId) where.category_id=req.query.categoryId;
@@ -26,7 +31,7 @@ server.get('/product', utils.jsonHandler(), (req, res, next) => {
         where.special = true;
     }
     //  fields: {money0: 0 }
-    return productService.find({where: where, sortBy: sortBy, recordsPerPage: recordsPerPage}).then((rs) => {
+    return productService.find({where: where, sortBy: sortBy, recordsPerPage: recordsPerPage, fields: fields}).then((rs) => {
         res.send(rs);
     }).catch(next);
 });
