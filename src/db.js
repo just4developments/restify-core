@@ -85,12 +85,13 @@ exports = module.exports = {
                     }
                 });
             },
-            update: (obj, closeMode = func.CLOSE_AFTER_DONE) => {
-                let obj = _.clone(obj);
+            update: (obj0, closeMode = func.CLOSE_AFTER_DONE) => {
+                let obj = _.clone(obj0);
+                delete obj._id;
                 return new Promise((resolve, reject) => {
                     let collection = func.db.collection(func.tbl);
                     collection.updateOne({
-                        _id: exports.uuid(obj._id)
+                        _id: exports.uuid(obj0._id)
                     }, {
                         $set: obj
                     }, (err, result) => {
