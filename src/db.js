@@ -1,5 +1,6 @@
 let MongoClient = require('mongodb').MongoClient;
 let ObjectID = require('mongodb').ObjectID;
+let _ = require('lodash');
 
 /************************************
  ** DATABASE ADAPTER FOR MONGODB
@@ -9,7 +10,7 @@ let ObjectID = require('mongodb').ObjectID;
 
 exports = module.exports = {
     uuid: (id) => {
-        return ObjectID(id);
+        return typeof id === 'string' ? ObjectID(id) : id;
     },
     open: (tbl) => {
         let func = {
@@ -24,7 +25,7 @@ exports = module.exports = {
                 sortBy,
                 page = 1,
                 recordsPerPage = 20
-            }, closeMode) => {
+            }, closeMode = func.CLOSE_AFTER_DONE) => {
                 return new Promise((resolve, reject) => {
                     let collection = func.db.collection(func.tbl);
                     let query = collection.find(where, fields);
@@ -42,7 +43,7 @@ exports = module.exports = {
                     });
                 });
             },
-            get: (_id, closeMode) => {
+            get: (_id, closeMode = func.CLOSE_AFTER_DONE) => {
                 return new Promise((resolve, reject) => {
                     let collection = func.db.collection(func.tbl);
                     collection.find({
@@ -58,7 +59,7 @@ exports = module.exports = {
                     });
                 });
             },
-            insert: (obj, closeMode) => {
+            insert: (obj, closeMode = func.CLOSE_AFTER_DONE) => {
                 return new Promise((resolve, reject) => {
                     let collection = func.db.collection(func.tbl);
                     if (obj instanceof Array) {
@@ -84,17 +85,12 @@ exports = module.exports = {
                     }
                 });
             },
-            update: (obj0, closeMode) => {
-                let obj = obj0 instanceof Array ? [] : {};
-                for (var i in obj0) {
-                    if (i !== '_id') {
-                        obj[i] = obj0[i];
-                    }
-                }
+            update: (obj, closeMode = func.CLOSE_AFTER_DONE) => {
+                let obj = _.clone(obj);
                 return new Promise((resolve, reject) => {
                     let collection = func.db.collection(func.tbl);
                     collection.updateOne({
-                        _id: exports.uuid(obj0._id)
+                        _id: exports.uuid(obj._id)
                     }, {
                         $set: obj
                     }, (err, result) => {
@@ -108,7 +104,7 @@ exports = module.exports = {
                     });
                 });
             },
-            delete: (_id, closeMode) => {
+            delete: (_id, closeMode = func.CLOSE_AFTER_DONE) => {
                 return new Promise((resolve, reject) => {
                     let collection = func.db.collection(func.tbl);
                     collection.deleteOne({
