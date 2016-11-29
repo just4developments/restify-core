@@ -7,100 +7,106 @@ let ObjectID = require('mongodb').ObjectID;
  ** `npm install mongodb --save`
  *************************************/
 
-exports = module.exports = (tbl) => {
-    return (db, isManualClose) => {
-        let self = this;
-        this.uuid = (id) => {
-            return ObjectID(id);
-        };
-        this.open = () => {
-            return new Promise((resolve, reject) => {
-                MongoClient.connect(global.appconfig.db.url, function (err, db0) {
-                    if (err) return reject(err);
-                    db = db0;
-                    resolve(self);
-                });
-            });
-        };
-        this.close = () => {
-            if (db) db.close();
-        };
-        this.find = ({
-            where = {},
-            fields = {},
-            sortBy,
-            page = 1,
-            recordsPerPage = 20
-        }) => {
-            return new Promise((resolve, reject) => {
-                let collection = db.collection(tbl);
-                let query = collection.find(where, fields);
-                if(sortBy) query = query.sort(sortBy);
-                if(page) query = query.skip((page -1 ) * recordsPerPage);
-                if(recordsPerPage) query = query.limit(recordsPerPage);
-                query.toArray((err, result) => {
-                    if (!isManualClose || err) self.close();
-                    if (err) return reject(err);
-                    resolve(result);
-                });
-            });
-        };
-        this.get = (_id) => {
-            return new Promise((resolve, reject) => {
-                let collection = db.collection(tbl);
-                collection.find({_id: self.uuid(_id)}).toArray((err, result) => {
-                    if (!isManualClose || err) self.close();
-                    if (err) return reject(err);
-                    resolve(result.length > 0 ? result[0] : undefined);
-                });
-            });
-        };
-        this.insert = (obj) => {
-            return new Promise((resolve, reject) => {
-                let collection = db.collection(tbl);
-                if (obj instanceof Array) {
-                    collection.insertMany(obj, (err, result) => {
-                        if (!isManualClose || err) self.close();
+module.exports = {
+    uuid: (id) => {
+        return ObjectID(id);
+    },
+    open: (tbl) => {
+        let func = {
+            db: undefined,
+            tbl: tbl,
+            find: ({
+                where = {},
+                fields = {},
+                sortBy,
+                page = 1,
+                recordsPerPage = 20
+            }, isAutoClose) => {
+                return new Promise((resolve, reject) => {
+                    let collection = func.db.collection(func.tbl);
+                    let query = collection.find(where, fields);
+                    if (sortBy) query = query.sort(sortBy);
+                    if (page) query = query.skip((page - 1) * recordsPerPage);
+                    if (recordsPerPage) query = query.limit(recordsPerPage);
+                    query.toArray((err, result) => {
+                        if(isAutoClose) func.close();
                         if (err) return reject(err);
                         resolve(result);
                     });
-                } else {
-                    collection.insert(obj, (err, result) => {
-                        if (!isManualClose || err) self.close();
+                });
+            },
+            get: (_id, isAutoClose) => {
+                return new Promise((resolve, reject) => {
+                    let collection = func.db.collection(func.tbl);
+                    collection.find({
+                        _id: self.uuid(_id)
+                    }).toArray((err, result) => {
+                        if(isAutoClose) func.close();
+                        if (err) return reject(err);
+                        resolve(result.length > 0 ? result[0] : undefined);
+                    });
+                });
+            },
+            insert: (obj, isAutoClose) => {
+                return new Promise((resolve, reject) => {
+                    let collection = func.db.collection(func.tbl);
+                    if (obj instanceof Array) {
+                        collection.insertMany(obj, (err, result) => {
+                            if(isAutoClose) func.close();
+                            if (err) return reject(err);
+                            resolve(result);
+                        });
+                    } else {
+                        collection.insert(obj, (err, result) => {
+                            if(isAutoClose) func.close();
+                            if (err) return reject(err);
+                            resolve(result);
+                        });
+                    }
+                });
+            },
+            update: (obj0, isAutoClose) => {
+                let obj = obj0 instanceof Array ? [] : {};
+                for (var i in obj0) {
+                    if (i !== '_id') {
+                        obj[i] = obj0[i];
+                    }
+                }
+                return new Promise((resolve, reject) => {
+                    let collection = func.db.collection(func.tbl);
+                    collection.updateOne({
+                        _id: self.uuid(obj0._id)
+                    }, {
+                        $set: obj
+                    }, (err, result) => {
+                        if(isAutoClose) func.close();
                         if (err) return reject(err);
                         resolve(result);
                     });
-                }
-            });
-        };
-        this.update = (obj0) => {
-            let obj = obj0 instanceof Array ? [] : {};
-            for(var i in obj0){
-                if(i !== '_id'){
-                    obj[i] = obj0[i];
-                }
+                });
+            },
+            delete: (_id, isAutoClose) => {
+                return new Promise((resolve, reject) => {
+                    let collection = func.db.collection(func.tbl);
+                    collection.deleteOne({
+                        _id: self.uuid(_id)
+                    }, (err, result) => {
+                        if(isAutoClose) func.close();
+                        if (err) return reject(err);
+                        resolve(result);
+                    });
+                });
+            },
+            close: () => {
+                if (func.db) func.db.close();
             }
-            return new Promise((resolve, reject) => {
-                let collection = db.collection(tbl);                
-                collection.updateOne({_id: self.uuid(obj0._id)}, {
-                    $set: obj
-                }, (err, result) => {
-                    if (!isManualClose || err) self.close();
-                    if (err) return reject(err);
-                    resolve(result);
-                });
-            });
         };
-        this.delete = (_id) => {
-            return new Promise((resolve, reject) => {
-                let collection = db.collection(tbl);
-                collection.deleteOne({_id: self.uuid(_id)}, (err, result) => {
-                    if (!isManualClose || err) self.close();
-                    if (err) return reject(err);
-                    resolve(result);
-                });
+        return new Promise((resolve, reject) => {
+            MongoClient.connect(global.appconfig.db.url, function (err, db) {
+                if (err) return reject(err);
+                func.db = db;
+                resolve(func);
             });
-        };
-        return this;
+        });
     }
 }

@@ -2,17 +2,13 @@ let restify = require('restify');
 let path = require('path');
 
 let utils = require('../utils');
-let categoryService = require('../service/category.service')();
+let categoryService = require('../service/category.service');
 
 /************************************
 ** CONTROLLER:   categoryController
 ** AUTHOR:       Unknown
 ** CREATED DATE: 11/9/2016, 5:35:07 PM
 *************************************/
-
-server.opts('.+', (req, res, next) => {
-    res.end();
-});
 
 server.get('/category', utils.jsonHandler(), (req, res, next) => {
     return categoryService.find({sortBy: {position: 1}}).then((rs) => {

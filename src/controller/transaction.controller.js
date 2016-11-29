@@ -2,8 +2,8 @@ let restify = require('restify');
 let path = require('path');
 
 let utils = require('../utils');
-let transactionService = require('../service/transaction.service')();
-let productService = require('../service/product.service')();
+let transactionService = require('../service/transaction.service');
+let productService = require('../service/product.service');
 
 /************************************
 ** CONTROLLER:   transactionController

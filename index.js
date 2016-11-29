@@ -26,11 +26,13 @@ server.get(/\/images\/?.*/, restify.serveStatic({
   directory: './assets'
 }));
 
-server.pre(function (req, res, next) {
-    res.setHeader("Access-Control-Allow-Origin", "*");
-    res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-    res.setHeader("Access-Control-Allow-Headers", "Origin, Content-Type, Accept, IsNana");
-    // res.setHeader("Access-Control-Allow-Credentials", true);
+server.use(restify.CORS());
+
+server.opts(/.*/, function (req,res,next) {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Methods", req.header("Access-Control-Request-Method"));
+    res.header("Access-Control-Allow-Headers", req.header("Access-Control-Request-Headers"));
+    res.send(200);
     return next();
 });
 
