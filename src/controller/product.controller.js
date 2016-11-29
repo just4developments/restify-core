@@ -17,8 +17,8 @@ server.get('/product', utils.jsonHandler(), (req, res, next) => {
         position: 1
     };
     let recordsPerPage = 20;
-    if(!req.query.quantity) where.quantity = { $gt: 0 };
-    if(!req.query.status) where.status = 1;
+    if(!req.headers.isNana) where.quantity = { $gt: 0 };
+    if(!req.headers.isNana) where.status = 1;
     if(req.query.recordsPerPage) recordsPerPage = +req.query.recordsPerPage;    
     let type = req.query.type || 'newest';
     if(req.query.categoryId) where.category_id=req.query.categoryId;

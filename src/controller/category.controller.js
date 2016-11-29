@@ -10,6 +10,10 @@ let categoryService = require('../service/category.service')();
 ** CREATED DATE: 11/9/2016, 5:35:07 PM
 *************************************/
 
+server.opts('.+', (req, res, next) => {
+    res.end();
+});
+
 server.get('/category', utils.jsonHandler(), (req, res, next) => {
     return categoryService.find({sortBy: {position: 1}}).then((rs) => {
         res.send(rs);

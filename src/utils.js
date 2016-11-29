@@ -38,25 +38,18 @@ exports = module.exports = {
                             size.w = Math.abs(size.w);
                             size.w = image.bitmap.width > size.w ? size.w : image.bitmap.width;
                         }
-                        if(!size.w) size.w = Jimp.AUTO;
-                        else if(size.ratio) size.w = size.w * size.ratio;
-                        if(!size.h) size.h = Jimp.AUTO;
-                        else if(size.ratio) size.h = size.h * size.ratio;
-                        if(size.w === Jimp.AUTO || size.h === Jimp.AUTO){
-                            image.resize(size.w, size.h)
-                                .quality(size.quality || 100)
-                                .write(fileout, (err) => {
-                                    image = null;
-                                    cb(null, fileout);
-                                });
-                        }else{
-                            image.cover(size.w, size.h)
-                                .quality(size.quality || 100)
-                                .write(fileout, (err) => {
-                                    image = null;
-                                    cb(null, fileout);
-                                });
-                        }                        
+                        if (!size.w) size.w = size.h * image.bitmap.width / image.bitmap.height;
+                        if (!size.h) size.h = size.w * image.bitmap.height / image.bitmap.width;
+                        if (size.ratio) {
+                            size.w *= size.ratio;
+                            size.h *= size.ratio;
+                        }
+                        image.cover(size.w, size.h)
+                            .quality(size.quality || 100)
+                            .write(fileout, (err) => {
+                                image = null;
+                                cb(null, fileout);
+                            });
                     }).catch(cb);
                 }).bind(null, file, size));
             }
