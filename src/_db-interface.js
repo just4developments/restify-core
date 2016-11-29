@@ -7,50 +7,58 @@ let ObjectID = require('mongodb').ObjectID;
  ** Implement for your database
  *************************************/
 
-exports = module.exports = (tbl) => {
-    return (db, isManualClose) => {
-        let self = this;
-        this.uuid = (id) => {
-            
+exports = module.exports = {
+    uuid: (id) => {
+        return ObjectID(id);
+    },
+    open: (tbl) => {
+        let func = {
+            CLOSE_AFTER_DONE: 0,
+            CLOSE_AFTER_SUCCESS: 1,
+            CLOSE_AFTER_ERROR: -1,
+            db: undefined,
+            tbl: tbl,
+            find: ({
+                where = {},
+                fields = {},
+                sortBy,
+                page = 1,
+                recordsPerPage = 20
+            }, closeMode) => {
+                return new Promise((resolve, reject) => {
+                    
+                });
+            },
+            get: (_id, closeMode) => {
+                return new Promise((resolve, reject) => {
+                    
+                });
+            },
+            insert: (obj, closeMode) => {
+                return new Promise((resolve, reject) => {
+                    
+                });
+            },
+            update: (obj0, closeMode) => {
+                return new Promise((resolve, reject) => {
+                    
+                });
+            },
+            delete: (_id, closeMode) => {
+                return new Promise((resolve, reject) => {
+                    
+                });
+            },
+            close: () => {
+                if (func.db) {
+                    func.db.close();
+                    delete func.db;
+                }
+            }
         };
-        this.open = () => {
-            return new Promise((resolve, reject) => {
-                
-            });
-        };
-        this.close = () => {
-            
-        };
-        this.find = ({
-            where,
-            sortBy,
-            page = 1,
-            recordsPerPage = 20
-        }) => {
-            return new Promise((resolve, reject) => {
-                
-            });
-        };
-        this.get = (_id) => {
-            return new Promise((resolve, reject) => {
-                
-            });
-        };
-        this.insert = (obj) => {
-            return new Promise((resolve, reject) => {
-                
-            });
-        };
-        this.update = (obj) => {
-            return new Promise((resolve, reject) => {
-                
-            });
-        };
-        this.delete = (_id) => {
-            return new Promise((resolve, reject) => {
-                
-            });
-        };
-        return this;
+        return new Promise((resolve, reject) => {
+            func.db = db;
+            resolve(func);            
+        });
     }
 }

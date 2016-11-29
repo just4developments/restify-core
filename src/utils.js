@@ -91,10 +91,10 @@ exports = module.exports = {
                         if (defaultConfig.resize) {
                             let sizes = _.clone(defaultConfig.resize);
                             let reject = (err) => {
-                                console.error(err);
+                                console.error('RESIZE', err);
                             };
                             let resolve = (file) => {
-                                console.log("Resize done ", file);
+                                // console.log("RESIZE", file);
                             };
                             let resizeNow = sizes.find((e) => {
                                 return e.ext === undefined;
