@@ -10,6 +10,10 @@ let path = require('path');
 global.appconfig = require('./src/appconfig');
 
 global.server = restify.createServer();
+global.auth = (req, res, next) => {
+    if(req.headers.isnana === 'thanh06011') return next();
+    next(new restify.UnauthorizedError());
+}
 
 server.use(restify.queryParser());
 // server.use(restify.acceptParser(server.acceptable));

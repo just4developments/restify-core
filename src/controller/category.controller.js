@@ -22,7 +22,7 @@ server.get('/category/:_id', utils.jsonHandler(), (req, res, next) => {
     }).catch(next);
 });
 
-server.post('/category', utils.jsonHandler(), (req, res, next) => {
+server.post('/category', auth, utils.jsonHandler(), (req, res, next) => {
     var body = {};
 	if(req.body.name) body.name = req.body.name;
     categoryService.insert(body).then((rs) => {
@@ -30,7 +30,7 @@ server.post('/category', utils.jsonHandler(), (req, res, next) => {
     }).catch(next);
 });
 
-server.put('/category/:_id', utils.jsonHandler(), (req, res, next) => {
+server.put('/category/:_id', auth, utils.jsonHandler(), (req, res, next) => {
     var body = { _id: req.params._id };
     if(req.body.name) body.name = req.body.name;
     categoryService.update(body).then((rs) => {
@@ -38,7 +38,7 @@ server.put('/category/:_id', utils.jsonHandler(), (req, res, next) => {
     }).catch(next);
 });
 
-server.del('/category/:_id', utils.jsonHandler(), (req, res, next) => {
+server.del('/category/:_id', auth, utils.jsonHandler(), (req, res, next) => {
     categoryService.delete(req.params._id).then((rs) => {
         res.send(rs);
     }).catch(next);

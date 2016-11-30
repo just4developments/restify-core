@@ -34,7 +34,7 @@ server.get('/transaction/:_id', utils.jsonHandler(), (req, res, next) => {
     }).catch(next);
 });
 
-server.post('/transaction', utils.jsonHandler(), (req, res, next) => {
+server.post('/transaction', auth, utils.jsonHandler(), (req, res, next) => {
     var body = {};
 	if(req.body.product && req.body.product instanceof Object) body.product = req.body.product;
 	if(req.body.quantity) body.quantity = +req.body.quantity;
@@ -50,7 +50,7 @@ server.opts('/transaction/:_id', (req, res, next) => {
     res.end();
 });
 
-server.put('/transaction/:_id', utils.jsonHandler(), (req, res, next) => {
+server.put('/transaction/:_id', auth, utils.jsonHandler(), (req, res, next) => {
     var body = { _id: req.params._id };
     if(req.body.status) body.status = +req.body.status;
     transactionService.update(body).then((rs) => {
@@ -71,7 +71,7 @@ server.put('/transaction/:_id', utils.jsonHandler(), (req, res, next) => {
     }).catch(next);
 });
 
-server.del('/transaction/:_id', utils.jsonHandler(), (req, res, next) => {
+server.del('/transaction/:_id', auth, utils.jsonHandler(), (req, res, next) => {
     transactionService.delete(req.params._id).then((rs) => {
         res.send(rs);
     }).catch(next);

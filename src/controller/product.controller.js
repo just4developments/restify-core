@@ -30,7 +30,6 @@ server.get('/product', utils.jsonHandler(), (req, res, next) => {
     if(type === 'hot'){
         where.special = true;
     }
-    //  fields: {money0: 0 }
     return productService.find({where: where, sortBy: sortBy, recordsPerPage: recordsPerPage, fields: fields}).then((rs) => {
         res.send(rs);
     }).catch(next);
@@ -46,7 +45,7 @@ server.opts('/product', (req, res, next) => {
     res.end();
 });
 
-server.post('/product', utils.fileUploadHandler({
+server.post('/product', auth, utils.fileUploadHandler({
 	"uploadDir": "assets/images/",
 	"multiples": true,
 	"httpPath": "/images/${filename}",
@@ -83,7 +82,7 @@ server.opts('/product/sell', (req, res, next) => {
     res.end();
 });
 
-server.post('/product/sell', utils.jsonHandler(), (req, res, next) => {
+server.post('/product/sell', auth, utils.jsonHandler(), (req, res, next) => {
     productService.update(req.body.product).then((rs0) => {
         transactionService.insert(req.body).then((rs) => {
             res.send(rs);
@@ -91,7 +90,7 @@ server.post('/product/sell', utils.jsonHandler(), (req, res, next) => {
     }).catch(next);
 });
 
-server.put('/product/:id', utils.jsonHandler(), (req, res, next) => {
+server.put('/product/:id', auth, utils.jsonHandler(), (req, res, next) => {
     var body = { _id: req.params._id };
     if(req.body.status !== undefined) body.status = +req.body.status;
 	if(req.body.special !== undefined) body.special = req.body.special;
@@ -102,7 +101,7 @@ server.put('/product/:id', utils.jsonHandler(), (req, res, next) => {
     }).catch(next);
 });
 
-server.put('/product', utils.fileUploadHandler({
+server.put('/product', auth, utils.fileUploadHandler({
 	"uploadDir": "assets/images/",
 	"multiples": true,
 	"httpPath": "/images/${filename}",
@@ -134,7 +133,7 @@ server.put('/product', utils.fileUploadHandler({
     }).catch(next);
 });
 
-server.del('/product/:_id', utils.jsonHandler(), (req, res, next) => {
+server.del('/product/:_id', auth, utils.jsonHandler(), (req, res, next) => {
     productService.delete(req.params._id).then((rs) => {
         res.send(rs);
     }).catch(next);

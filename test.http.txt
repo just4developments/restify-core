@@ -61,7 +61,7 @@
 
 {
     method: 'POST',
-    url: 'http://localhost:8000/product',
+    url: 'http://localhost:9000/product',
     requestHeader: {
         'content-type': 'multipart/form-data'
     },
