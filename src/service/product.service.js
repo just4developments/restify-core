@@ -20,14 +20,14 @@ exports = module.exports = {
                 if (!utils.has(obj.name)) throw new restify.BadRequestError('name is required!');
                 if (!utils.has(obj.category_id)) throw new restify.BadRequestError('category_id is required!');
                 if (!utils.has(obj.money)) throw new restify.BadRequestError('money is required!');
-                if (!utils.has(obj.piece)) throw new restify.BadRequestError('piece is required!');
+                if (!utils.has(obj.quantity)) throw new restify.BadRequestError('quantity is required!');
                 if (!utils.has(obj.money0)) throw new restify.BadRequestError('input money is required!');
                 if (!utils.has(obj.images)) throw new restify.BadRequestError('images is required!');
                 break;
             case 1: // For updating
                 if (!utils.has(obj._id)) throw new restify.BadRequestError('_id is required!');
                 if (!utils.has(obj.name)) throw new restify.BadRequestError('name is required!');
-                if (!utils.has(obj.piece)) throw new restify.BadRequestError('piece is required!');
+                if (!utils.has(obj.quantity)) throw new restify.BadRequestError('quantity is required!');
                 if (!utils.has(obj.category_id)) throw new restify.BadRequestError('category_id is required!');
                 if (!utils.has(obj.money)) throw new restify.BadRequestError('money is required!');
                 if (!utils.has(obj.money0)) throw new restify.BadRequestError('input money is required!');

@@ -1,5 +1,6 @@
 let restify = require('restify');
 let path = require('path');
+let _ = require('lodash');
 
 let utils = require('../utils');
 let transactionService = require('../service/transaction.service');
@@ -29,6 +30,36 @@ server.get('/transaction', utils.jsonHandler(), (req, res, next) => {
     if(status) where.status = status;
     return transactionService.find({where: where, sortBy: {created_date : -1, status: -1}}).then((rs) => {
         res.send(rs);
+    }).catch(next);
+});
+
+server.get('/transaction/buyer', utils.jsonHandler(), (req, res, next) => {
+    let name = req.query.name;
+    if(!name) return res.send([]);
+    let where = {};
+    if(name.indexOf("0") === 0){
+        where = {
+            $or: [
+                {buyer: new RegExp(name, 'i')},
+                {phone: new RegExp(name, 'i')}
+            ]
+        }
+    }else{
+        where = {
+            $or: [
+                {buyer: new RegExp(name, 'i')}
+            ]
+        }
+    }
+    return transactionService.find({
+        where: where,
+        fields: {
+            buyer: 1,
+            phone: 1,
+            address: 1
+        }
+    }).then((rs) => {
+        res.send(_.uniqBy(rs, _.isEqual));
     }).catch(next);
 });
 

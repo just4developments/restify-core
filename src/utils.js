@@ -89,7 +89,7 @@ exports = module.exports = {
                         if (req.file[part.name] instanceof Array) req.file[part.name].push(defaultConfig.httpPath.replace('${filename}', filename));
                         else req.file[part.name] = defaultConfig.httpPath.replace('${filename}', filename);
                         if (defaultConfig.resize) {
-                            let sizes = _.clone(defaultConfig.resize);
+                            let sizes = _.cloneDeep(defaultConfig.resize);
                             let reject = (err) => {
                                 console.error('RESIZE', err);
                             };

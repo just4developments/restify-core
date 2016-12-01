@@ -22,7 +22,7 @@ server.get('/product', utils.jsonHandler(), (req, res, next) => {
     if(!req.headers.isnana) where.status = 1;
     if(!req.headers.isnana) {
         fields.money0 = 0;
-        fields.piece = 0;
+        fields.quantity = 0;
     }
     if(req.query.recordsPerPage) recordsPerPage = +req.query.recordsPerPage;    
     let type = req.query.type || 'newest';
@@ -57,19 +57,20 @@ server.post('/product', auth, utils.fileUploadHandler({
     if(req.body.size) body.size = req.body.size;
     if(req.body.category_id) body.category_id = req.body.category_id;
 	if(req.body.money !== undefined) body.money = +req.body.money;
-    if(req.body.piece !== undefined) body.piece = +req.body.piece;
+    if(req.body.money0 !== undefined) body.money0 = +req.body.money0;
     if(req.body.special !== undefined) body.special = JSON.parse(req.body.special);
 	body.created_date = new Date();
     body.updated_date = new Date();
     body.status = +req.body.status || 0;
     body.position = +req.body.position || 1;
     body.quantity = 0;
+    body.quantity0 = 0;
 	if(req.file.images) body.images = req.file.images;
 	if(req.body.sizes) {
         body.sizes = JSON.parse(req.body.sizes);
         for(var i in body.sizes){
-            body.sizes[i].quantity0 = body.sizes[i].quantity; 
             body.quantity += body.sizes[i].quantity;
+            body.quantity0 += body.sizes[i].quantity0;
         }
     }    
 
@@ -83,7 +84,7 @@ server.opts('/product/sell', (req, res, next) => {
 });
 
 server.post('/product/sell', auth, utils.jsonHandler(), (req, res, next) => {
-    let pro = _.clone(req.body.product);
+    let pro = _.cloneDeep(req.body.product);
     delete pro.images;
     productService.update(pro).then((rs0) => {
         let transactionService = require('../service/transaction.service');
@@ -116,7 +117,8 @@ server.put('/product', auth, utils.fileUploadHandler({
     if(req.body.size) body.size = req.body.size;
     if(req.body.status !== undefined) body.status = +req.body.status;
     if(req.body.position !== undefined) body.position = +req.body.position;
-    if(req.body.piece !== undefined) body.piece = +req.body.piece;
+    body.quantity = 0;
+    body.quantity0 = 0;
 	if(req.body.category_id) body.category_id = req.body.category_id;
     if(req.body.special !== undefined) body.special = JSON.parse(req.body.special);
 	if(req.body.money !== undefined) body.money = +req.body.money;
@@ -125,9 +127,9 @@ server.put('/product', auth, utils.fileUploadHandler({
 	if(req.file && req.file.images) body.images = req.file.images;
     // else if(req.body.images) body.images = JSON.parse(req.body.images);
 	if(req.body.sizes) {
-        body.quantity = 0;
         body.sizes = JSON.parse(req.body.sizes);
         for(var i in body.sizes){ 
+            body.quantity0 += body.sizes[i].quantity0;
             body.quantity += body.sizes[i].quantity;
         }
     }    
