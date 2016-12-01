@@ -1,9 +1,9 @@
 let restify = require('restify');
 let path = require('path');
+let _ = require('lodash');
 
 let utils = require('../utils');
 let productService = require('../service/product.service');
-let transactionService = require('../service/transaction.service');
 
 /************************************
 ** CONTROLLER:   productController
@@ -83,7 +83,10 @@ server.opts('/product/sell', (req, res, next) => {
 });
 
 server.post('/product/sell', auth, utils.jsonHandler(), (req, res, next) => {
-    productService.update(req.body.product).then((rs0) => {
+    let pro = _.clone(req.body.product);
+    delete pro.images;
+    productService.update(pro).then((rs0) => {
+        let transactionService = require('../service/transaction.service');
         transactionService.insert(req.body).then((rs) => {
             res.send(rs);
         }).catch(next);

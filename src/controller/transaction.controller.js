@@ -15,13 +15,17 @@ server.get('/transaction', utils.jsonHandler(), (req, res, next) => {
     let days = +req.query.days || 0;
     let status = +req.query.status;
     let where = {};
-    let minDay = new Date();
-    minDay.setHours(0);
-    minDay.setMinutes(0);
-    minDay.setSeconds(0);
-    minDay.setMilliseconds(0);
-    minDay.setDate(days-1);
-    where.created_date = { $gt: minDay};
+    let from = new Date(+req.query.from);
+    from.setHours(0);
+    from.setMinutes(0);
+    from.setSeconds(0);
+    from.setMilliseconds(0);
+    let to = new Date(+req.query.to);
+    to.setHours(0);
+    to.setMinutes(0);
+    to.setSeconds(0);
+    to.setMilliseconds(0);
+    where.created_date = { $gte: from, $lte: to};
     if(status) where.status = status;
     return transactionService.find({where: where, sortBy: {created_date : -1, status: -1}}).then((rs) => {
         res.send(rs);
