@@ -22,7 +22,7 @@ server.get('/product', utils.jsonHandler(), (req, res, next) => {
     if(!req.headers.isnana) where.status = 1;
     if(!req.headers.isnana) {
         fields.money0 = 0;
-        fields.quantity = 0;
+        fields.quantity0 = 0;
     }
     if(req.query.recordsPerPage) recordsPerPage = +req.query.recordsPerPage;    
     let type = req.query.type || 'newest';
