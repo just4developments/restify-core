@@ -18,7 +18,6 @@ server.get('/product', utils.jsonHandler(), (req, res, next) => {
     };
     let fields = {};
     let recordsPerPage = 20;
-    if(!req.headers.isnana) where.quantity = { $gt: 0 };
     if(!req.headers.isnana) where.status = 1;
     if(!req.headers.isnana) {
         fields.money0 = 0;
