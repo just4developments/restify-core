@@ -58,12 +58,13 @@ server.post('/product', auth, utils.fileUploadHandler({
 	if(req.body.money !== undefined) body.money = +req.body.money;
     if(req.body.money0 !== undefined) body.money0 = +req.body.money0;
     if(req.body.special !== undefined) body.special = JSON.parse(req.body.special);
-	body.created_date = new Date();
+	body.created_date = new Date(JSON.parse(req.body.created_date));
     body.updated_date = new Date();
     body.status = +req.body.status || 0;
     body.position = +req.body.position || 1;
     body.quantity = 0;
     body.quantity0 = 0;
+    body.tags = JSON.parse(req.body.tags);
 	if(req.file.images) body.images = req.file.images;
 	if(req.body.sizes) {
         body.sizes = JSON.parse(req.body.sizes);
@@ -122,6 +123,8 @@ server.put('/product', auth, utils.fileUploadHandler({
     if(req.body.special !== undefined) body.special = JSON.parse(req.body.special);
 	if(req.body.money !== undefined) body.money = +req.body.money;
     if(req.body.money0 !== undefined) body.money0 = +req.body.money0;
+    body.tags = JSON.parse(req.body.tags);
+    body.created_date = new Date(JSON.parse(req.body.created_date));
 	body.updated_date = new Date();
 	if(req.file && req.file.images) body.images = req.file.images;
     // else if(req.body.images) body.images = JSON.parse(req.body.images);
