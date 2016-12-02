@@ -8,9 +8,8 @@ let utils = require('../utils');
  ** CREATED DATE: 11/8/2016, 1:46:16 PM
  *************************************/
 
-const COLLECTION = 'ExecutingLogs';
-
 exports = module.exports = {
+    COLLECTION: 'ExecutingLogs',
     EVENT_TYPE: {
         INSTALLING: 0, // Installation
         EXECUTING: 1, // Deploy
@@ -43,7 +42,7 @@ exports = module.exports = {
 
     find: (fil) => {
         return new Promise((resolve, reject) => {
-            db.open(COLLECTION).then((db) => {
+            db.open(exports.COLLECTION).then((db) => {
                 db.find(fil).then(resolve).catch(reject);
             }).catch(reject);
         });
@@ -51,7 +50,7 @@ exports = module.exports = {
 
     get: (_id) => {
         return new Promise((resolve, reject) => {
-            db.open(COLLECTION).then((db) => {
+            db.open(exports.COLLECTION).then((db) => {
                 db.get(_id).then(resolve).catch(reject);;
             }).catch(reject);
         });
@@ -61,7 +60,7 @@ exports = module.exports = {
         return new Promise((resolve, reject) => {
             try {
                 obj = exports.validate(obj, 0);
-                db.open(COLLECTION).then((db) => {
+                db.open(exports.COLLECTION).then((db) => {
                     db.insert(obj).then(resolve).catch(reject);
                 }).catch(reject);
             } catch (e) {
@@ -74,17 +73,18 @@ exports = module.exports = {
         return new Promise((resolve, reject) => {
             try {
                 exports.validate(obj, 1);
-                db.open(COLLECTION).then((db) => {
-                    db.update(obj, db.CLOSE_AFTER_ERROR).then(() => {
+                db.open(exports.COLLECTION).then((db) => {
+                    db.update(obj, db.FAIL).then(() => {
+                        let ShellInstanceService = require('./ShellInstance.service');
                         if(obj.event_type === exports.EVENT_TYPE.INSTALLING){
-                            db.get(obj.shellinstance_id, db.CLOSE_AFTER_ERROR, 'ShellInstance').then((shellInstance) => {
+                            db.get(obj.shellinstance_id, {close: db.FAIL, collection: ShellInstanceService.COLLECTION}).then((shellInstance) => {
                                 shellInstance.status.installing = obj.error ? -1 : 1;
-                                db.update(shellInstance, undefined, 'ShellInstance').then(resolve).catch(reject);
+                                db.update(shellInstance, {collection: ShellInstanceService.COLLECTION}).then(resolve).catch(reject);
                             }).catch(reject);
                         }else if(obj.event_type === exports.EVENT_TYPE.EXECUTING){
-                            db.get(obj.shellinstance_id, db.CLOSE_AFTER_ERROR, 'ShellInstance').then((shellInstance) => {
+                            db.get(obj.shellinstance_id, {close: db.FAIL, collection: ShellInstanceService.COLLECTION}).then((shellInstance) => {
                                 shellInstance.status.executing = obj.error ? -1 : 1;
-                                db.update(shellInstance, undefined, 'ShellInstance').then(resolve).catch(reject);
+                                db.update(shellInstance, {collection: ShellInstanceService.COLLECTION}).then(resolve).catch(reject);
                             }).catch(reject);
                         }else{
                             resolve(obj);
@@ -99,7 +99,7 @@ exports = module.exports = {
     },
 
     delete: (_id) => {
-        return db.open(COLLECTION).then((db) => {
+        return db.open(exports.COLLECTION).then((db) => {
             db.delete(_id);
         }).catch(reject);
     }

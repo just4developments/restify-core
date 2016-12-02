@@ -12,9 +12,8 @@ let utils = require('../utils');
  ** CREATED DATE: 11/7/2016, 2:02:46 PM
  *************************************/
 
-const COLLECTION = 'ShellClass';
-
 exports = module.exports = {
+    COLLECTION: 'ShellClass',
 
     updateResult: (executingLogId, data) => {
         return new Promise((resolve, reject) => {
@@ -134,7 +133,7 @@ exports = module.exports = {
 
     find: (fil) => {
         return new Promise((resolve, reject) => {
-            db.open(COLLECTION).then((db) => {
+            db.open(exports.COLLECTION).then((db) => {
                 db.find(fil).then(resolve).catch(reject);
             }).catch(reject);
         });
@@ -142,7 +141,7 @@ exports = module.exports = {
 
     get: (_id) => {
         return new Promise((resolve, reject) => {
-            db.open(COLLECTION).then((db) => {
+            db.open(exports.COLLECTION).then((db) => {
                 db.get(_id).then(resolve).catch(reject);;
             }).catch(reject);
         });
@@ -152,7 +151,7 @@ exports = module.exports = {
         return new Promise((resolve, reject) => {
             try {
                 obj = exports.validate(obj, 0);
-                db.open(COLLECTION).then((db) => {
+                db.open(exports.COLLECTION).then((db) => {
                     db.insert(obj).then(resolve).catch(reject);
                 }).catch(reject);
             } catch (e) {
@@ -165,7 +164,7 @@ exports = module.exports = {
         return new Promise((resolve, reject) => {
             try {
                 exports.validate(obj, 1);
-                db.open(COLLECTION).then((db) => {
+                db.open(exports.COLLECTION).then((db) => {
                     db.update(obj).then(resolve).catch(reject);
                 }).catch(reject);
 
@@ -177,7 +176,7 @@ exports = module.exports = {
 
     delete: (_id) => {
         return new Promise((resolve, reject) => {
-            db.open(COLLECTION).then((db) => {
+            db.open(exports.COLLECTION).then((db) => {
                 db.delete(_id).then(resolve).catch(reject);
             }).catch(reject);
         });

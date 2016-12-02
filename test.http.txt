@@ -12,7 +12,7 @@
 
 {
     method: 'PUT',
-    url: 'http://localhost:9000/test1/583d30a2f6cf571f20e10720',
+    url: 'http://localhost:9000/test1/583d321f84577a13d017d15e',
     requestHeader: {
         'content-type': 'multipart/form-data'
     },

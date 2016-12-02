@@ -11,9 +11,8 @@ let utils = require('../utils');
  ** CREATED DATE: 11/24/2016, 4:49:06 PM
  *************************************/
 
-const COLLECTION = 'ShellInstance';
-
 exports = module.exports = {
+    COLLECTION: 'ShellInstance',
 
     bindDataInShellInstanceScript: (data, shellInstance) => {
         for (var i in data) {
@@ -140,7 +139,7 @@ exports = module.exports = {
 
     find: (fil) => {
         return new Promise((resolve, reject) => {
-            db.open(COLLECTION).then((db) => {
+            db.open(exports.COLLECTION).then((db) => {
                 db.find(fil).then(resolve).catch(reject);
             }).catch(reject);
         });
@@ -148,7 +147,7 @@ exports = module.exports = {
 
     get: (_id) => {
         return new Promise((resolve, reject) => {
-            db.open(COLLECTION).then((db) => {
+            db.open(exports.COLLECTION).then((db) => {
                 db.get(_id).then(resolve).catch(reject);;
             }).catch(reject);
         });
@@ -158,7 +157,7 @@ exports = module.exports = {
         return new Promise((resolve, reject) => {
             try {
                 obj = exports.validate(obj, 0);
-                db.open(COLLECTION).then((db) => {
+                db.open(exports.COLLECTION).then((db) => {
                     db.insert(obj).then(resolve).catch(reject);
                 }).catch(reject);
             } catch (e) {
@@ -172,7 +171,7 @@ exports = module.exports = {
         return new Promise((resolve, reject0) => {
             try {
                 exports.validate(obj, 1);
-                db.open(COLLECTION).then((db) => {
+                db.open(exports.COLLECTION).then((db) => {
                     db.update(obj).then(resolve).catch(reject0);
                 }).catch(reject0)
             } catch (e) {
@@ -184,7 +183,7 @@ exports = module.exports = {
 
     delete: (_id) => {
         return new Promise((resolve, reject0) => {
-            db.open(COLLECTION).then((db) => {
+            db.open(exports.COLLECTION).then((db) => {
                 db.delete(_id).then(resolve).catch(reject0);
             }).catch(reject0)
         });

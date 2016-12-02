@@ -14,7 +14,7 @@ exports = module.exports = {
                         if(err) return reject(err);
                         ch.bindQueue(q.queue, channelName, '');
                         ch.consume(q.queue, function(msg) {
-                            console.log("receive from web");
+                            console.log("Received from rabbitMQ");
                             let rs = JSON.parse(msg.content.toString());
                             let executingLogs = require('./ExecutingLogs.service');
                             executingLogs.get(rs['#']).then((item) => {
