@@ -1,8 +1,12 @@
-var test = () => {
-    return new Promise((resolve, reject) => {
-       reject('errr', 'abc'); 
-    });
-};
-test().catch((e, b) => {
-    console.log(e, b);
-});
+var async = require('async');
+let a = {b: 10};
+async.series([((a, cb)=>{
+    a.b++;
+    cb(null, a);
+}).bind(null, a), ((a, cb)=>{
+    a.b++;
+    a = null;
+    cb(null, a);
+}).bind(null, a)], (err, vl) => {
+    console.log(a);
+})

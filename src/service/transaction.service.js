@@ -9,9 +9,8 @@ let utils = require('../utils');
  ** CREATED DATE: 11/21/2016, 9:52:26 AM
  *************************************/
 
-const COLLECTION = 'transaction';
-
 exports = module.exports = {
+    COLLECTION: 'transaction',
 
     validate: (obj, action) => {
         switch (action) {
@@ -31,16 +30,16 @@ exports = module.exports = {
 
     find: (fil) => {
         return new Promise((resolve, reject) => {
-            db.open(COLLECTION).then((db) => {
-                db.find(fil, db.CLOSE_AFTER_DONE).then(resolve).catch(reject);
+            db.open(exports.COLLECTION).then((db) => {
+                db.find(fil).then(resolve).catch(reject);
             }).catch(reject);
         });
     },
 
     get: (_id) => {
         return new Promise((resolve, reject) => {
-            db.open(COLLECTION).then((db) => {
-                db.get(_id, db.CLOSE_AFTER_DONE).then(resolve).catch(reject);;
+            db.open(exports.COLLECTION).then((db) => {
+                db.get(_id).then(resolve).catch(reject);;
             }).catch(reject);
         });
     },
@@ -55,8 +54,8 @@ exports = module.exports = {
         return new Promise((resolve, reject) => {
             try {
                 obj = exports.validate(obj, 0);
-                db.open(COLLECTION).then((db) => {
-                    db.insert(obj, db.CLOSE_AFTER_DONE).then(resolve).catch(reject);
+                db.open(exports.COLLECTION).then((db) => {
+                    db.insert(obj).then(resolve).catch(reject);
                 }).catch(reject);
             } catch (e) {
                 reject(e);
@@ -69,8 +68,8 @@ exports = module.exports = {
         return new Promise((resolve, reject) => {
             try {
                 exports.validate(obj, 1);
-                db.open(COLLECTION).then((db) => {
-                    db.update(obj, db.CLOSE_AFTER_DONE).then(resolve).catch(reject);
+                db.open(exports.COLLECTION).then((db) => {
+                    db.update(obj).then(resolve).catch(reject);
                 }).catch(reject)
             } catch (e) {
                 reject(e);
@@ -80,8 +79,8 @@ exports = module.exports = {
 
     delete: (_id) => {
         return new Promise((resolve, reject0) => {
-            db.open(COLLECTION).then((db) => {
-                db.delete(_id, db.CLOSE_AFTER_DONE).then(resolve).catch(reject0);
+            db.open(exports.COLLECTION).then((db) => {
+                db.delete(_id).then(resolve).catch(reject0);
             }).catch(reject0)
         });
     }

@@ -7,14 +7,14 @@
     requestBody: {
         'name': 'Product 05',
         'file:images': [
-            'C:\\Users\\thanhdt\\Desktop\\bg.jpg'
+            'C:\\Users\\thanhdt\\Desktop\\b.jpg'
         ]
     }
 }
 
 {
     method: 'PUT',
-    url: 'http://localhost:9000/test1/583d30a2f6cf571f20e10720',
+    url: 'http://localhost:9000/test1/583d321f84577a13d017d15e',
     requestHeader: {
         'content-type': 'multipart/form-data'
     },
@@ -33,7 +33,7 @@
 
 {
     method: 'GET',
-    url: 'http://localhost:9000/test1/583d30a2f6cf571f20e10720'
+    url: 'http://localhost:9000/test1/583d321f84577a13d017d15e'
 }
 
 {

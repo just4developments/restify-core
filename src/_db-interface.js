@@ -1,5 +1,4 @@
-let MongoClient = require('mongodb').MongoClient;
-let ObjectID = require('mongodb').ObjectID;
+let _ = require('lodash');
 
 /************************************
  ** DATABASE ADAPTER
@@ -11,13 +10,13 @@ exports = module.exports = {
     uuid: (id) => {
         return ObjectID(id);
     },
-    open: (tbl) => {
+    open: (collection) => {
         let func = {
-            CLOSE_AFTER_DONE: 0,
-            CLOSE_AFTER_SUCCESS: 1,
-            CLOSE_AFTER_ERROR: -1,
+            DONE: 0,
+            SUCCESS: 1,
+            FAIL: -1,
             db: undefined,
-            tbl: tbl,
+            collection: collection,
             find: ({
                 where = {},
                 fields = {},

@@ -7,7 +7,7 @@
         // "program": "${workspaceRoot}/lib/generate/gen.js",
         "program": "${workspaceRoot}/index.js",
         "stopOnEntry": false,
-        "args": [],
+        "args": ["--expose-gc"],
         "cwd": "${workspaceRoot}",
         "preLaunchTask": null,
         "runtimeExecutable": null,

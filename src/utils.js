@@ -20,16 +20,16 @@ exports = module.exports = {
     jsonHandler: (config) => {
         return restify.bodyParser(config);
     },
-    resizeImage: (file, sizes) => {
+    resizeImage: ({buf, file}, sizes) => {
         return new Promise((resolve, reject) => {
             let Jimp = require('jimp');
             let rstasks = [];
             if (!(sizes instanceof Array)) sizes = [sizes];
             for (let size of sizes) {
-                rstasks.push(((file, size, cb) => {
+                rstasks.push(((buf, file, size, cb) => {
                     if (!size.w && !size.h) return cb('Need enter size to resize image');
                     let fileout = file.substr(0, file.lastIndexOf('.')) + (size.ext ? ('.' + size.ext) : '') + file.substr(file.lastIndexOf('.'));
-                    Jimp.read(file).then((image) => {
+                    Jimp.read(buf).then((image) => {
                         if (size.h < 0) {
                             size.h = Math.abs(size.h);
                             size.h = image.bitmap.height > size.h ? size.h : image.bitmap.height;
@@ -48,10 +48,11 @@ exports = module.exports = {
                             .quality(size.quality || 100)
                             .write(fileout, (err) => {
                                 image = null;
+                                exports.gc();
                                 cb(null, fileout);
                             });
                     }).catch(cb);
-                }).bind(null, file, size));
+                }).bind(null, buf, file, size));
             }
             async.series(rstasks, (err, results) => {
                 rstasks = null;
@@ -59,6 +60,13 @@ exports = module.exports = {
                 resolve(results);
             });
         });
+    },
+    gc: () => {
+        if (global.gc) {
+            global.gc();
+        } else {
+            console.log('Garbage collection unavailable.  Pass --expose-gc when launching node to enable forced garbage collection.');
+        }
     },
     fileUploadHandler: (config) => {
         let defaultConfig = {
@@ -70,43 +78,45 @@ exports = module.exports = {
             keepExtensions: false,
             multiples: false,
             multipartFileHandler: (part, req) => {
-                    // let buf;
                     let filename = exports.uuid() + (part.filename.indexOf('.') !== -1 ? part.filename.substr(part.filename.lastIndexOf('.')) : '');
                     let fileout = path.join(defaultConfig.uploadDir, filename);
-                    let stream = fs.createWriteStream(fileout, {
-                        flags: 'w',
-                        defaultEncoding: 'binary',
-                        fd: null,
-                        autoClose: true
-                    });
+                    let buf = new Buffer(0);
+                    let reject = (err) => {
+                        buf = null;
+                        exports.gc();
+                        exports.deleteFile(fileout, defaultConfig.resize);
+                        console.error('RESIZE', err);
+                    };
+                    let resolve = (file) => {
+                        // console.log("RESIZE", file);
+                        buf = null;
+                        exports.gc();
+                    };
                     part.on('data', function (data) {
-                        stream.write(data);
+                        buf = Buffer.concat([buf, data]);
                     });
                     part.on('end', () => {
                         stream.end();
-                        if (!req.file) req.file = {};
-                        if (!req.file[part.name]) req.file[part.name] = defaultConfig.multiples ? [] : {};
-                        if (req.file[part.name] instanceof Array) req.file[part.name].push(defaultConfig.httpPath.replace('${filename}', filename));
-                        else req.file[part.name] = defaultConfig.httpPath.replace('${filename}', filename);
-                        if (defaultConfig.resize) {
-                            let sizes = _.cloneDeep(defaultConfig.resize);
-                            let reject = (err) => {
-                                console.error('RESIZE', err);
-                            };
-                            let resolve = (file) => {
-                                // console.log("RESIZE", file);
-                            };
-                            let resizeNow = sizes.find((e) => {
-                                return e.ext === undefined;
+                        try{
+                            fs.writeFileSync(fileout, buf, {
+                                encoding: 'binary'
                             });
-                            if (resizeNow) {
-                                exports.resizeImage(fileout, _.clone(resizeNow)).then((file) => {
-                                    sizes.splice(sizes.indexOf(resizeNow), 1);
-                                    exports.resizeImage(fileout, sizes).then(resolve).catch(reject);
-                                }).catch(reject);
-                            } else {
-                                exports.resizeImage(fileout, sizes).then(resolve).catch(reject);
+                            buf = fileout;
+                            exports.gc();
+                        
+                            if (!req.file) req.file = {};
+                            if (!req.file[part.name]) req.file[part.name] = defaultConfig.multiples ? [] : {};
+                            if (req.file[part.name] instanceof Array) req.file[part.name].push(defaultConfig.httpPath.replace('${filename}', filename));
+                            else req.file[part.name] = defaultConfig.httpPath.replace('${filename}', filename);
+                            if (defaultConfig.resize) {
+                                exports.resizeImage({
+                                    buf: buf,
+                                    file: fileout
+                                }, defaultConfig.resize).then(resolve).catch(reject);
                             }
+                        }catch(e){
+                            reject(e);
+                            throw e;
                         }
                     });
                 }

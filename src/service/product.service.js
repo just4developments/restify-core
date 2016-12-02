@@ -10,9 +10,8 @@ let utils = require('../utils');
  ** CREATED DATE: 11/9/2016, 5:35:07 PM
  *************************************/
 
-const COLLECTION = 'product';
-
 exports = module.exports = {
+    COLLECTION: 'product',
 
     validate: (obj, action) => {
         switch (action) {
@@ -42,16 +41,16 @@ exports = module.exports = {
 
     find: (fil) => {
         return new Promise((resolve, reject) => {
-            db.open(COLLECTION).then((db) => {
-                db.find(fil, db.CLOSE_AFTER_DONE).then(resolve).catch(reject);
+            db.open(exports.COLLECTION).then((db) => {
+                db.find(fil).then(resolve).catch(reject);
             }).catch(reject);
         });
     },
 
     get: (_id) => {
         return new Promise((resolve, reject) => {
-            db.open(COLLECTION).then((db) => {
-                db.get(_id, db.CLOSE_AFTER_DONE).then(resolve).catch(reject);;
+            db.open(exports.COLLECTION).then((db) => {
+                db.get(_id).then(resolve).catch(reject);;
             }).catch(reject);
         });
     },
@@ -60,8 +59,8 @@ exports = module.exports = {
         return new Promise((resolve, reject) => {
             try {
                 obj = exports.validate(obj, 0);
-                db.open(COLLECTION).then((db) => {
-                    db.insert(obj, db.CLOSE_AFTER_DONE).then(resolve).catch(reject);
+                db.open(exports.COLLECTION).then((db) => {
+                    db.insert(obj).then(resolve).catch(reject);
                 }).catch(reject);
             } catch (e) {
                 utils.deleteFile(utils.getAbsoluteUpload(obj.images, path.join(__dirname, '..', '..', 'assets', 'images', '')), global.appconfig.app.imageResize.product);
@@ -75,10 +74,10 @@ exports = module.exports = {
             try {
                 exports.validate(obj, obj.images ? 1 : 2);
                 if (obj.quantity === 0) obj.status = 0;
-                db.open(COLLECTION).then((db) => {
-                    db.get(obj._id, db.CLOSE_AFTER_ERROR).then((item) => {
+                db.open(exports.COLLECTION).then((db) => {
+                    db.get(obj._id, db.FAIL).then((item) => {
                         let oldimages = obj.images ? item.images : undefined;
-                        db.update(obj, db.CLOSE_AFTER_DONE).then((rs) => {
+                        db.update(obj).then((rs) => {
                             utils.deleteFile(utils.getAbsoluteUpload(oldimages, path.join(__dirname, '..', '..', 'assets', 'images', '')), global.appconfig.app.imageResize.product);
                             resolve(rs);
                         }).catch(reject);
@@ -93,10 +92,10 @@ exports = module.exports = {
 
     delete: (_id) => {
         return new Promise((resolve, reject) => {
-            db.open(COLLECTION).then((db) => {
-                db.get(_id, db.CLOSE_AFTER_ERROR).then((item) => {
+            db.open(exports.COLLECTION).then((db) => {
+                db.get(_id, db.FAIL).then((item) => {
                     let oldimages = item.images;
-                    db.delete(_id, db.CLOSE_AFTER_DONE).then((rs) => {
+                    db.delete(_id).then((rs) => {
                         utils.deleteFile(utils.getAbsoluteUpload(oldimages, path.join(__dirname, '..', '..', 'assets', 'images', '')), global.appconfig.app.imageResize.product);
                         resolve(rs);
                     }).catch(reject);
