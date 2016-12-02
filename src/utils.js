@@ -96,7 +96,6 @@ exports = module.exports = {
                         buf = Buffer.concat([buf, data]);
                     });
                     part.on('end', () => {
-                        stream.end();
                         try{
                             fs.writeFileSync(fileout, buf, {
                                 encoding: 'binary'
