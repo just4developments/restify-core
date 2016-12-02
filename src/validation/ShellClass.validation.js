@@ -9,12 +9,7 @@ module.exports = {
             "type": "string"
         },
         "scripts": {
-            "type": "array",
-            "items": {
-                "anyOf": [{
-                    "$ref": "#/definitions/scriptObject"
-                }]
-            }            
+            "$ref": "#/definitions/scriptObject"
         },
         "input": {
             "type": "array",
@@ -30,6 +25,19 @@ module.exports = {
         "plugins": {
             "type": "array",
             "items": {
+                "anyOf": [{
+                    "$ref": "#/definitions/pluginObject"
+                }]                
+            },
+            "uniqueItems": true
+        }
+    },
+    "additionalProperties": false,
+    "required": ["name"],
+    "definitions": {
+        "pluginObject": {
+            "type": "object",
+            "properties": {
                 "name": {
                     "type": "string"
                 },
@@ -40,12 +48,7 @@ module.exports = {
                     "type": "string"
                 },
                 "scripts": {
-                    "type": "array",
-                    "items": {
-                        "anyOf": [{
-                            "$ref": "#/definitions/scriptObject"
-                        }]
-                    }            
+                    "$ref": "#/definitions/scriptObject"          
                 },
                 "input": {
                     "type": "array",
@@ -55,25 +58,27 @@ module.exports = {
                         }]
                     },
                     "uniqueItems": true
-                },
-                "required": ["name", "script"],
-            },
-            "uniqueItems": true
-        }
-    },
-    "required": ["name"],
-    "definitions": {
-        "scriptObject": {
-            "type": "object",
-            "properties": {
-                "name": {
-                    "type": "string"
-                },
-                "script": {
-                    "type": "string"
                 }
             },
             "required": ["name", "script"]
+        },
+        "scriptObject": {
+            "type": "object",
+            "patternProperties": {
+                "^.+": {
+                    "type": "object",
+                    "properties": {
+                        "name": {
+                            "type": "string"
+                        },
+                        "script": {
+                            "type": "string"
+                        }
+                    },
+                    "required": ["name", "script"]
+                }
+            },
+            "additionalProperties": false
         },
         "targetRequired": {
             "type": "object",
@@ -95,6 +100,7 @@ module.exports = {
                 }
             },
             "required": ["param", "label", "component"],
+            "additionalProperties": false
         },
         "inputControl": {
             "type": "object",
@@ -119,6 +125,7 @@ module.exports = {
                 }
             },
             "required": ["param", "label", "type", "component"],
+            "additionalProperties": false
         }
     }
 }

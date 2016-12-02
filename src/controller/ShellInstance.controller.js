@@ -2,8 +2,8 @@ let restify = require('restify');
 let path = require('path');
 
 let utils = require('../utils');
-let ShellInstanceService = require('../service/ShellInstance.service')();
-let ShellClassService = require('../service/ShellClass.service')();
+let ShellInstanceService = require('../service/ShellInstance.service');
+let ShellClassService = require('../service/ShellClass.service');
 
 /************************************
 ** CONTROLLER:   ShellInstanceController
@@ -23,41 +23,49 @@ server.get('/ShellInstance/:_id', utils.jsonHandler(), (req, res, next) => {
     }).catch(next);
 });
 
+server.get('/ShellInstanceByClass/:_id', utils.jsonHandler(), (req, res, next) => {
+    return ShellInstanceService.find({where: {"data.shellclass_id": req.params._id} }).then((rs) => {
+        res.send(rs);
+    }).catch(next);
+});
+
 server.post('/ShellInstance', utils.jsonHandler(), (req, res, next) => {
-    var body =  {
-        data: req.body
-    }
+    var body =  req.body;
+    body.status = {
+        installing: 0,
+        executing: 0
+    };
 	body.created_date = new Date();
 	body.updated_date = new Date();
-    ShellInstanceService.insert(body).then((rs) => {
-        ShellInstanceService.install(body.data).then((rs) => {
-            res.send(rs); 
+    ShellInstanceService.insert(body).then((rs0) => {
+        ShellInstanceService.install(body).then((rs) => {
+            res.send({instance: rs0, session: rs}); 
         }).catch(next);
     }).catch(next);
 });
 
-// Execute parent plugin scripts
+// Execute parent plugin scripts GetInformation
 server.post('/ShellInstance/execute/:id/:name', utils.jsonHandler(), (req, res, next) => {
     ShellInstanceService.executeScript(req.params.id, req.params.name).then((rs) => {
        res.send(rs["#"]); 
     }).catch(next);
 });
 
-// Execute parent plugin
+// Execute parent plugin DEPLOY
 server.post('/ShellInstance/execute/:id', utils.jsonHandler(), (req, res, next) => {
     ShellInstanceService.execute(req.params.id).then((rs) => {
        res.send(rs["#"]); 
     }).catch(next);
 });
 
-// Execute testcase
+// Execute testcase Execute Test
 server.put('/ShellInstance/execute/:id/:index', utils.jsonHandler(), (req, res, next) => {
     ShellInstanceService.execute(req.params.id, +req.params.index).then((rs) => {
        res.send(rs["#"]); 
     }).catch(next);
 });
 
-// Execute testcase scripts
+// Execute testcase scripts Execute get information test
 server.put('/ShellInstance/execute/:id/:name/:index', utils.jsonHandler(), (req, res, next) => {
     ShellInstanceService.executeScript(req.params.id, req.params.name, +req.params.index).then((rs) => {
        res.send(rs["#"]); 

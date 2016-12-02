@@ -1,94 +1,106 @@
 let restify = require('restify');
 
-let DB = require('../db');
+let db = require('../db');
 let utils = require('../utils');
 /************************************
-** SERVICE:      ExecutingLogsController
-** AUTHOR:       Unknown
-** CREATED DATE: 11/8/2016, 1:46:16 PM
-*************************************/
+ ** SERVICE:      exportsController
+ ** AUTHOR:       Unknown
+ ** CREATED DATE: 11/8/2016, 1:46:16 PM
+ *************************************/
 
-module.exports = () => {
-    let db = DB('ExecutingLogs');
-    let self = {
-        EVENT_TYPE: {
-            INSTALLING: 0,
-            EXECUTING: 1,
-            SCRIPT: 2,
-            TESTING: 3
-        },
-        STATUS: {
-            RUNNING: 0,
-            SUCCESSED: 1,
-            FAILED: -1
-        },
+const COLLECTION = 'ExecutingLogs';
 
-        validate: (obj, action) => {
-            switch (action) {
-                case 0: // For inserting
-                    obj.started_time = new Date();
-                    if(!utils.has(obj.event_type)) throw new restify.BadRequestError('event_type is required!');
-					if(!utils.has(obj.status)) throw new restify.BadRequestError('status is required!');					
-					if(!utils.has(obj.title)) throw new restify.BadRequestError('title is required!');
-					if(!utils.has(obj.shellclass_id)) throw new restify.BadRequestError('shellclass_id is required!');
-                    break;
-                case 1: // For updating
-                    obj.finished_time = new Date();
-                    if(!utils.has(obj.status)) throw new restify.BadRequestError('status is required!');
-					if(!utils.has(obj.result)) throw new restify.BadRequestError('result is required!');
-					break;
-            }
-            return obj;
-        },
+exports = module.exports = {
+    EVENT_TYPE: {
+        INSTALLING: 0, // Installation
+        EXECUTING: 1, // Deploy
+        SCRIPT: 2, // GetInformation
+        TESTING: 3 // Test
+    },
+    STATUS: {
+        RUNNING: 0,
+        SUCCESSED: 1,
+        FAILED: -1
+    },
 
-        find: (fil) => {
-            return new Promise((resolve, reject) => {
-                db().open().then((db) => {
-                    db.find(fil).then(resolve).catch(reject); 
-                }).catch(reject); 
-            });
-        },
-
-        get: (_id) => {
-            return new Promise((resolve, reject) => {
-                db().open().then((db) => {
-                    db.get(_id).then(resolve).catch(reject);; 
-                }).catch(reject);
-            });
-        },
-
-        insert: (obj) => {            
-            return new Promise((resolve, reject) => {
-                try {
-                    obj = self.validate(obj, 0);
-                    db().open().then((db) => {
-                        db.insert(obj).then(resolve).catch(reject);
-                    }).catch(reject);
-                } catch (e) {
-                    reject(e);
-                }
-            });
-        },
-
-        update: (obj) => {
-            return new Promise((resolve, reject) => {
-                try {
-                    self.validate(obj, 1);
-                    db().open().then((db) => {
-                        db.update(obj).then(resolve).catch(reject);
-                    }).catch(reject);
-                        
-                } catch (e) {
-                    reject(e);
-                }
-            });
-        },
-
-        delete: (_id) => {
-            return db().open().then((db) => {
-                db.delete(_id);  
-            }).catch(reject);
+    validate: (obj, action) => {
+        switch (action) {
+            case 0: // For inserting
+                obj.started_time = new Date();
+                if (!utils.has(obj.event_type)) throw new restify.BadRequestError('event_type is required!');
+                if (!utils.has(obj.status)) throw new restify.BadRequestError('status is required!');
+                if (!utils.has(obj.title)) throw new restify.BadRequestError('title is required!');
+                if (!utils.has(obj.shellinstance_id)) throw new restify.BadRequestError('shellinstance_id is required!');
+                break;
+            case 1: // For updating
+                obj.finished_time = new Date();
+                if (!utils.has(obj.status)) throw new restify.BadRequestError('status is required!');
+                if (!utils.has(obj.result)) throw new restify.BadRequestError('result is required!');
+                break;
         }
-    };
-    return self;
+        return obj;
+    },
+
+    find: (fil) => {
+        return new Promise((resolve, reject) => {
+            db.open(COLLECTION).then((db) => {
+                db.find(fil).then(resolve).catch(reject);
+            }).catch(reject);
+        });
+    },
+
+    get: (_id) => {
+        return new Promise((resolve, reject) => {
+            db.open(COLLECTION).then((db) => {
+                db.get(_id).then(resolve).catch(reject);;
+            }).catch(reject);
+        });
+    },
+
+    insert: (obj) => {
+        return new Promise((resolve, reject) => {
+            try {
+                obj = exports.validate(obj, 0);
+                db.open(COLLECTION).then((db) => {
+                    db.insert(obj).then(resolve).catch(reject);
+                }).catch(reject);
+            } catch (e) {
+                reject(e);
+            }
+        });
+    },
+
+    update: (obj) => {
+        return new Promise((resolve, reject) => {
+            try {
+                exports.validate(obj, 1);
+                db.open(COLLECTION).then((db) => {
+                    db.update(obj, db.CLOSE_AFTER_ERROR).then(() => {
+                        if(obj.event_type === exports.EVENT_TYPE.INSTALLING){
+                            db.get(obj.shellinstance_id, db.CLOSE_AFTER_ERROR, 'ShellInstance').then((shellInstance) => {
+                                shellInstance.status.installing = obj.error ? -1 : 1;
+                                db.update(shellInstance, undefined, 'ShellInstance').then(resolve).catch(reject);
+                            }).catch(reject);
+                        }else if(obj.event_type === exports.EVENT_TYPE.EXECUTING){
+                            db.get(obj.shellinstance_id, db.CLOSE_AFTER_ERROR, 'ShellInstance').then((shellInstance) => {
+                                shellInstance.status.executing = obj.error ? -1 : 1;
+                                db.update(shellInstance, undefined, 'ShellInstance').then(resolve).catch(reject);
+                            }).catch(reject);
+                        }else{
+                            resolve(obj);
+                        }
+                    }).catch(reject);                                        
+                }).catch(reject);
+
+            } catch (e) {
+                reject(e);
+            }
+        });
+    },
+
+    delete: (_id) => {
+        return db.open(COLLECTION).then((db) => {
+            db.delete(_id);
+        }).catch(reject);
+    }
 }

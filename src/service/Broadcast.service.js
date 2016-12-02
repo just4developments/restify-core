@@ -1,11 +1,9 @@
 let amqp = require('amqplib/callback_api');
 
-let executingLogs = require('./ExecutingLogs.service')();
-
 exports = module.exports = {
-
+    
     listenFromRabQ: (channelName, type) => {
-        console.log('listenFromRabQ');
+        console.log('listened from RabQ');
         return new Promise((resolve, reject) => {
             amqp.connect(appconfig.rabbit.url, function (err, conn) {
                 if(err) return reject(err);
@@ -16,11 +14,13 @@ exports = module.exports = {
                         if(err) return reject(err);
                         ch.bindQueue(q.queue, channelName, '');
                         ch.consume(q.queue, function(msg) {
-                            let rs = JSON.parse(msg.content.toString());                            
+                            console.log("receive from web");
+                            let rs = JSON.parse(msg.content.toString());
+                            let executingLogs = require('./ExecutingLogs.service');
                             executingLogs.get(rs['#']).then((item) => {
                                 item.status = rs.error ? executingLogs.STATUS.FAILED : executingLogs.STATUS.SUCCESSED;
-                                item.result = rs; 
-                                executingLogs.update(item).then((rs) => {
+                                item.result = rs;
+                                executingLogs.update(item).then((rs0) => {
                                     setTimeout(() => {
                                         exports.broadcastToWeb(rs['#'], item);
                                     }, 2000);
@@ -35,7 +35,7 @@ exports = module.exports = {
     },
 
     broadcastToRabQ: (channelName, type, data) => {
-        console.log('broadcastToRabQ', data);
+        console.log('broadcastToRabQ', channelName, type, data);
         return new Promise((resolve, reject) => {
             amqp.connect(appconfig.rabbit.url, function (err, conn) {
                 conn.createChannel(function (err, ch) {
@@ -58,7 +58,7 @@ exports = module.exports = {
             let socket = global.ioer[sessionId];
             if (socket) {
                 if (socket.connected) {
-                    socket.emit('completed', data);
+                    socket.emit('completed', JSON.stringify(data));
                 } else {
                     delete global.ioer[sessionId];
                 }

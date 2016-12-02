@@ -2,7 +2,7 @@ let restify = require('restify');
 let path = require('path');
 
 let utils = require('../utils');
-let ExecutingLogsService = require('../service/ExecutingLogs.service')();
+let ExecutingLogsService = require('../service/ExecutingLogs.service');
 
 /************************************
 ** CONTROLLER:   ExecutingLogsController

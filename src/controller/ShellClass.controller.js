@@ -2,7 +2,7 @@ let restify = require('restify');
 let path = require('path');
 
 let utils = require('../utils');
-let ShellClassService = require('../service/ShellClass.service')();
+let ShellClassService = require('../service/ShellClass.service');
 
 /************************************
  ** CONTROLLER:   ShellClassController

@@ -5,7 +5,7 @@ module.exports = {
         url: 'mongodb://localhost:27017/validium'
     },
     rabbit: {
-        url: 'amqp://192.168.0.106',
+        url: 'amqp://192.168.0.72',
         timeout: 500,
         api: {
             channelName: 'api',

@@ -38,11 +38,13 @@ server.get(/\/shells\/?.*/, (req, res, next) => {
   directory: './assets'
 }));
 
-server.pre(function (req, res, next) {
-    res.setHeader("Access-Control-Allow-Origin", "*");
-    res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-    res.setHeader("Access-Control-Allow-Headers", "Origin, Content-Type, Accept");
-    // res.setHeader("Access-Control-Allow-Credentials", true);
+server.use(restify.CORS());
+
+server.opts(/.*/, function (req,res,next) {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Methods", req.header("Access-Control-Request-Method"));
+    res.header("Access-Control-Allow-Headers", req.header("Access-Control-Request-Headers"));
+    res.send(200);
     return next();
 });
 
@@ -75,5 +77,5 @@ BroadcastService.listenFromRabQ(appconfig.rabbit.api.channelName, appconfig.rabb
 });
 
 server.listen(appconfig.listen, () => {
-    console.log("Server is running at %d", appconfig.listen);
+    console.info("Server is running at %d", appconfig.listen);
 });
