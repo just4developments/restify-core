@@ -19,6 +19,12 @@ exports = module.exports = {
             FAIL: -1,
             db: undefined,
             collection: collection,
+            getOpts: (opts) => {
+                if(typeof opts === 'object' && opts.close === undefined) opts.close = func.DONE;
+                else if(typeof opts === 'string') opts = { collection: opts, close: func.DONE};
+                else if(typeof opts === 'number') opts = { close: opts};
+                return opts;
+            },
             find: ({
                 where = {},
                 fields = {},
@@ -26,7 +32,7 @@ exports = module.exports = {
                 page = 1,
                 recordsPerPage = 20
             }, opts = func.DONE) => {
-                opts = typeof opts === 'object' ? opts : { close: opts };
+                opts = func.getOpts(opts);
                 return new Promise((resolve, reject) => {
                     let collection = func.db.collection(opts.collection || func.collection);
                     let query = collection.find(where, fields);
@@ -44,8 +50,8 @@ exports = module.exports = {
                     });
                 });
             },
-            get: (_id, opts = { close : func.DONE }) => {
-                opts = typeof opts === 'object' ? opts : { close: opts };
+            get: (_id, opts = func.DONE) => {
+                opts = func.getOpts(opts);                
                 return new Promise((resolve, reject) => {
                     let collection = func.db.collection(opts.collection || func.collection);
                     collection.find({
@@ -61,8 +67,8 @@ exports = module.exports = {
                     });
                 });
             },
-            insert: (obj, opts = { close : func.DONE }) => {
-                opts = typeof opts === 'object' ? opts : { close: opts };
+            insert: (obj, opts = func.DONE) => {
+                opts = func.getOpts(opts);
                 return new Promise((resolve, reject) => {
                     let collection = func.db.collection(opts.collection || func.collection);
                     if (obj instanceof Array) {
@@ -88,8 +94,8 @@ exports = module.exports = {
                     }
                 });
             },
-            update: (obj0, opts = { close : func.DONE }) => {
-                opts = typeof opts === 'object' ? opts : { close: opts };
+            update: (obj0, opts = func.DONE) => {
+                opts = func.getOpts(opts);
                 let obj = _.cloneDeep(obj0);
                 delete obj._id;
                 return new Promise((resolve, reject) => {
@@ -109,8 +115,8 @@ exports = module.exports = {
                     });
                 });
             },
-            delete: (_id, opts = { close : func.DONE }) => {
-                opts = typeof opts === 'object' ? opts : { close: opts };
+            delete: (_id, opts = func.DONE) => {
+                opts = func.getOpts(opts);
                 return new Promise((resolve, reject) => {
                     let collection = func.db.collection(opts.collection || func.collection);
                     collection.deleteOne({
