@@ -52,13 +52,13 @@ server.post('/product', auth, utils.fileUploadHandler({
 }), (req, res, next) => {
     var body = {};
 	if(req.body.name) body.name = req.body.name;
-	if(req.body.des) body.des = req.body.des;
-    if(req.body.size) body.size = req.body.size;
+	if(req.body.size) body.size = req.body.size;
     if(req.body.category_id) body.category_id = req.body.category_id;
 	if(req.body.money !== undefined) body.money = +req.body.money;
     if(req.body.money0 !== undefined) body.money0 = +req.body.money0;
     if(req.body.special !== undefined) body.special = JSON.parse(req.body.special);
-	body.created_date = new Date(JSON.parse(req.body.created_date));
+	body.des = req.body.des;
+    body.created_date = new Date(JSON.parse(req.body.created_date));
     body.updated_date = new Date();
     body.status = +req.body.status || 0;
     body.position = +req.body.position || 1;
@@ -114,7 +114,6 @@ server.put('/product', auth, utils.fileUploadHandler({
     var body = { _id: req.body._id };
     if(req.body.name) body.name = req.body.name;
 	if(req.body.des) body.des = req.body.des;
-    if(req.body.size) body.size = req.body.size;
     if(req.body.status !== undefined) body.status = +req.body.status;
     if(req.body.position !== undefined) body.position = +req.body.position;
     body.quantity = 0;
@@ -123,6 +122,7 @@ server.put('/product', auth, utils.fileUploadHandler({
     if(req.body.special !== undefined) body.special = JSON.parse(req.body.special);
 	if(req.body.money !== undefined) body.money = +req.body.money;
     if(req.body.money0 !== undefined) body.money0 = +req.body.money0;
+    body.des = req.body.des;
     body.tags = JSON.parse(req.body.tags);
     body.created_date = new Date(JSON.parse(req.body.created_date));
 	body.updated_date = new Date();
