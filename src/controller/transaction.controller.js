@@ -1,10 +1,10 @@
 let restify = require('restify');
 let path = require('path');
 let _ = require('lodash');
+let async = require('async');
 
 let utils = require('../utils');
 let transactionService = require('../service/transaction.service');
-let productService = require('../service/product.service');
 
 /************************************
 ** CONTROLLER:   transactionController
@@ -13,8 +13,6 @@ let productService = require('../service/product.service');
 *************************************/
 
 server.get('/transaction', utils.jsonHandler(), (req, res, next) => {
-    let days = +req.query.days || 0;
-    let status = +req.query.status;
     let where = {};
     let from = new Date(+req.query.from);
     from.setHours(0);
@@ -26,11 +24,58 @@ server.get('/transaction', utils.jsonHandler(), (req, res, next) => {
     to.setMinutes(0);
     to.setSeconds(0);
     to.setMilliseconds(0);
-    where.created_date = { $gte: from, $lte: to};
-    if(status) where.status = status;
-    return transactionService.find({where: where, sortBy: {created_date : -1, status: -1}}).then((rs) => {
-        res.send(rs);
-    }).catch(next);
+    let aggregate;
+    if(req.headers.isnana && req.query.chartByDate){
+        aggregate = [
+            { $match: { created_date: { '$gte': from, '$lte': to }, status: {$gt: -1} } },
+            { $group: {_id: { month: { $month: "$created_date" }, day: { $dayOfMonth: "$created_date" }, year: { $year: "$created_date" }}, y: {$sum: "$money"} } }, 
+            { $sort: {"_id.year": 1, "_id.month": 1, "_id.day": 1} } ];
+            return transactionService.find({aggregate: aggregate}).then((rs) => {
+                res.send(rs);
+            }).catch(next); 
+    }else if(req.headers.isnana && req.query.chartByMonth){
+        aggregate = [
+            { $match: { created_date: { '$gte': from, '$lte': to }, status: {$gt: -1} } },
+            { $group: {_id: { month: { $month: "$created_date" }, year: { $year: "$created_date" }}, y: {$sum: "$money"} } }, 
+            { $sort: {"_id.year": 1, "_id.month": 1} } ];
+        return transactionService.find({aggregate: aggregate}).then((rs) => {
+            res.send(rs);
+        }).catch(next); 
+    }else if(req.headers.isnana && req.query.chartByYear){
+        aggregate = [
+        { $match: { created_date: { '$gte': from, '$lte': to }, status: {$gt: -1} } },
+        { $group: {_id: { year: { $year: "$created_date" }}, y: {$sum: "$money"} } }, 
+        { $sort: {"_id.year": 1 } } ];
+        return transactionService.find({aggregate: aggregate}).then((rs) => {
+            res.send(rs);
+        }).catch(next); 
+    }else if(req.headers.isnana && req.query.chartByDayOfWeek){
+        aggregate = [
+        { $match: { created_date: { '$gte': from, '$lte': to }, status: {$gt: -1} } },
+        { $group: {_id: { dayOfWeek: { $dayOfWeek: "$created_date" }}, y: {$sum: "$money"} } }, 
+        { $sort: {"_id.dayOfWeek": 1} } ];
+        return transactionService.find({aggregate: aggregate}).then((rs) => {
+            res.send(rs);
+        }).catch(next); 
+    }else if(req.headers.isnana && req.query.chartByType){
+        aggregate = [
+        { $match: { type: 2 } },
+        { $group: {_id: { name: "$name"}, y: {$sum: "$sold_count"} } }, 
+        { $sort: {"_id.name": 1} } ];
+        let categoryService = require('../service/category.service');
+        return categoryService.find({aggregate: aggregate}).then((rs) => {
+            res.send(rs);
+        }).catch(next); 
+    }else if(req.headers.isnana){
+        let status = +req.query.status;
+        where.created_date = { $gte: from, $lte: to};
+        if(status) where.status = status;
+        return transactionService.find({where: where, sortBy: {created_date : -1, status: -1}}).then((rs) => {
+            res.send(rs);
+        }).catch(next);
+    }else{
+        res.send(404);
+    }
 });
 
 server.get('/transaction/buyer', utils.jsonHandler(), (req, res, next) => {
@@ -90,6 +135,7 @@ server.put('/transaction/:_id', auth, utils.jsonHandler(), (req, res, next) => {
     if(req.body.status) body.status = +req.body.status;
     transactionService.update(body).then((rs) => {
         if(body.status === -1) {
+            let productService = require('../service/product.service');
             productService.get(req.body.product._id).then((item) => {
                 var sizeIndex = item.sizes.findIndex((e) => {
                     return e.size == req.body.size.size;
@@ -101,7 +147,20 @@ server.put('/transaction/:_id', auth, utils.jsonHandler(), (req, res, next) => {
                 }).catch(next);
             }).catch(next);
         }else{
-            res.send(rs);
+            if(!req.body.product.tags) return res.send(rs);
+            let categoryService = require('../service/category.service');
+            let fc = [];
+            for(var i in req.body.product.tags){
+                fc.push(((tag, num, cb) => {                    
+                    categoryService.sold(tag._id, num).then(() => {
+                        cb();
+                    }).catch(cb);
+                }).bind(null, req.body.product.tags[i], +req.body.quantity));
+            }
+            async.series(fc, (err, rs0) => {
+               if(err) return next(err); 
+               res.send(rs);
+            });
         }
     }).catch(next);
 });

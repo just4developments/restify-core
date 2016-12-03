@@ -26,6 +26,7 @@ exports = module.exports = {
                 return opts;
             },
             find: ({
+                aggregate,
                 where = {},
                 fields = {},
                 sortBy,
@@ -35,7 +36,7 @@ exports = module.exports = {
                 opts = func.getOpts(opts);
                 return new Promise((resolve, reject) => {
                     let collection = func.db.collection(opts.collection || func.collection);
-                    let query = collection.find(where, fields);
+                    let query = aggregate ? collection.aggregate(aggregate) : collection.find(where, fields);
                     if (sortBy) query = query.sort(sortBy);
                     if (page) query = query.skip((page - 1) * recordsPerPage);
                     if (recordsPerPage) query = query.limit(recordsPerPage);

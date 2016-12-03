@@ -41,6 +41,18 @@ exports = module.exports = {
         });
     },
 
+    sold: (id, num) => {
+        return new Promise((resolve, reject) => {
+            db.open(exports.COLLECTION).then((db) => {
+                db.get(id, db.FAIL).then((item) => {
+                    if(!item.sold_count) item.sold_count = 0;
+                    item.sold_count += num;
+                    db.update(item).then(resolve).catch(reject);
+                }).catch(reject);            
+            }).catch(reject);
+        });
+    },
+
     insert: (obj) => {
         return new Promise((resolve, reject) => {
             try {
