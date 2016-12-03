@@ -26,19 +26,34 @@ exports = module.exports = {
                 return opts;
             },
             find: ({
-                where = {},
+                aggregate,
+                where,
                 fields = {},
                 sortBy,
                 page = 1,
                 recordsPerPage = 20
             }, opts = func.DONE) => {
                 opts = func.getOpts(opts);
+                // aggregate = [
+                //     { $match: { created_date: { '$gte': from, '$lte': to }, status: {$gt: -1} } },
+                //     { $group: {_id: { month: { $month: "$created_date" }, day: { $dayOfMonth: "$created_date" }, year: { $year: "$created_date" }}, y: {$sum: "$money"} } }, 
+                //     { $sort: {"_id.year": 1, "_id.month": 1, "_id.day": 1} } 
+                // ];
                 return new Promise((resolve, reject) => {
                     let collection = func.db.collection(opts.collection || func.collection);
-                    let query = collection.find(where, fields);
-                    if (sortBy) query = query.sort(sortBy);
-                    if (page) query = query.skip((page - 1) * recordsPerPage);
-                    if (recordsPerPage) query = query.limit(recordsPerPage);
+                    let query;
+                    if(aggregate){
+                        if(where) aggregate.splice(0, 0, {$match: where});
+                        if (sortBy) aggregate.push({$sort: sortBy});
+                        if (page) aggregate.push({$skip: (page - 1) * recordsPerPage});
+                        if (recordsPerPage) aggregate.push({$limit: recordsPerPage});
+                        query = collection.aggregate(aggregate);
+                    }else {
+                        query = collection.find(where, fields);
+                        if (sortBy) query = query.sort(sortBy);
+                        if (page) query = query.skip((page - 1) * recordsPerPage);
+                        if (recordsPerPage) query = query.limit(recordsPerPage);
+                    }
                     query.toArray((err, result) => {
                         if(opts.close === func.DONE) func.close();
                         if (err) {
