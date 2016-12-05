@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 var schema = require('./src/validation/ShellClass.validation');
 
 var data = {
@@ -70,17 +69,3 @@ var validate = ajv.compile(schema);
 var valid = validate(data);
 if (!valid) console.log(validate.errors);
 else console.log('ok');
-=======
-var async = require('async');
-let a = {b: 10};
-async.series([((a, cb)=>{
-    a.b++;
-    cb(null, a);
-}).bind(null, a), ((a, cb)=>{
-    a.b++;
-    a = null;
-    cb(null, a);
-}).bind(null, a)], (err, vl) => {
-    console.log(a);
-})
->>>>>>> 51a79012ee5110f7aeab24e479d575182f79228b
