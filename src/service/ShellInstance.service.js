@@ -115,7 +115,7 @@ exports = module.exports = {
                                 deployment_name: shellInstance.name,
                                 blueprint_name: shellClass.name,
                                 cloud_ip: appconfig.rabbit.cloud_ip,
-                                input_string: _.clone(shellInstance.data),
+                                input_string: _.clone(shellInstance.inputData),
                             },
                             From: appconfig.rabbit.api.queueName
                         }
