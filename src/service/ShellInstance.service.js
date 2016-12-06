@@ -81,7 +81,7 @@ exports = module.exports = {
                         let data = {
                             '#': rs.insertedIds[0].toString(),
                             cloud_ip: appconfig.rabbit.cloud_ip,
-                            deployment_name: shellInstance.name
+                            deployment_id: shellInstance.name
                         };
                         let BroadcastService = require('./Broadcast.service');
                         BroadcastService.broadcastToRabQ(appconfig.rabbit.channel.getInfor.exchange, appconfig.rabbit.channel.getInfor.name, appconfig.rabbit.channel.getInfor.exchangeType, data).then((data) => {
@@ -112,7 +112,7 @@ exports = module.exports = {
                             '#': rs.insertedIds[0].toString(),
                             Command: appconfig.rabbit.channel.createInstance.cmd,
                             Params: {
-                                deployment_name: shellInstance.name,
+                                deployment_id: shellInstance.name,
                                 blueprint_id: shellClass.name,
                                 cloud_ip: appconfig.rabbit.cloud_ip,
                                 input_string: _.clone(shellInstance.inputData),
@@ -147,7 +147,7 @@ exports = module.exports = {
                             Command: appconfig.rabbit.channel.deployInstance.cmd,
                             Params: {
                                 cloud_ip: appconfig.rabbit.cloud_ip,
-                                deployment_name: shellInstance.name,
+                                deployment_id: shellInstance.name,
                             },
                             From: appconfig.rabbit.api.queueName
                         };
