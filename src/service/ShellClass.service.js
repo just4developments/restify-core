@@ -82,7 +82,7 @@ exports = module.exports = {
                         Command: appconfig.rabbit.channel.uploadPlugin.cmd,
                         Params: {
                             cloud_ip: appconfig.rabbit.cloud_ip,
-                            blueprint_name: shell.name,
+                            blueprint_id: shell.name,
                             archive_file_link: `${appconfig.staticUrl}${shell.content}`,
                             blueprint_file_name: shell.yaml
                         },
