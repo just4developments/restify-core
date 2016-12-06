@@ -14,23 +14,28 @@ let utils = require('../utils');
 
 exports = module.exports = {
     COLLECTION: 'ShellClass',
-
-    updateResult: (executingLogId, data) => {
-        return new Promise((resolve, reject) => {
-            let executingLogs = require('./ExecutingLogs.service');
-            executingLogs.get(executingLogId).then((item) => {
-                item.status = data.error ? executingLogs.STATUS.FAILED : executingLogs.STATUS.SUCCESSED;
-                item.result = data;
-                executingLogs.update(item).then((rs) => {
-                    setTimeout(() => {
-                        let BroadcastService = require('./Broadcast.service');
-                        BroadcastService.broadcastToWeb(executingLogId, item);
-                    }, 2000);
-                    resolve(item);
-                }).catch(reject);
-            }).catch(reject);
-        });
+    STATUS: {
+        RUNNING: 0,
+        SUCCESSED: 1,
+        FAILED: -1
     },
+
+    // updateResult: (executingLogId, data) => {
+    //     return new Promise((resolve, reject) => {
+    //         let executingLogs = require('./ExecutingLogs.service');
+    //         executingLogs.get(executingLogId).then((item) => {
+    //             item.status = data.Error ? executingLogs.STATUS.FAILED : executingLogs.STATUS.SUCCESSED;
+    //             item.result = data;
+    //             executingLogs.update(item).then((rs) => {
+    //                 setTimeout(() => {
+    //                     let BroadcastService = require('./Broadcast.service');
+    //                     BroadcastService.broadcastToWeb(executingLogId, item);
+    //                 }, 2000);
+    //                 return resolve(item);
+    //             }).catch(reject);
+    //         }).catch(reject);
+    //     });
+    // },
 
     updateUploadingShell: (_id, shellPath) => {
         return new Promise((resolve, reject) => {
@@ -51,14 +56,47 @@ exports = module.exports = {
                         exports.validate(obj, 1);
                         exports.update(obj).then((rs) => {
                             utils.deleteFile(utils.getAbsoluteUpload(item.content));
-                            resolve(rs);
+                            return resolve(rs);
                         }).catch(reject);
                     } catch (e) {
-                        reject(e);
+                        return reject(e);
                     }
                 }).catch(reject);
             }).catch(reject);
         })
+    },
+
+    uploadPlugin: (shell) => {
+        return new Promise((resolve, reject) => {
+            try {
+                let ExecutingLogs = require('./ExecutingLogs.service');
+                ExecutingLogs.insert({
+                    event_type: ExecutingLogs.EVENT_TYPE.UPLOAD_PLUGIN,
+                    status: ExecutingLogs.STATUS.RUNNING,
+                    title: shell.name,
+                    shellclass_id: shell._id,
+                    started_time: new Date()
+                }).then((rs) => {
+                    let data = {
+                        '#': rs.insertedIds[0].toString(),
+                        Command: appconfig.rabbit.channel.uploadPlugin.cmd,
+                        Params: {
+                            cloud_ip: appconfig.rabbit.cloud_ip,
+                            blueprint_name: shell.name,
+                            archive_file_link: `${appconfig.staticUrl}${shell.content}`,
+                            blueprint_file_name: shell.yaml
+                        },
+                        From: appconfig.rabbit.api.queueName
+                    };                    
+                    let BroadcastService = require('./Broadcast.service');
+                    BroadcastService.broadcastToRabQ(appconfig.rabbit.channel.uploadPlugin.exchange, appconfig.rabbit.channel.uploadPlugin.queueName, appconfig.rabbit.channel.uploadPlugin.exchangeType, data).then((data) => {
+                        resolve(data);
+                    }).catch(reject);
+                }).catch(reject);
+            } catch (e) {
+                reject(e);
+            }
+        });
     },
 
     insertUploadingShell: (newShell) => {
@@ -68,17 +106,19 @@ exports = module.exports = {
                     let obj = {
                         name: meta.name,
                         des: meta.des,
+                        yaml: meta.yaml,
                         scripts: meta.scripts,
                         input: meta.input,
                         plugins: meta.plugins,
                         content: newShell,
                         created_date: new Date(),
-                        updated_date: new Date()
+                        updated_date: new Date(),
+                        status: exports.STATUS.RUNNING
                     };
                     exports.validate(obj, 0);
                     exports.insert(obj).then(resolve).catch(reject);
                 } catch (e) {
-                    reject(e);
+                    return reject(e);
                 }
             }).catch(reject);
         });
@@ -98,18 +138,14 @@ exports = module.exports = {
                         meta = JSON.parse(meta);
                         utils.validateJson(meta, require('../validation/ShellClass.validation'));
                     } catch (e) {
-                        reject(e);
+                        return reject(e);
                     }
-                } else if (/(index\.sh$)|(index\.bat$)/.test(zipEntry.entryName)) {
-                    hasSh = true;
                 }
             });
             if (!hasMeta) {
-                reject(new Error('Need file config.json in plugin'));
-            } else if (!hasSh) {
-                reject(new Error('Need file index.(sh or bat) in plugin'));
+                return reject(new Error('Need file config.json in plugin'));
             } else {
-                resolve(meta);
+                return resolve(meta);
             }
         });
     },

@@ -1,6 +1,6 @@
 let restify = require('restify');
 let path = require('path');
-var extend = require('util')._extend;
+let _ = require('lodash');
 
 let db = require('../db');
 let utils = require('../utils');
@@ -13,41 +13,47 @@ let utils = require('../utils');
 
 exports = module.exports = {
     COLLECTION: 'ShellInstance',
-
-    bindDataInShellInstanceScript: (data, shellInstance) => {
+    STATUS: {
+        RUNNING: 0,
+        SUCCESSED: 1,
+        FAILED: -1
+    },
+    bindDataInShellInstanceScript: (data, bindingData) => {
         for (var i in data) {
-            if (/\$\{[^\}]+\}/.test(data[i])) {
-                data[i] = shellInstance[i];
+            if (typeof data[i] === 'string') {
+                let m = data[i].match(/\$\{([^\}]+)\}$/);
+                if(m) data[i] = eval(`bindingData.${m[1]}`);
             }
         }
         return data;
     },
     // Call via rabbit mq to execute script
-    executeScript: (_id, parentIndex, index) => {
+    executeScript: (_id, name) => {
         return new Promise((resolve, reject) => {
             exports.get(_id).then((shellInstance) => {
                 let ShellClassService = require('./ShellClass.service');
-                ShellClassService.get(shellInstance.data.shellclass_id).then((shellClass) => {
+                ShellClassService.get(shellInstance.shellclass_id).then((shellClass) => {
                     try {
-                        let scripts = index === undefined ? shellClass.scripts : shellClass.plugins[index].scripts;
-                        if (!scripts || !scripts[parentIndex]) {
-                            return reject(`Could not find command at "${parentIndex}" in plugin ${index}`);
-                        }
-                        let data = extend({}, scripts[parentIndex]);
+                        let scripts = shellClass.scripts;
+                        if (!scripts || !scripts[name]) {
+                            return reject(`Could not find command at "${name}" in plugin ${index}`);
+                        }                        
                         let ExecutingLogs = require('./ExecutingLogs.service');
                         ExecutingLogs.insert({
                             event_type: ExecutingLogs.EVENT_TYPE.SCRIPT,
                             status: ExecutingLogs.STATUS.RUNNING,
-                            title: shellClass.name,
-                            event_name: data.name,
+                            title: shellInstance.name,
+                            event_name: name,
                             shellinstance_id: _id
                         }).then((rs) => {
-                            delete data.name;
-                            data = exports.bindDataInShellInstanceScript(data, index === undefined ? shellInstance.data : shellInstance.data.shell_instances[index]);
-                            data['#'] = rs.insertedIds[0].toString();
-                            data['#NS'] = shellClass._id.toString();
+                            let data = _.clone(scripts[name].data);
+                            data = data === undefined ? undefined : exports.bindDataInShellInstanceScript(data, _.assign({
+                                '#': rs.insertedIds[0].toString(),
+                                inputData: shellInstance.inputData
+                            }, shellClass));
                             let BroadcastService = require('./Broadcast.service');
-                            BroadcastService.broadcastToRabQ(shellInstance.data.target, appconfig.rabbit.executing.channelType, data).then((data) => {
+                            // TODO: Thieu queue name va queue type
+                            BroadcastService.broadcastToRabQ(appconfig.rabbit.channel.getInfor.exchange, appconfig.rabbit.getInfor.name, appconfig.rabbit.getInfor.exchangeType, data).then((data) => {
                                 resolve(data);
                             }).catch(reject);
                         }).catch(reject);
@@ -59,6 +65,104 @@ exports = module.exports = {
 
         });
     },
+
+    getInformation: (_id) => {
+        return new Promise((resolve, reject) => {
+            exports.get(_id).then((shellInstance) => {                
+                try {
+                    let ExecutingLogs = require('./ExecutingLogs.service');
+                    ExecutingLogs.insert({
+                        event_type: ExecutingLogs.EVENT_TYPE.GET_INFORMATION,
+                        status: ExecutingLogs.STATUS.RUNNING,
+                        title: shellInstance.name,
+                        event_name: 'GET INFORMATION',
+                        shellinstance_id: _id
+                    }).then((rs) => {
+                        let data = {
+                            '#': rs.insertedIds[0].toString(),
+                            cloud_ip: appconfig.rabbit.cloud_ip,
+                            deployment_name: shellInstance.name
+                        };
+                        let BroadcastService = require('./Broadcast.service');
+                        BroadcastService.broadcastToRabQ(appconfig.rabbit.channel.getInfor.exchange, appconfig.rabbit.channel.getInfor.name, appconfig.rabbit.channel.getInfor.exchangeType, data).then((data) => {
+                            resolve(data);
+                        }).catch(reject);
+                    }).catch(reject);
+                } catch (e) {
+                    reject(e);
+                }
+            });
+
+        });
+    },
+
+    createInstance: (shellInstance) => {
+        return new Promise((resolve, reject) => {
+            try {
+                let ShellClassService = require('./ShellClass.service');
+                ShellClassService.get(shellInstance.shellclass_id).then((shellClass) => {
+                    let ExecutingLogs = require('./ExecutingLogs.service');
+                    ExecutingLogs.insert({
+                        event_type: ExecutingLogs.EVENT_TYPE.CREATE_INSTANCE,
+                        status: ExecutingLogs.STATUS.RUNNING,
+                        title: shellInstance.name,
+                        shellinstance_id: shellInstance._id
+                    }).then((rs) => {
+                        let data = {
+                            '#': rs.insertedIds[0].toString(),
+                            Command: appconfig.rabbit.channel.createInstance.cmd,
+                            Params: {
+                                deployment_name: shellInstance.name,
+                                blueprint_name: shellClass.name,
+                                cloud_ip: appconfig.rabbit.cloud_ip,
+                                input_string: _.clone(shellInstance.data),
+                            },
+                            From: appconfig.rabbit.api.queueName
+                        }
+                        let BroadcastService = require('./Broadcast.service');
+                        BroadcastService.broadcastToRabQ(appconfig.rabbit.channel.createInstance.exchange, appconfig.rabbit.channel.createInstance.name, appconfig.rabbit.channel.createInstance.exchangeType, data).then((data) => {
+                            resolve(data);
+                        }).catch(reject);
+                    }).catch(reject);
+                }).catch(reject);
+            } catch (e) {
+                reject(e);
+            }
+        });
+    },
+
+    deployInstance: (_id) => {
+        return new Promise((resolve, reject) => {
+            exports.get(_id).then((shellInstance) => {
+                try {
+                    let ExecutingLogs = require('./ExecutingLogs.service');
+                    ExecutingLogs.insert({
+                        event_type: ExecutingLogs.EVENT_TYPE.DEPLOY_INSTANCE,
+                        status: ExecutingLogs.STATUS.RUNNING,
+                        title: shellInstance.name,
+                        shellinstance_id: shellInstance._id
+                    }).then((rs) => {
+                        let data = {
+                            '#': rs.insertedIds[0].toString(),
+                            Command: appconfig.rabbit.channel.deployInstance.cmd,
+                            Params: {
+                                cloud_ip: appconfig.rabbit.cloud_ip,
+                                deployment_name: shellInstance.name,
+                            },
+                            From: appconfig.rabbit.api.queueName
+                        };
+                        let BroadcastService = require('./Broadcast.service');
+                        BroadcastService.broadcastToRabQ(appconfig.rabbit.channel.deployInstance.exchange, appconfig.rabbit.channel.deployInstance.name, appconfig.rabbit.channel.deployInstance.exchangeType, data).then((data) => {
+                            resolve(data);
+                        }).catch(reject);
+                    }).catch(reject);
+                } catch (e) {
+                    reject(e);
+                }
+            });
+        });
+    },
+    
 
     // Call via rabbit mq to execute script
     execute: (_id, index) => {
@@ -74,7 +178,7 @@ exports = module.exports = {
                             title: shellClass.name,
                             shellinstance_id: _id
                         }).then((rs) => {
-                            let data = extend({}, index === undefined ? shellInstance.data : shellInstance.data.shell_instances[index]);
+                            let data = _.clone(index === undefined ? shellInstance.data : shellInstance.data.shell_instances[index]);
                             data['#'] = rs.insertedIds[0].toString();
                             data['#NS'] = shellClass._id.toString();
                             delete data.shellclass_id;
@@ -93,42 +197,42 @@ exports = module.exports = {
         });
     },
 
-    // Call via rabbit mq to install
-    install: (shellInstance) => {
-        return new Promise((resolve, reject) => {
-            try {
-                let ShellClassService = require('./ShellClass.service');
-                ShellClassService.get(shellInstance.data.shellclass_id).then((item) => {
-                    let data = {
-                        '#NS': item._id,
-                        target: shellInstance.data.target,
-                        link: `${appconfig.staticUrl}${item.content}`
-                    };
-                    let ExecutingLogs = require('./ExecutingLogs.service');
-                    ExecutingLogs.insert({
-                        event_type: ExecutingLogs.EVENT_TYPE.INSTALLING,
-                        status: ExecutingLogs.STATUS.RUNNING,
-                        title: item.name,
-                        shellinstance_id: shellInstance._id,
-                        started_time: new Date()
-                    }).then((rs) => {
-                        data['#'] = rs.insertedIds[0].toString();
-                        let BroadcastService = require('./Broadcast.service');
-                        BroadcastService.broadcastToRabQ(appconfig.rabbit.installing.channelName, appconfig.rabbit.installing.channelType, data).then((data) => {
-                            resolve(data);
-                        }).catch(reject);
-                    }).catch(reject);
-                });
-            } catch (e) {
-                reject(e);
-            }
-        });
-    },
+    // // Call via rabbit mq to install
+    // install: (shellInstance) => {
+    //     return new Promise((resolve, reject) => {
+    //         try {
+    //             let ShellClassService = require('./ShellClass.service');
+    //             ShellClassService.get(shellInstance.data.shellclass_id).then((item) => {
+    //                 let data = {
+    //                     cloud_ip: '10.64.0.162',
+    //                     blueprint_name: shellInstance.name,
+    //                     archive_file_link: `${appconfig.staticUrl}${item.content}`,
+    //                     blueprint_file_name: shellInstance.yaml
+    //                 };
+    //                 let ExecutingLogs = require('./ExecutingLogs.service');
+    //                 ExecutingLogs.insert({
+    //                     event_type: ExecutingLogs.EVENT_TYPE.INSTALLING,
+    //                     status: ExecutingLogs.STATUS.RUNNING,
+    //                     title: item.name,
+    //                     shellinstance_id: shellInstance._id,
+    //                     started_time: new Date()
+    //                 }).then((rs) => {
+    //                     data['#'] = rs.insertedIds[0].toString();
+    //                     let BroadcastService = require('./Broadcast.service');
+    //                     BroadcastService.broadcastToRabQ(appconfig.rabbit.installing.channelName, appconfig.rabbit.installing.channelType, data).then((data) => {
+    //                         resolve(data);
+    //                     }).catch(reject);
+    //                 }).catch(reject);
+    //             });
+    //         } catch (e) {
+    //             reject(e);
+    //         }
+    //     });
+    // },
 
     validate: (obj, action) => {
         switch (action) {
             case 0: // For inserting
-                if (!utils.has(obj.data.target)) throw new restify.BadRequestError('target is required!');
                 break;
             case 1: // For updating
                 if (!utils.has(obj._id)) throw new restify.BadRequestError('_id is required!');
@@ -161,7 +265,6 @@ exports = module.exports = {
                     db.insert(obj).then(resolve).catch(reject);
                 }).catch(reject);
             } catch (e) {
-
                 reject(e);
             }
         });

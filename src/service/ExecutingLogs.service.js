@@ -11,10 +11,12 @@ let utils = require('../utils');
 exports = module.exports = {
     COLLECTION: 'ExecutingLogs',
     EVENT_TYPE: {
-        INSTALLING: 0, // Installation
-        EXECUTING: 1, // Deploy
-        SCRIPT: 2, // GetInformation
-        TESTING: 3 // Test
+        UPLOAD_PLUGIN: 0, // Installation
+        CREATE_INSTANCE: 1, // Deploy
+        DEPLOY_INSTANCE: 2, // GetInformation
+        GET_INFORMATION: 3,
+        RESTART_INSTANCE: 4,
+        UNDEPLOY_INSTANCE: 5
     },
     STATUS: {
         RUNNING: 0,
@@ -29,7 +31,7 @@ exports = module.exports = {
                 if (!utils.has(obj.event_type)) throw new restify.BadRequestError('event_type is required!');
                 if (!utils.has(obj.status)) throw new restify.BadRequestError('status is required!');
                 if (!utils.has(obj.title)) throw new restify.BadRequestError('title is required!');
-                if (!utils.has(obj.shellinstance_id)) throw new restify.BadRequestError('shellinstance_id is required!');
+                // if (!utils.has(obj.shellclass_id)) throw new restify.BadRequestError('shellclass_id is required!');
                 break;
             case 1: // For updating
                 obj.finished_time = new Date();
@@ -74,16 +76,23 @@ exports = module.exports = {
             try {
                 exports.validate(obj, 1);
                 db.open(exports.COLLECTION).then((db) => {
-                    db.update(obj, db.FAIL).then(() => {
-                        let ShellInstanceService = require('./ShellInstance.service');
-                        if(obj.event_type === exports.EVENT_TYPE.INSTALLING){
+                    db.update(obj, db.FAIL).then(() => {                        
+                        if(obj.event_type === exports.EVENT_TYPE.UPLOAD_PLUGIN){
+                            let ShellClassService = require('./ShellClass.service');
+                            db.get(obj.shellclass_id, {close: db.FAIL, collection: ShellClassService.COLLECTION}).then((shellClass) => {
+                                shellClass.status = obj.Error ? ShellClassService.STATUS.FAILED : ShellClassService.STATUS.SUCCESSED;
+                                db.update(shellClass, {collection: ShellClassService.COLLECTION}).then(resolve).catch(reject);
+                            }).catch(reject);
+                        }else if(obj.event_type === exports.EVENT_TYPE.CREATE_INSTANCE){
+                            let ShellInstanceService = require('./ShellInstance.service');
                             db.get(obj.shellinstance_id, {close: db.FAIL, collection: ShellInstanceService.COLLECTION}).then((shellInstance) => {
-                                shellInstance.status.installing = obj.error ? -1 : 1;
+                                shellInstance.status.created = obj.Error ? ShellInstanceService.STATUS.FAILED : ShellInstanceService.STATUS.SUCCESSED;
                                 db.update(shellInstance, {collection: ShellInstanceService.COLLECTION}).then(resolve).catch(reject);
                             }).catch(reject);
-                        }else if(obj.event_type === exports.EVENT_TYPE.EXECUTING){
+                        }else if(obj.event_type === exports.EVENT_TYPE.DEPLOY_INSTANCE){
+                            let ShellInstanceService = require('./ShellInstance.service');
                             db.get(obj.shellinstance_id, {close: db.FAIL, collection: ShellInstanceService.COLLECTION}).then((shellInstance) => {
-                                shellInstance.status.executing = obj.error ? -1 : 1;
+                                shellInstance.status.deployed = obj.Error ? ShellInstanceService.STATUS.FAILED : ShellInstanceService.STATUS.SUCCESSED;
                                 db.update(shellInstance, {collection: ShellInstanceService.COLLECTION}).then(resolve).catch(reject);
                             }).catch(reject);
                         }else{

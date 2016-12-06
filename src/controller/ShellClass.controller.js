@@ -11,7 +11,9 @@ let ShellClassService = require('../service/ShellClass.service');
  *************************************/
 
 server.get('/ShellClass', utils.jsonHandler(), (req, res, next) => {
-    return ShellClassService.find({page: +req.query.page, recordsPerPage: +req.query.recordsPerPage, sortBy: {updatedDate: -1}}).then((rs) => {
+    let where = {};
+    if(utils.has(req.query.status)) where.status = +req.query.status;
+    return ShellClassService.find({ where: where, page: +req.query.page, recordsPerPage: +req.query.recordsPerPage, sortBy: {updatedDate: -1}}).then((rs) => {
         res.send(rs);
     }).catch(next);
 });
@@ -22,11 +24,11 @@ server.get('/ShellClass/:_id', utils.jsonHandler(), (req, res, next) => {
     }).catch(next);
 });
 
-server.post('/ShellClass/result/:executingLogId', utils.jsonHandler(), (req, res, next) => {
-    ShellClassService.updateResult(req.params.executingLogId, req.body).then((rs) => {        
-        res.send(rs); 
-    }).catch(next);
-});
+// server.post('/ShellClass/result/:executingLogId', utils.jsonHandler(), (req, res, next) => {
+//     ShellClassService.updateResult(req.params.executingLogId, req.body).then((rs) => {        
+//         res.send(rs); 
+//     }).catch(next);
+// });
 
 // server.post('/ShellClass/execute/:id', utils.jsonHandler(), (req, res, next) => {
 //     ShellClassService.execute(req.params.id, req.body).then((rs) => {
@@ -64,8 +66,10 @@ server.post('/ShellClass/upload', utils.fileUploadHandler({
 	"multiples": false,
 	"httpPath": "/shells/${filename}"
 }), (req, res, next) => {
-    ShellClassService.insertUploadingShell(req.file.shells).then((rs) => {
-        res.send(rs);
+    ShellClassService.insertUploadingShell(req.file.shells).then((resp) => {
+        ShellClassService.uploadPlugin(resp.ops[0]).then((rs) => {
+            res.send({class: resp.ops[0], session: rs['#']});
+        }).catch(next);        
     }).catch((err) => {
         utils.deleteFile(utils.getAbsoluteUpload(req.file.shells, path.join(__dirname, '..', '..', 'assets', 'shells', '')));
         next(err);

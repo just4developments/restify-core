@@ -5,6 +5,9 @@ module.exports = {
         "name": {
             "type": "string"
         },
+        "yaml": {
+            "type": "string"
+        },
         "des": {
             "type": "string"
         },
@@ -73,6 +76,12 @@ module.exports = {
                         },
                         "script": {
                             "type": "string"
+                        },
+                        "des": {
+                            "type": "string"
+                        },
+                        "data": {
+                            "type": "object"
                         }
                     },
                     "required": ["name", "script"]

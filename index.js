@@ -70,7 +70,7 @@ io.sockets.on('connection', function (socket) {
     });
 });
 
-BroadcastService.listenFromRabQ(appconfig.rabbit.api.channelName, appconfig.rabbit.api.channelType).then(() => {
+BroadcastService.listenFromRabQ(appconfig.rabbit.api.exchange, appconfig.rabbit.api.queueName, appconfig.rabbit.api.exchangeType).then(() => {
     console.log('RabitQ Listened');
 }).catch((err) => {
     console.error(err);

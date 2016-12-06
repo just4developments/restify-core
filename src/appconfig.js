@@ -1,23 +1,45 @@
 module.exports = {
     listen: 8080,
-    staticUrl: 'http://192.168.0.111:8080',
+    staticUrl: 'http://10.64.255.105:8080',
     db: {
         url: 'mongodb://localhost:27017/validium'
     },
-    rabbit: {
-        url: 'amqp://192.168.0.72',
-        timeout: 500,
+    rabbit: {        
+        url: 'amqp://10.64.0.168',
+        closeTimeout: 500,
+        toWebTimeout: 2000,
         api: {
-            channelName: 'api',
-            channelType: 'fanout'
+            exchange: 'logs',
+            exchangeType: 'fanout',
+            queueName: 'api6'            
         },
-        installing: {
-            channelName: 'installer',
-            channelType: 'fanout'
+        channel : {
+            uploadPlugin: {                
+                cmd: "upload_plugin",
+                exchange: 'logs',
+                queueName: 'vnf_onboarding',
+                exchangeType: 'fanout'
+            },
+            createInstance: {                
+                cmd: 'create_deployment',
+                exchange: 'logs',
+                queueName: 'vnf_onboarding',
+                exchangeType: 'fanout'
+            },
+            deployInstance: {                
+                cmd: 'install_deployment',
+                exchange: 'logs',
+                queueName: 'vnf_onboarding',
+                exchangeType: 'fanout'
+            },
+            getInfor: {
+                cmd: 'get_info',
+                exchange: 'logs',
+                queueName: 'administrator',
+                exchangeType: 'fanout'
+            }
         },
-        executing: {
-            channelType: 'fanout'
-        }
+        cloud_ip: '10.64.0.162'
     },
     static: {
         shells: {

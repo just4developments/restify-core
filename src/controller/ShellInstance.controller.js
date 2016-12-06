@@ -24,12 +24,13 @@ server.get('/ShellInstance/:_id', utils.jsonHandler(), (req, res, next) => {
 });
 
 server.get('/ShellInstanceByClass/:_id', utils.jsonHandler(), (req, res, next) => {
-    return ShellInstanceService.find({where: {"data.shellclass_id": req.params._id} }).then((rs) => {
+    return ShellInstanceService.find({where: {"shellclass_id": req.params._id} }).then((rs) => {
         res.send(rs);
     }).catch(next);
 });
 
-server.post('/ShellInstance', utils.jsonHandler(), (req, res, next) => {
+// Create plugin
+server.post('/ShellInstance/create', utils.jsonHandler(), (req, res, next) => {
     var body =  req.body;
     body.status = {
         installing: 0,
@@ -38,22 +39,29 @@ server.post('/ShellInstance', utils.jsonHandler(), (req, res, next) => {
 	body.created_date = new Date();
 	body.updated_date = new Date();
     ShellInstanceService.insert(body).then((rs0) => {
-        ShellInstanceService.install(body).then((rs) => {
-            res.send({instance: rs0, session: rs}); 
+        ShellInstanceService.createInstance(rs0.ops[0]).then((rs) => {
+            res.send({instance: rs0.ops[0], session: rs["#"]}); 
         }).catch(next);
     }).catch(next);
 });
 
-// Execute parent plugin scripts GetInformation
-server.post('/ShellInstance/execute/:id/:name', utils.jsonHandler(), (req, res, next) => {
-    ShellInstanceService.executeScript(req.params.id, req.params.name).then((rs) => {
+// Deploy plugin
+server.post('/ShellInstance/deploy/:id', utils.jsonHandler(), (req, res, next) => {
+    ShellInstanceService.deployInstance(req.params.id).then((rs) => {
        res.send(rs["#"]); 
     }).catch(next);
 });
 
-// Execute parent plugin DEPLOY
-server.post('/ShellInstance/execute/:id', utils.jsonHandler(), (req, res, next) => {
-    ShellInstanceService.execute(req.params.id).then((rs) => {
+// Execute parent plugin scripts GetInformation
+server.get('/ShellInstance/information/:id', utils.jsonHandler(), (req, res, next) => {
+    ShellInstanceService.getInformation(req.params.id).then((rs) => {
+       res.send(rs["#"]); 
+    }).catch(next);
+});
+
+// Execute parent plugin scripts like restart ...
+server.post('/ShellInstance/execute-script/:id/:name', utils.jsonHandler(), (req, res, next) => {
+    ShellInstanceService.executeScript(req.params.id, req.params.name).then((rs) => {
        res.send(rs["#"]); 
     }).catch(next);
 });
