@@ -131,6 +131,20 @@ exports = module.exports = {
             let hasSh = false;
             let meta;
             zip.getEntries().forEach(function (zipEntry) {
+                if(zipEntry.isDirectory){
+                    zip.getEntries(zipEntry.entryName).forEach(function (zipEntry) {
+                    if (/config\.json$/.test(zipEntry.entryName)) {
+                        hasMeta = true;
+                        try {
+                            meta = zipEntry.getData().toString();
+                            meta = JSON.parse(meta);
+                            utils.validateJson(meta, require('../validation/ShellClass.validation'));
+                        } catch (e) {
+                            return reject(e);
+                        }
+                    }
+                });
+                }
                 if (/config\.json$/.test(zipEntry.entryName)) {
                     hasMeta = true;
                     try {
