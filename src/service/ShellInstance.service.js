@@ -113,7 +113,7 @@ exports = module.exports = {
                             Command: appconfig.rabbit.channel.createInstance.cmd,
                             Params: {
                                 deployment_name: shellInstance.name,
-                                blueprint_name: shellClass.name,
+                                blueprint_id: shellClass.name,
                                 cloud_ip: appconfig.rabbit.cloud_ip,
                                 input_string: _.clone(shellInstance.inputData),
                             },
@@ -205,7 +205,7 @@ exports = module.exports = {
     //             ShellClassService.get(shellInstance.data.shellclass_id).then((item) => {
     //                 let data = {
     //                     cloud_ip: '10.64.0.162',
-    //                     blueprint_name: shellInstance.name,
+    //                     blueprint_id: shellInstance.name,
     //                     archive_file_link: `${appconfig.staticUrl}${item.content}`,
     //                     blueprint_file_name: shellInstance.yaml
     //                 };
