@@ -6,7 +6,7 @@
         'content-type': 'multipart/form-data'
     },
     requestBody: {
-        YOUR_DATA
+        ${insertFields}
     }
 }
 
@@ -24,7 +24,7 @@
         'content-type': 'multipart/form-data'
     },
     requestBody: {
-        
+        ${updateFields}
     }
 }
 
