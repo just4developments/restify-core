@@ -46,7 +46,7 @@ server.post('/ShellInstance', utils.jsonHandler(), (req, res, next) => {
 });
 
 // Delete instance
-server.delete('/ShellInstance/:id', utils.jsonHandler(), (req, res, next) => {
+server.del('/ShellInstance/:id', utils.jsonHandler(), (req, res, next) => {
     var body =  req.body;
     body.status = {
         installing: 0,
@@ -64,7 +64,7 @@ server.post('/ShellInstance/deploy/:id', utils.jsonHandler(), (req, res, next) =
 });
 
 // Delete Deploy instance
-server.delete('/ShellInstance/deploy/:id', utils.jsonHandler(), (req, res, next) => {
+server.del('/ShellInstance/deploy/:id', utils.jsonHandler(), (req, res, next) => {
     res.send('09324923402802390');
 });
 
