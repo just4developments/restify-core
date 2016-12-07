@@ -29,8 +29,8 @@ server.get('/ShellInstanceByClass/:_id', utils.jsonHandler(), (req, res, next) =
     }).catch(next);
 });
 
-// Create plugin
-server.post('/ShellInstance/create', utils.jsonHandler(), (req, res, next) => {
+// Create instance
+server.post('/ShellInstance', utils.jsonHandler(), (req, res, next) => {
     var body =  req.body;
     body.status = {
         installing: 0,
@@ -45,11 +45,27 @@ server.post('/ShellInstance/create', utils.jsonHandler(), (req, res, next) => {
     }).catch(next);
 });
 
-// Deploy plugin
+// Delete instance
+server.delete('/ShellInstance/:id', utils.jsonHandler(), (req, res, next) => {
+    var body =  req.body;
+    body.status = {
+        installing: 0,
+        executing: 0
+    };
+	body.updated_date = new Date();
+    res.send('09324923402802390');
+});
+
+// Deploy instance
 server.post('/ShellInstance/deploy/:id', utils.jsonHandler(), (req, res, next) => {
     ShellInstanceService.deployInstance(req.params.id).then((rs) => {
        res.send(rs["#"]); 
     }).catch(next);
+});
+
+// Delete Deploy instance
+server.delete('/ShellInstance/deploy/:id', utils.jsonHandler(), (req, res, next) => {
+    res.send('09324923402802390');
 });
 
 // Execute parent plugin scripts GetInformation

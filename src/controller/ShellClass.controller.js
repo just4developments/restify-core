@@ -61,7 +61,7 @@ server.opts('/ShellClass/upload', (req, res, next) => {
     res.end();    
 });
 
-server.post('/ShellClass/upload', utils.fileUploadHandler({
+server.post('/ShellClass', utils.fileUploadHandler({
 	"uploadDir": "assets/shells/",
 	"multiples": false,
 	"httpPath": "/shells/${filename}"
@@ -76,26 +76,8 @@ server.post('/ShellClass/upload', utils.fileUploadHandler({
     });    
 });
 
-// server.put('/ShellClass/:_id', utils.jsonHandler(), (req, res, next) => {
-//     var body = {
-//         _id: req.params._id
-//     };
-//     if (req.body.name) body.name = req.body.name;
-//     if (req.body.des) body.des = req.body.des;
-//     if (req.body.category_id) body.category_id = +req.body.category_id;
-//     if (req.body.input && req.body.input instanceof Arrayable) body.input = req.body.input;
-//     if (req.body.output && req.body.output instanceof Arrayable) body.output = req.body.output;
-//     if (req.body.target && req.body.input instanceof Arrayable) body.target = req.body.target;
-//     if (req.body.content) body.content = req.body.content;
-//     body.updatedDate = new Date();
-//     if (req.files.shells) body.shells = utils.getPathUpload(req.files.shells, '/assets/shells/');
-//     ShellClassService.update(body).then((rs) => {
-//         res.send(rs);
-//     }).catch(next);
-// });
-
 server.del('/ShellClass/:_id', utils.jsonHandler(), (req, res, next) => {
     ShellClassService.delete(req.params._id).then((rs) => {
-        res.send(rs);
+        res.send('09324923402802390');
     }).catch(next);
 })
