@@ -1,7 +1,80 @@
 let amqp = require('amqplib/callback_api');
 let uuid = require('node-uuid');
+let ExecutingLogs = require('./ExecutingLogs.service');
 
 exports = module.exports = {
+
+    uploadedPlugin: (logItem) => {
+        return new Promise((resolve, reject) => {
+            let ShellClassService = require('../service/ShellClass.service');
+            ShellClassService.get(logItem.shellclass_id.toString()).then((shellClass) => {
+                if(shellClass.status !== ShellClassService.STATE.UPLOADING) return reject(new restify.PreconditionFailedError(`This instance state is ${shellClass.status} != UPLOADING`));
+                ShellClassService.update({
+                    _id: shellClass._id,
+                    status: logItem.status === ExecutingLogs.STATUS.SUCCESSED ? ShellClassService.STATE.UPLOADED : ShellClassService.STATE.UPLOAD_FAILED
+                }).then(resolve).catch(reject);
+            }).catch(reject);
+        });
+    },
+
+    createdInstance: (logItem) => {
+        return new Promise((resolve, reject) => {
+            let ShellInstanceService = require('../service/ShellInstance.service');
+            ShellInstanceService.get(logItem.shellinstance_id.toString()).then((shellInstance) => {
+                if(shellInstance.status === ShellInstanceService.STATE.CREATING) {
+                    if(logItem.status === ExecutingLogs.STATUS.SUCCESSED){                    
+                        ShellInstanceService.update({
+                            _id: shellInstance._id,
+                            status: ShellInstanceService.STATE.CREATED
+                        }).then(resolve).catch(reject);
+                    }else{
+                        ShellInstanceService.delete(shellInstance._id).then(resolve).catch(reject);
+                    }
+                }else {
+                    return reject(new restify.PreconditionFailedError(`This instance state is ${shellInstance.status} != CREATING`));
+                }
+            }).catch(reject);
+        });
+    },
+
+    deployedInstance: (logItem) => {
+        return new Promise((resolve, reject) => {
+            let ShellInstanceService = require('../service/ShellInstance.service');
+            ShellInstanceService.get(logItem.shellinstance_id.toString()).then((shellInstance) => {
+                if(shellInstance.status !== ShellInstanceService.STATE.DEPLOYING) return reject(new restify.PreconditionFailedError(`This instance state is ${shellInstance.status} != DEPLOYING`));
+                ShellInstanceService.update({
+                    _id: shellInstance._id,
+                    status: logItem.status === ExecutingLogs.STATUS.SUCCESSED ? ShellInstanceService.STATE.DEPLOYED : ShellInstanceService.STATE.DEPLOY_FAILED
+                }).then(resolve).catch(reject);
+            }).catch(reject);
+        });
+    },
+
+    undeployedInstance: (logItem) => {
+        return new Promise((resolve, reject) => {
+            let ShellInstanceService = require('../service/ShellInstance.service');
+            ShellInstanceService.get(logItem.shellinstance_id.toString()).then((shellInstance) => {
+                if(shellInstance.status !== ShellInstanceService.STATE.UNDEPLOYING) return reject(new restify.PreconditionFailedError(`This instance state is ${shellInstance.status} != UNDEPLOYING`));
+                ShellInstanceService.update({
+                    _id: shellInstance._id,
+                    status: logItem.status === ExecutingLogs.STATUS.SUCCESSED ? ShellInstanceService.STATE.UNDEPLOYED : ShellInstanceService.STATE.UNDEPLOY_FAILED
+                }).then(resolve).catch(reject);
+            }).catch(reject);
+        });
+    },
+
+    deletedInstance: (logItem) => {
+        return new Promise((resolve, reject) => {
+            let ShellInstanceService = require('../service/ShellInstance.service');
+            ShellInstanceService.get(logItem.shellinstance_id.toString()).then((shellInstance) => {
+                if(shellInstance.status !== ShellInstanceService.STATE.DELETING) return reject(new restify.PreconditionFailedError(`This instance state is ${shellInstance.status} != DELETING`));
+                ShellInstanceService.update({
+                    _id: shellInstance._id,
+                    status: logItem.status === ExecutingLogs.STATUS.SUCCESSED ? ShellInstanceService.STATE.DELETED : ShellInstanceService.STATE.DELETE_FAILED
+                }).then(resolve).catch(reject);
+            }).catch(reject);
+        });
+    },
 
     listenFromRabQ: (exchange, queueName, exchangeType) => {
         console.log('Listened from RabQ');
@@ -25,15 +98,36 @@ exports = module.exports = {
                                 rs = JSON.parse(msg.content.toString());
                             }catch(e){
                                 return reject(e);
-                            }
-                            let executingLogs = require('./ExecutingLogs.service');
-                            executingLogs.get(rs['#']).then((item) => {
-                                item.status = rs.Error ? executingLogs.STATUS.FAILED : executingLogs.STATUS.SUCCESSED;
+                            }                            
+                            ExecutingLogs.get(rs['#']).then((item) => {
+                                item.status = rs.Error ? ExecutingLogs.STATUS.FAILED : ExecutingLogs.STATUS.SUCCESSED;
                                 item.result = rs;
-                                executingLogs.update(item).then((rs0) => {
-                                    setTimeout(() => {
-                                        exports.broadcastToWeb(rs['#'], item);
-                                    }, appconfig.rabbit.toWebTimeout);
+                                ExecutingLogs.update(item).then((rs0) => {
+                                    let done = () => {
+                                        setTimeout(() => {
+                                            exports.broadcastToWeb(rs['#'], item);
+                                        }, appconfig.rabbit.toWebTimeout);
+                                    };
+                                    switch (item.event_type) {
+                                        case ExecutingLogs.EVENT_TYPE.UPLOAD_PLUGIN:
+                                            exports.uploadedPlugin(item).then(done).catch(reject);   
+                                            break;
+                                        case ExecutingLogs.EVENT_TYPE.CREATE_INSTANCE:
+                                            exports.createdInstance(item).then(done).catch(reject);   
+                                            break;
+                                        case ExecutingLogs.EVENT_TYPE.DEPLOY_INSTANCE: 
+                                            exports.deployedInstance(item).then(done).catch(reject);
+                                            break;
+                                        case ExecutingLogs.EVENT_TYPE.UNDEPLOY_INSTANCE: 
+                                            exports.undeployedInstance(item).then(done).catch(reject);
+                                            break;
+                                        case ExecutingLogs.EVENT_TYPE.DELETE_INSTANCE: 
+                                            exports.deletedInstance(item).then(done).catch(reject);
+                                            break;
+                                        default:
+                                            done();
+                                            break;
+                                    }
                                 }).catch(reject);
                             }).catch(reject);
                         }, {
@@ -80,11 +174,11 @@ exports = module.exports = {
     //                     }catch(e){
     //                         return reject(e);
     //                     }
-    //                     let executingLogs = require('./ExecutingLogs.service');
-    //                     executingLogs.get(rs['#']).then((item) => {
-    //                         item.status = rs.error ? executingLogs.STATUS.FAILED : executingLogs.STATUS.SUCCESSED;
+    //                     let ExecutingLogs = require('./ExecutingLogs.service');
+    //                     ExecutingLogs.get(rs['#']).then((item) => {
+    //                         item.status = rs.error ? ExecutingLogs.STATUS.FAILED : ExecutingLogs.STATUS.SUCCESSED;
     //                         item.result = rs;
-    //                         executingLogs.update(item).then((rs0) => {
+    //                         ExecutingLogs.update(item).then((rs0) => {
     //                             setTimeout(() => {
     //                                 exports.broadcastToWeb(rs['#'], item);
     //                             }, appconfig.rabbit.toWebTimeout);

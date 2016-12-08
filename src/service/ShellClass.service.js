@@ -14,10 +14,10 @@ let utils = require('../utils');
 
 exports = module.exports = {
     COLLECTION: 'ShellClass',
-    STATUS: {
-        RUNNING: 0,
-        SUCCESSED: 1,
-        FAILED: -1
+    STATE: {
+        UPLOADING: 0,
+        UPLOADED: 1,
+        UPLOAD_FAILED: -1
     },
 
     // updateResult: (executingLogId, data) => {
@@ -113,7 +113,7 @@ exports = module.exports = {
                         content: newShell,
                         created_date: new Date(),
                         updated_date: new Date(),
-                        status: exports.STATUS.RUNNING
+                        status: exports.STATE.UPLOADING
                     };
                     exports.validate(obj, 0);
                     exports.insert(obj).then(resolve).catch(reject);

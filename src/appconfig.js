@@ -26,8 +26,20 @@ module.exports = {
                 queueName: 'vnf_onboarding',
                 exchangeType: 'fanout'
             },
+            deleteInstance: {                
+                cmd: 'delete_deployment',
+                exchange: 'logs',
+                queueName: 'vnf_onboarding',
+                exchangeType: 'fanout'
+            },
             deployInstance: {                
                 cmd: 'install_deployment',
+                exchange: 'logs',
+                queueName: 'vnf_onboarding',
+                exchangeType: 'fanout'
+            },
+            undeployInstance: {                
+                cmd: 'uninstall_deployment',
                 exchange: 'logs',
                 queueName: 'vnf_onboarding',
                 exchangeType: 'fanout'

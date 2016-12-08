@@ -13,6 +13,20 @@ let utils = require('../utils');
 
 exports = module.exports = {
     COLLECTION: 'ShellInstance',
+    STATE: {
+        CREATING: 0,
+        CREATED: 1,
+        CREATE_FAILED: -1,
+        DEPLOYING: 2,
+        DEPLOYED: 3,
+        DEPLOY_FAILED: -3,
+        UNDEPLOYING: 4,
+        UNDEPLOYED: 5,
+        UNDEPLOY_FAILED: -5,
+        DELETING: 6,
+        DELETED: 7,
+        DELETE_FAILED: -7 
+    },
     STATUS: {
         RUNNING: 0,
         SUCCESSED: 1,
@@ -115,7 +129,7 @@ exports = module.exports = {
                                 deployment_id: shellInstance.name,
                                 blueprint_id: shellClass.name,
                                 cloud_ip: appconfig.rabbit.cloud_ip,
-                                input_string: _.clone(shellInstance.inputData),
+                                input_string: shellInstance.inputData,
                             },
                             From: appconfig.rabbit.api.queueName
                         }
@@ -131,31 +145,122 @@ exports = module.exports = {
         });
     },
 
+    undeployInstance: (_id) => {
+        return new Promise((resolve, reject) => {
+            exports.get(_id).then((shellInstance) => {
+                try {
+                    if(shellInstance.status === exports.STATE.DEPLOYED) {
+                        exports.update({
+                            _id: shellInstance._id,
+                            status: exports.STATE.UNDEPLOYING
+                        }).then((rs) => {
+                            let ExecutingLogs = require('./ExecutingLogs.service');
+                            ExecutingLogs.insert({
+                                event_type: ExecutingLogs.EVENT_TYPE.UNDEPLOY_INSTANCE,
+                                status: ExecutingLogs.STATUS.RUNNING,
+                                title: shellInstance.name,
+                                shellinstance_id: shellInstance._id
+                            }).then((rs) => {
+                                let data = {
+                                    '#': rs.insertedIds[0].toString(),
+                                    Command: appconfig.rabbit.channel.undeployInstance.cmd,
+                                    Params: {
+                                        cloud_ip: appconfig.rabbit.cloud_ip,
+                                        deployment_id: shellInstance.name,
+                                    },
+                                    From: appconfig.rabbit.api.queueName
+                                };
+                                let BroadcastService = require('./Broadcast.service');
+                                BroadcastService.broadcastToRabQ(appconfig.rabbit.channel.undeployInstance.exchange, appconfig.rabbit.channel.undeployInstance.name, appconfig.rabbit.channel.undeployInstance.exchangeType, data).then((data) => {
+                                    resolve(data);
+                                }).catch(reject);
+                            }).catch(reject);
+                        }).catch(reject);                    
+                    }else {
+                        return reject(new restify.PreconditionFailedError('This instance has not deployed yet'));
+                    }
+                } catch (e) {
+                    reject(e);
+                }
+            });
+        });
+    },
+
     deployInstance: (_id) => {
         return new Promise((resolve, reject) => {
             exports.get(_id).then((shellInstance) => {
                 try {
-                    let ExecutingLogs = require('./ExecutingLogs.service');
-                    ExecutingLogs.insert({
-                        event_type: ExecutingLogs.EVENT_TYPE.DEPLOY_INSTANCE,
-                        status: ExecutingLogs.STATUS.RUNNING,
-                        title: shellInstance.name,
-                        shellinstance_id: shellInstance._id
-                    }).then((rs) => {
-                        let data = {
-                            '#': rs.insertedIds[0].toString(),
-                            Command: appconfig.rabbit.channel.deployInstance.cmd,
-                            Params: {
-                                cloud_ip: appconfig.rabbit.cloud_ip,
-                                deployment_id: shellInstance.name,
-                            },
-                            From: appconfig.rabbit.api.queueName
-                        };
-                        let BroadcastService = require('./Broadcast.service');
-                        BroadcastService.broadcastToRabQ(appconfig.rabbit.channel.deployInstance.exchange, appconfig.rabbit.channel.deployInstance.name, appconfig.rabbit.channel.deployInstance.exchangeType, data).then((data) => {
-                            resolve(data);
+                    if(shellInstance.status === exports.STATE.CREATED) {
+                        exports.update({
+                            _id: shellInstance._id,
+                            status: exports.STATE.DEPLOYING
+                        }).then((rs) => {
+                            let ExecutingLogs = require('./ExecutingLogs.service');
+                            ExecutingLogs.insert({
+                                event_type: ExecutingLogs.EVENT_TYPE.DEPLOY_INSTANCE,
+                                status: ExecutingLogs.STATUS.RUNNING,
+                                title: shellInstance.name,
+                                shellinstance_id: shellInstance._id
+                            }).then((rs) => {
+                                let data = {
+                                    '#': rs.insertedIds[0].toString(),
+                                    Command: appconfig.rabbit.channel.deployInstance.cmd,
+                                    Params: {
+                                        cloud_ip: appconfig.rabbit.cloud_ip,
+                                        deployment_id: shellInstance.name,
+                                    },
+                                    From: appconfig.rabbit.api.queueName
+                                };
+                                let BroadcastService = require('./Broadcast.service');
+                                BroadcastService.broadcastToRabQ(appconfig.rabbit.channel.deployInstance.exchange, appconfig.rabbit.channel.deployInstance.name, appconfig.rabbit.channel.deployInstance.exchangeType, data).then((data) => {
+                                    resolve(data);
+                                }).catch(reject);
+                            }).catch(reject);
                         }).catch(reject);
-                    }).catch(reject);
+                    }else {
+                        return reject(new restify.PreconditionFailedError('This instance must be created before deploy'));
+                    }
+                } catch (e) {
+                    reject(e);
+                }
+            });
+        });
+    },
+
+    deleteInstance: (_id) => {
+        return new Promise((resolve, reject) => {
+            exports.get(_id).then((shellInstance) => {
+                try {
+                    if(shellInstance.status === exports.STATE.CREATED || shellInstance.status === exports.STATE.UNDEPLOYED) {
+                        exports.update({
+                            _id: shellInstance._id,
+                            status: exports.STATE.DELETING
+                        }).then((rs) => {
+                            let ExecutingLogs = require('./ExecutingLogs.service');
+                            ExecutingLogs.insert({
+                                event_type: ExecutingLogs.EVENT_TYPE.DELETE_INSTANCE,
+                                status: ExecutingLogs.STATUS.RUNNING,
+                                title: shellInstance.name,
+                                shellinstance_id: shellInstance._id
+                            }).then((rs) => {
+                                let data = {
+                                    '#': rs.insertedIds[0].toString(),
+                                    Command: appconfig.rabbit.channel.deleteInstance.cmd,
+                                    Params: {
+                                        cloud_ip: appconfig.rabbit.cloud_ip,
+                                        deployment_id: shellInstance.name,
+                                    },
+                                    From: appconfig.rabbit.api.queueName
+                                };
+                                let BroadcastService = require('./Broadcast.service');
+                                BroadcastService.broadcastToRabQ(appconfig.rabbit.channel.deleteInstance.exchange, appconfig.rabbit.channel.deleteInstance.name, appconfig.rabbit.channel.deleteInstance.exchangeType, data).then((data) => {
+                                    resolve(data);
+                                }).catch(reject);
+                            }).catch(reject);
+                        }).catch(reject);
+                    } else {
+                        return reject(new restify.PreconditionFailedError('This instance must be undeploy or created before delete'));
+                    }
                 } catch (e) {
                     reject(e);
                 }
@@ -193,7 +298,6 @@ exports = module.exports = {
                     }
                 }).catch(reject);
             });
-
         });
     },
 
@@ -274,6 +378,7 @@ exports = module.exports = {
         return new Promise((resolve, reject0) => {
             try {
                 exports.validate(obj, 1);
+                obj.updated_date = new Date();
                 db.open(exports.COLLECTION).then((db) => {
                     db.update(obj).then(resolve).catch(reject0);
                 }).catch(reject0)
