@@ -90,81 +90,71 @@ exports = module.exports = {
     },
 
     listenFromRabQ: (exchange, queueName, exchangeType) => {
-        console.log('Listened from RabQ');
+        console.log('Listened from RabQ', queueName);
         return new Promise((resolve, reject) => {
             amqp.connect(appconfig.rabbit.url, function (err, conn) {
                 if (err) return reject(err);
                 conn.createChannel(function (err, ch) {
                     if (err) return reject(err);
-                    ch.assertExchange(exchange, exchangeType, {
-                        durable: false
-                    });
-                    ch.assertQueue(queueName, {
-                        exclusive: true
-                    }, function (err, q) {
-                        if (err) return reject(err);
-                        ch.bindQueue(q.queue, exchange, '');
-                        ch.consume(q.queue, function (msg) {
-                            console.log("Received from rabbitMQ");
-                            let rs;
-                            try{
-                                rs = JSON.parse(msg.content.toString());
-                            }catch(e){
-                                return reject(e);
-                            }                            
-                            ExecutingLogs.get(rs.SessionId).then((item) => {
-                                item.status = rs.Status ? ExecutingLogs.STATUS.FAILED : ExecutingLogs.STATUS.SUCCESSED;
-                                item.result = rs.Result;
-                                ExecutingLogs.update(item).then((rs0) => {
-                                    let done = () => {
-                                        setTimeout(() => {
-                                            exports.broadcastToWeb(rs.SessionId, item);
-                                        }, appconfig.rabbit.toWebTimeout);
-                                    };
-                                    switch (item.event_type) {
-                                        case ExecutingLogs.EVENT_TYPE.UPLOAD_PLUGIN:
-                                            exports.uploadedPlugin(item).then(done).catch(reject);   
-                                            break;
-                                        case ExecutingLogs.EVENT_TYPE.DELETE_PLUGIN:
-                                            exports.deletedPlugin(item).then(done).catch(reject);   
-                                            break;
-                                        case ExecutingLogs.EVENT_TYPE.CREATE_INSTANCE:
-                                            exports.createdInstance(item).then(done).catch(reject);   
-                                            break;
-                                        case ExecutingLogs.EVENT_TYPE.DEPLOY_INSTANCE: 
-                                            exports.deployedInstance(item).then(done).catch(reject);
-                                            break;
-                                        case ExecutingLogs.EVENT_TYPE.UNDEPLOY_INSTANCE: 
-                                            exports.undeployedInstance(item).then(done).catch(reject);
-                                            break;
-                                        case ExecutingLogs.EVENT_TYPE.DELETE_INSTANCE: 
-                                            exports.deletedInstance(item).then(done).catch(reject);
-                                            break;
-                                        default:
-                                            done();
-                                            break;
-                                    }
-                                }).catch(reject);
+                    ch.assertQueue(queueName, {durable: false});
+                    ch.consume(queueName, function (msg) {
+                        console.log("Received from rabbitMQ");
+                        let rs;
+                        try{
+                            rs = JSON.parse(msg.content.toString());
+                        }catch(e){
+                            return reject(e);
+                        }                            
+                        ExecutingLogs.get(rs.SessionId).then((item) => {
+                            item.status = rs.Status ? ExecutingLogs.STATUS.FAILED : ExecutingLogs.STATUS.SUCCESSED;
+                            item.result = rs.Result;
+                            ExecutingLogs.update(item).then((rs0) => {
+                                let done = () => {
+                                    setTimeout(() => {
+                                        exports.broadcastToWeb(rs.SessionId, item);
+                                    }, appconfig.rabbit.toWebTimeout);
+                                };
+                                switch (item.event_type) {
+                                    case ExecutingLogs.EVENT_TYPE.UPLOAD_PLUGIN:
+                                        exports.uploadedPlugin(item).then(done).catch(reject);   
+                                        break;
+                                    case ExecutingLogs.EVENT_TYPE.DELETE_PLUGIN:
+                                        exports.deletedPlugin(item).then(done).catch(reject);   
+                                        break;
+                                    case ExecutingLogs.EVENT_TYPE.CREATE_INSTANCE:
+                                        exports.createdInstance(item).then(done).catch(reject);   
+                                        break;
+                                    case ExecutingLogs.EVENT_TYPE.DEPLOY_INSTANCE: 
+                                        exports.deployedInstance(item).then(done).catch(reject);
+                                        break;
+                                    case ExecutingLogs.EVENT_TYPE.UNDEPLOY_INSTANCE: 
+                                        exports.undeployedInstance(item).then(done).catch(reject);
+                                        break;
+                                    case ExecutingLogs.EVENT_TYPE.DELETE_INSTANCE: 
+                                        exports.deletedInstance(item).then(done).catch(reject);
+                                        break;
+                                    default:
+                                        done();
+                                        break;
+                                }
                             }).catch(reject);
-                        }, {
-                            noAck: true
-                        });
-                        resolve();
+                        }).catch(reject);
+                    }, {
+                        noAck: true
                     });
+                    resolve();
                 });
             });
         });
     },
 
     broadcastToRabQ: (exchange, queueName, exchangeType, data) => {
-        console.log('BroadcastToRabQ', exchange, exchangeType, data);
+        console.log('BroadcastToRabQ', queueName, data);
         return new Promise((resolve, reject) => {
             amqp.connect(appconfig.rabbit.url, function (err, conn) {
                 conn.createChannel(function (err, ch) {
-                    ch.assertExchange(exchange, exchangeType, {
-                        durable: false
-                    });
-                    ch.publish(exchange, '', new Buffer(JSON.stringify(data)));
+                    ch.assertQueue(queueName, {durable: false});
+                    ch.sendToQueue(queueName, new Buffer(JSON.stringify(data)));
                     resolve(data);
                 });
                 if (conn){
