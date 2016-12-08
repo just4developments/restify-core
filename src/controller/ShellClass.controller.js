@@ -32,7 +32,7 @@ server.get('/ShellClass/:_id', utils.jsonHandler(), (req, res, next) => {
 
 // server.post('/ShellClass/execute/:id', utils.jsonHandler(), (req, res, next) => {
 //     ShellClassService.execute(req.params.id, req.body).then((rs) => {
-//        res.send(rs["#"]); 
+//        res.send(rs.SessionId); 
 //     }).catch(next);
 // });
 
