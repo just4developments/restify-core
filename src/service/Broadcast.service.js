@@ -97,11 +97,11 @@ exports = module.exports = {
                 conn.createChannel(function (err, ch) {
                     if (err) return reject(err);
                     ch.assertQueue(queueName, {durable: false});
-                    ch.consume(queueName, function (msg) {
-                        console.log("Received from rabbitMQ");
-                        let rs;
+                    ch.consume(queueName, function (msg) {                        
+                        let rs = msg.content.toString();
+                        console.log("Received from rabbitMQ", rs);
                         try{
-                            rs = JSON.parse(msg.content.toString());
+                            rs = JSON.parse(rs);
                         }catch(e){
                             return reject(e);
                         }                            
