@@ -17,7 +17,10 @@ exports = module.exports = {
     STATE: {
         UPLOADING: 0,
         UPLOADED: 1,
-        UPLOAD_FAILED: -1
+        UPLOAD_FAILED: -1,
+        DELETING: 2,
+        DELETED: 3,
+        DELETE_FAILED: 1
     },
 
     // updateResult: (executingLogId, data) => {
@@ -64,6 +67,43 @@ exports = module.exports = {
                 }).catch(reject);
             }).catch(reject);
         })
+    },
+
+    deletePlugin: (_id) => {
+        return new Promise((resolve, reject) => {
+            try {
+                let ShellInstanceService = require('./ShellInstance.service');
+                ShellInstanceService.countInstanceInClass(_id).then((count) => {
+                    if(count > 0) return reject(new restify.PreconditionFailedError(`Need remove ${count} instance${count > 1 ? 's' : ''} in this plugin before deleting`));
+                    exports.get(_id).then((shell) => {
+                        let ExecutingLogs = require('./ExecutingLogs.service');
+                        ExecutingLogs.insert({
+                            event_type: ExecutingLogs.EVENT_TYPE.DELETE_PLUGIN,
+                            status: ExecutingLogs.STATUS.RUNNING,
+                            title: shell.name,
+                            shellclass_id: shell._id,
+                            started_time: new Date()
+                        }).then((rs) => {
+                            let data = {
+                                '#': rs.insertedIds[0].toString(),
+                                Command: appconfig.rabbit.channel.deletePlugin.cmd,
+                                Params: {
+                                    cloud_ip: appconfig.rabbit.cloud_ip,
+                                    blueprint_id: shell.name
+                                },
+                                From: appconfig.rabbit.api.queueName
+                            };                    
+                            let BroadcastService = require('./Broadcast.service');
+                            BroadcastService.broadcastToRabQ(appconfig.rabbit.channel.deletePlugin.exchange, appconfig.rabbit.channel.deletePlugin.queueName, appconfig.rabbit.channel.deletePlugin.exchangeType, data).then((data) => {
+                                resolve(data);
+                            }).catch(reject);
+                        }).catch(reject);    
+                    }).catch(reject);
+                }).catch(reject);                
+            } catch (e) {
+                reject(e);
+            }
+        });
     },
 
     uploadPlugin: (shell) => {

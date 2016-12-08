@@ -77,7 +77,7 @@ server.post('/ShellClass', utils.fileUploadHandler({
 });
 
 server.del('/ShellClass/:_id', utils.jsonHandler(), (req, res, next) => {
-    ShellClassService.delete(req.params._id).then((rs) => {
-        res.send('09324923402802390');
+    ShellClassService.deletePlugin(req.params._id).then((rs) => {
+        res.send(['#']);
     }).catch(next);
 })

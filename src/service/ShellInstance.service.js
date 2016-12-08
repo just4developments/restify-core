@@ -218,7 +218,7 @@ exports = module.exports = {
                             }).catch(reject);
                         }).catch(reject);
                     }else {
-                        return reject(new restify.PreconditionFailedError('This instance must be created before deploy'));
+                        return reject(new restify.PreconditionFailedError('This instance must be created before deploying'));
                     }
                 } catch (e) {
                     reject(e);
@@ -259,13 +259,17 @@ exports = module.exports = {
                             }).catch(reject);
                         }).catch(reject);
                     } else {
-                        return reject(new restify.PreconditionFailedError('This instance must be undeploy or created before delete'));
+                        return reject(new restify.PreconditionFailedError('This instance must be undeployed or created before deleting'));
                     }
                 } catch (e) {
                     reject(e);
                 }
             });
         });
+    },
+
+    countInstanceInClass: (shellclass_id) => {
+        return exports.find({count: true, where: {shellclass_id: shellclass_id, status: { $ne: exports.STATE.DELETED } }});  
     },
     
 

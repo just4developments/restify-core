@@ -16,6 +16,19 @@ exports = module.exports = {
             }).catch(reject);
         });
     },
+    
+    deletedPlugin: (logItem) => {
+        return new Promise((resolve, reject) => {
+            let ShellClassService = require('../service/ShellClass.service');
+            ShellClassService.get(logItem.shellclass_id.toString()).then((shellClass) => {
+                if(shellClass.status !== ShellClassService.STATE.DELETING) return reject(new restify.PreconditionFailedError(`This instance state is ${shellClass.status} != DELETING`));
+                ShellClassService.update({
+                    _id: shellClass._id,
+                    status: logItem.status === ExecutingLogs.STATUS.SUCCESSED ? ShellClassService.STATE.DELETED : ShellClassService.STATE.DELETE_FAILED
+                }).then(resolve).catch(reject);
+            }).catch(reject);
+        });
+    },
 
     createdInstance: (logItem) => {
         return new Promise((resolve, reject) => {
@@ -111,6 +124,9 @@ exports = module.exports = {
                                     switch (item.event_type) {
                                         case ExecutingLogs.EVENT_TYPE.UPLOAD_PLUGIN:
                                             exports.uploadedPlugin(item).then(done).catch(reject);   
+                                            break;
+                                        case ExecutingLogs.EVENT_TYPE.DELETE_PLUGIN:
+                                            exports.deletedPlugin(item).then(done).catch(reject);   
                                             break;
                                         case ExecutingLogs.EVENT_TYPE.CREATE_INSTANCE:
                                             exports.createdInstance(item).then(done).catch(reject);   

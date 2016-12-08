@@ -12,6 +12,7 @@ exports = module.exports = {
     COLLECTION: 'ExecutingLogs',
     EVENT_TYPE: {
         UPLOAD_PLUGIN: 0,
+        DELETE_PLUGIN: 0,
         CREATE_INSTANCE: 1,
         DELETE_INSTANCE: -1,
         DEPLOY_INSTANCE: 2, // 

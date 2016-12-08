@@ -20,6 +20,12 @@ module.exports = {
                 queueName: 'vnf_onboarding',
                 exchangeType: 'fanout'
             },
+            deletePlugin: {                
+                cmd: "delete_plugin",
+                exchange: 'logs',
+                queueName: 'vnf_onboarding',
+                exchangeType: 'fanout'
+            },
             createInstance: {                
                 cmd: 'create_deployment',
                 exchange: 'logs',
