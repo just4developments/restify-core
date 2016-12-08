@@ -112,13 +112,13 @@ exports = module.exports = {
                             }catch(e){
                                 return reject(e);
                             }                            
-                            ExecutingLogs.get(rs['#']).then((item) => {
-                                item.status = rs.Error ? ExecutingLogs.STATUS.FAILED : ExecutingLogs.STATUS.SUCCESSED;
-                                item.result = rs;
+                            ExecutingLogs.get(rs.SessionId).then((item) => {
+                                item.status = rs.Status ? ExecutingLogs.STATUS.FAILED : ExecutingLogs.STATUS.SUCCESSED;
+                                item.result = rs.Result;
                                 ExecutingLogs.update(item).then((rs0) => {
                                     let done = () => {
                                         setTimeout(() => {
-                                            exports.broadcastToWeb(rs['#'], item);
+                                            exports.broadcastToWeb(rs.SessionId, item);
                                         }, appconfig.rabbit.toWebTimeout);
                                     };
                                     switch (item.event_type) {
@@ -191,12 +191,12 @@ exports = module.exports = {
     //                         return reject(e);
     //                     }
     //                     let ExecutingLogs = require('./ExecutingLogs.service');
-    //                     ExecutingLogs.get(rs['#']).then((item) => {
+    //                     ExecutingLogs.get(rs.SessionId).then((item) => {
     //                         item.status = rs.error ? ExecutingLogs.STATUS.FAILED : ExecutingLogs.STATUS.SUCCESSED;
     //                         item.result = rs;
     //                         ExecutingLogs.update(item).then((rs0) => {
     //                             setTimeout(() => {
-    //                                 exports.broadcastToWeb(rs['#'], item);
+    //                                 exports.broadcastToWeb(rs.SessionId, item);
     //                             }, appconfig.rabbit.toWebTimeout);
     //                         }).catch(reject);
     //                     }).catch(reject);

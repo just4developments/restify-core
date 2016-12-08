@@ -288,8 +288,7 @@ exports = module.exports = {
                             shellinstance_id: _id
                         }).then((rs) => {
                             let data = _.clone(index === undefined ? shellInstance.data : shellInstance.data.shell_instances[index]);
-                            data['#'] = rs.insertedIds[0].toString();
-                            data['#NS'] = shellClass._id.toString();
+                            data.SessionId = rs.insertedIds[0].toString();
                             delete data.shellclass_id;
                             delete data.target;
                             let BroadcastService = require('./Broadcast.service');
@@ -325,7 +324,7 @@ exports = module.exports = {
     //                     shellinstance_id: shellInstance._id,
     //                     started_time: new Date()
     //                 }).then((rs) => {
-    //                     data['#'] = rs.insertedIds[0].toString();
+    //                     data.SessionId = rs.insertedIds[0].toString();
     //                     let BroadcastService = require('./Broadcast.service');
     //                     BroadcastService.broadcastToRabQ(appconfig.rabbit.installing.channelName, appconfig.rabbit.installing.channelType, data).then((data) => {
     //                         resolve(data);
