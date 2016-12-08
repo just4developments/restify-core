@@ -44,7 +44,7 @@ server.post('/ShellInstance', utils.jsonHandler(), (req, res, next) => {
 	body.updated_date = new Date();
     ShellInstanceService.insert(body).then((rs0) => {
         ShellInstanceService.createInstance(rs0.ops[0]).then((rs) => {
-            res.send({instance: rs0.ops[0], session: rs["#"]}); 
+            res.send({instance: rs0.ops[0], session: rs.SessionId}); 
         }).catch(next);
     }).catch(next);
 });
@@ -58,42 +58,42 @@ server.del('/ShellInstance/:_id', utils.jsonHandler(), (req, res, next) => {
 // Deploy instance
 server.post('/ShellInstance/deploy/:id', utils.jsonHandler(), (req, res, next) => {
     ShellInstanceService.deployInstance(req.params.id).then((rs) => {
-       res.send(rs["#"]); 
+       res.send(rs.SessionId); 
     }).catch(next);
 });
 
 // Delete Deploy instance
 server.del('/ShellInstance/deploy/:id', utils.jsonHandler(), (req, res, next) => {
     ShellInstanceService.undeployInstance(req.params.id).then((rs) => {
-       res.send(rs["#"]); 
+       res.send(rs.SessionId); 
     }).catch(next);
 });
 
 // Execute parent plugin scripts GetInformation
 server.get('/ShellInstance/information/:id', utils.jsonHandler(), (req, res, next) => {
     ShellInstanceService.getInformation(req.params.id).then((rs) => {
-       res.send(rs["#"]); 
+       res.send(rs.SessionId); 
     }).catch(next);
 });
 
 // // Execute parent plugin scripts like restart ...
 // server.post('/ShellInstance/execute-script/:id/:name', utils.jsonHandler(), (req, res, next) => {
 //     ShellInstanceService.executeScript(req.params.id, req.params.name).then((rs) => {
-//        res.send(rs["#"]); 
+//        res.send(rs.SessionId); 
 //     }).catch(next);
 // });
 
 // // Execute testcase Execute Test
 // server.put('/ShellInstance/execute/:id/:index', utils.jsonHandler(), (req, res, next) => {
 //     ShellInstanceService.execute(req.params.id, +req.params.index).then((rs) => {
-//        res.send(rs["#"]); 
+//        res.send(rs.SessionId); 
 //     }).catch(next);
 // });
 
 // // Execute testcase scripts Execute get information test
 // server.put('/ShellInstance/execute/:id/:name/:index', utils.jsonHandler(), (req, res, next) => {
 //     ShellInstanceService.executeScript(req.params.id, req.params.name, +req.params.index).then((rs) => {
-//        res.send(rs["#"]); 
+//        res.send(rs.SessionId); 
 //     }).catch(next);
 // });
 

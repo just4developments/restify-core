@@ -62,7 +62,7 @@ exports = module.exports = {
                         }).then((rs) => {
                             let data = _.clone(scripts[name].data);
                             data = data === undefined ? undefined : exports.bindDataInShellInstanceScript(data, _.assign({
-                                '#': rs.insertedIds[0].toString(),
+                                SessionId: rs.insertedIds[0].toString(),
                                 inputData: shellInstance.inputData
                             }, shellClass));
                             let BroadcastService = require('./Broadcast.service');
@@ -93,7 +93,7 @@ exports = module.exports = {
                         shellinstance_id: _id
                     }).then((rs) => {
                         let data = {
-                            '#': rs.insertedIds[0].toString(),
+                            SessionId: rs.insertedIds[0].toString(),
                             cloud_ip: appconfig.rabbit.cloud_ip,
                             deployment_id: shellInstance.name
                         };
@@ -123,7 +123,7 @@ exports = module.exports = {
                         shellinstance_id: shellInstance._id
                     }).then((rs) => {
                         let data = {
-                            '#': rs.insertedIds[0].toString(),
+                            SessionId: rs.insertedIds[0].toString(),
                             Command: appconfig.rabbit.channel.createInstance.cmd,
                             Params: {
                                 deployment_id: shellInstance.name,
@@ -162,7 +162,7 @@ exports = module.exports = {
                                 shellinstance_id: shellInstance._id
                             }).then((rs) => {
                                 let data = {
-                                    '#': rs.insertedIds[0].toString(),
+                                    SessionId: rs.insertedIds[0].toString(),
                                     Command: appconfig.rabbit.channel.undeployInstance.cmd,
                                     Params: {
                                         cloud_ip: appconfig.rabbit.cloud_ip,
@@ -203,7 +203,7 @@ exports = module.exports = {
                                 shellinstance_id: shellInstance._id
                             }).then((rs) => {
                                 let data = {
-                                    '#': rs.insertedIds[0].toString(),
+                                    SessionId: rs.insertedIds[0].toString(),
                                     Command: appconfig.rabbit.channel.deployInstance.cmd,
                                     Params: {
                                         cloud_ip: appconfig.rabbit.cloud_ip,
@@ -244,7 +244,7 @@ exports = module.exports = {
                                 shellinstance_id: shellInstance._id
                             }).then((rs) => {
                                 let data = {
-                                    '#': rs.insertedIds[0].toString(),
+                                    SessionId: rs.insertedIds[0].toString(),
                                     Command: appconfig.rabbit.channel.deleteInstance.cmd,
                                     Params: {
                                         cloud_ip: appconfig.rabbit.cloud_ip,

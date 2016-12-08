@@ -85,7 +85,7 @@ exports = module.exports = {
                             started_time: new Date()
                         }).then((rs) => {
                             let data = {
-                                '#': rs.insertedIds[0].toString(),
+                                SessionId: rs.insertedIds[0].toString(),
                                 Command: appconfig.rabbit.channel.deletePlugin.cmd,
                                 Params: {
                                     cloud_ip: appconfig.rabbit.cloud_ip,
@@ -118,7 +118,7 @@ exports = module.exports = {
                     started_time: new Date()
                 }).then((rs) => {
                     let data = {
-                        '#': rs.insertedIds[0].toString(),
+                        SessionId: rs.insertedIds[0].toString(),
                         Command: appconfig.rabbit.channel.uploadPlugin.cmd,
                         Params: {
                             cloud_ip: appconfig.rabbit.cloud_ip,
