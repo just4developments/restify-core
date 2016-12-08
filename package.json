@@ -4,8 +4,12 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node --expose-gc index.js",
     "gen": "node ./lib/generate/gen.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/just4developments/restify-core.git"
   },
   "author": "just4developments@gmail.com",
   "license": "ISC",

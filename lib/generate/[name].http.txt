@@ -3,7 +3,7 @@
     method: 'POST',
     url: 'http://localhost:${port}/${tbl}',
     requestHeader: {
-        'content-type': 'multipart/form-data'
+        'content-type': '${contentType}'
     },
     requestBody: {
         ${insertFields}
@@ -21,7 +21,7 @@
     method: 'PUT',
     url: 'http://localhost:${port}/${tbl}/ITEM_ID',
     requestHeader: {
-        'content-type': 'multipart/form-data'
+        'content-type': '${contentType}'
     },
     requestBody: {
         ${updateFields}
