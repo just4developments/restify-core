@@ -192,7 +192,7 @@ exports = module.exports = {
         return new Promise((resolve, reject) => {
             exports.get(_id).then((shellInstance) => {
                 try {
-                    if(shellInstance.status === exports.STATE.CREATED || shellInstance.status === exports.STATE.UNDEPLOYED) {
+                    if(shellInstance.status === exports.STATE.CREATED || shellInstance.status === exports.STATE.UNDEPLOYED || shellInstance.status === exports.STATE.DEPLOY_FAILED) {
                         exports.update({
                             _id: shellInstance._id,
                             status: exports.STATE.DEPLOYING
@@ -233,7 +233,7 @@ exports = module.exports = {
         return new Promise((resolve, reject) => {
             exports.get(_id).then((shellInstance) => {
                 try {
-                    if(shellInstance.status === exports.STATE.CREATED || shellInstance.status === exports.STATE.UNDEPLOYED) {
+                    if(shellInstance.status === exports.STATE.CREATED || shellInstance.status === exports.STATE.UNDEPLOYED || shellInstance.status === exports.STATE.DELETE_FAILED) {
                         exports.update({
                             _id: shellInstance._id,
                             status: exports.STATE.DELETING
