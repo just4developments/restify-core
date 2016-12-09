@@ -63,7 +63,8 @@ exports = module.exports = {
                             let data = _.clone(scripts[name].data);
                             data = data === undefined ? undefined : exports.bindDataInShellInstanceScript(data, _.assign({
                                 SessionId: rs.insertedIds[0].toString(),
-                                inputData: shellInstance.inputData
+                                inputData: shellInstance.inputData,
+                                From: appconfig.rabbit.api.queueName
                             }, shellClass));
                             let BroadcastService = require('./Broadcast.service');
                             // TODO: Thieu queue name va queue type
@@ -95,7 +96,8 @@ exports = module.exports = {
                         let data = {
                             SessionId: rs.insertedIds[0].toString(),
                             cloud_ip: appconfig.rabbit.cloud_ip,
-                            deployment_id: shellInstance.name
+                            deployment_id: shellInstance.name,
+                            From: appconfig.rabbit.api.queueName
                         };
                         let BroadcastService = require('./Broadcast.service');
                         BroadcastService.broadcastToRabQ(appconfig.rabbit.channel.getInfor.exchange, appconfig.rabbit.channel.getInfor.queueName, appconfig.rabbit.channel.getInfor.exchangeType, data).then((data) => {
