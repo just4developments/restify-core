@@ -103,6 +103,7 @@ exports = module.exports = {
                         try{
                             rs = JSON.parse(rs);
                         }catch(e){
+                            console.error(e);
                             return reject(e);
                         }                            
                         ExecutingLogs.get(rs.SessionId).then((item) => {
