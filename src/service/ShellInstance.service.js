@@ -67,7 +67,7 @@ exports = module.exports = {
                             }, shellClass));
                             let BroadcastService = require('./Broadcast.service');
                             // TODO: Thieu queue name va queue type
-                            BroadcastService.broadcastToRabQ(appconfig.rabbit.channel.getInfor.exchange, appconfig.rabbit.getInfor.name, appconfig.rabbit.getInfor.exchangeType, data).then((data) => {
+                            BroadcastService.broadcastToRabQ(appconfig.rabbit.channel.getInfor.exchange, appconfig.rabbit.getInfor.queueName, appconfig.rabbit.getInfor.exchangeType, data).then((data) => {
                                 resolve(data);
                             }).catch(reject);
                         }).catch(reject);
@@ -98,7 +98,7 @@ exports = module.exports = {
                             deployment_id: shellInstance.name
                         };
                         let BroadcastService = require('./Broadcast.service');
-                        BroadcastService.broadcastToRabQ(appconfig.rabbit.channel.getInfor.exchange, appconfig.rabbit.channel.getInfor.name, appconfig.rabbit.channel.getInfor.exchangeType, data).then((data) => {
+                        BroadcastService.broadcastToRabQ(appconfig.rabbit.channel.getInfor.exchange, appconfig.rabbit.channel.getInfor.queueName, appconfig.rabbit.channel.getInfor.exchangeType, data).then((data) => {
                             resolve(data);
                         }).catch(reject);
                     }).catch(reject);
@@ -134,7 +134,7 @@ exports = module.exports = {
                             From: appconfig.rabbit.api.queueName
                         }
                         let BroadcastService = require('./Broadcast.service');
-                        BroadcastService.broadcastToRabQ(appconfig.rabbit.channel.createInstance.exchange, appconfig.rabbit.channel.createInstance.name, appconfig.rabbit.channel.createInstance.exchangeType, data).then((data) => {
+                        BroadcastService.broadcastToRabQ(appconfig.rabbit.channel.createInstance.exchange, appconfig.rabbit.channel.createInstance.queueName, appconfig.rabbit.channel.createInstance.exchangeType, data).then((data) => {
                             resolve(data);
                         }).catch(reject);
                     }).catch(reject);
@@ -171,7 +171,7 @@ exports = module.exports = {
                                     From: appconfig.rabbit.api.queueName
                                 };
                                 let BroadcastService = require('./Broadcast.service');
-                                BroadcastService.broadcastToRabQ(appconfig.rabbit.channel.undeployInstance.exchange, appconfig.rabbit.channel.undeployInstance.name, appconfig.rabbit.channel.undeployInstance.exchangeType, data).then((data) => {
+                                BroadcastService.broadcastToRabQ(appconfig.rabbit.channel.undeployInstance.exchange, appconfig.rabbit.channel.undeployInstance.queueName, appconfig.rabbit.channel.undeployInstance.exchangeType, data).then((data) => {
                                     resolve(data);
                                 }).catch(reject);
                             }).catch(reject);
@@ -212,7 +212,7 @@ exports = module.exports = {
                                     From: appconfig.rabbit.api.queueName
                                 };
                                 let BroadcastService = require('./Broadcast.service');
-                                BroadcastService.broadcastToRabQ(appconfig.rabbit.channel.deployInstance.exchange, appconfig.rabbit.channel.deployInstance.name, appconfig.rabbit.channel.deployInstance.exchangeType, data).then((data) => {
+                                BroadcastService.broadcastToRabQ(appconfig.rabbit.channel.deployInstance.exchange, appconfig.rabbit.channel.deployInstance.queueName, appconfig.rabbit.channel.deployInstance.exchangeType, data).then((data) => {
                                     resolve(data);
                                 }).catch(reject);
                             }).catch(reject);
@@ -253,7 +253,7 @@ exports = module.exports = {
                                     From: appconfig.rabbit.api.queueName
                                 };
                                 let BroadcastService = require('./Broadcast.service');
-                                BroadcastService.broadcastToRabQ(appconfig.rabbit.channel.deleteInstance.exchange, appconfig.rabbit.channel.deleteInstance.name, appconfig.rabbit.channel.deleteInstance.exchangeType, data).then((data) => {
+                                BroadcastService.broadcastToRabQ(appconfig.rabbit.channel.deleteInstance.exchange, appconfig.rabbit.channel.deleteInstance.queueName, appconfig.rabbit.channel.deleteInstance.exchangeType, data).then((data) => {
                                     resolve(data);
                                 }).catch(reject);
                             }).catch(reject);
