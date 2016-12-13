@@ -1,6 +1,6 @@
 module.exports = {
     listen: 8080,
-    staticUrl: 'http://10.64.255.105:8080',
+    staticUrl: 'http://10.64.0.168:8080',
     db: {
         url: 'mongodb://localhost:27017/validium'
     },
