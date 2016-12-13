@@ -151,7 +151,7 @@ exports = module.exports = {
         return new Promise((resolve, reject) => {
             exports.get(_id).then((shellInstance) => {
                 try {
-                    if(shellInstance.status === exports.STATE.DEPLOYED || shellInstance.status === exports.STATE.UNDEPLOY_FAILED) {
+                    if([exports.STATE.DEPLOYED, exports.STATE.UNDEPLOY_FAILED].indexOf(shellInstance.status) !== -1) {
                         exports.update({
                             _id: shellInstance._id,
                             status: exports.STATE.UNDEPLOYING
@@ -192,7 +192,7 @@ exports = module.exports = {
         return new Promise((resolve, reject) => {
             exports.get(_id).then((shellInstance) => {
                 try {
-                    if(shellInstance.status === exports.STATE.CREATED || shellInstance.status === exports.STATE.UNDEPLOYED || shellInstance.status === exports.STATE.DEPLOY_FAILED) {
+                    if([exports.STATE.CREATED, exports.STATE.UNDEPLOYED, exports.STATE.DEPLOY_FAILED].indexOf(shellInstance.status) !== -1) {
                         exports.update({
                             _id: shellInstance._id,
                             status: exports.STATE.DEPLOYING
@@ -233,7 +233,7 @@ exports = module.exports = {
         return new Promise((resolve, reject) => {
             exports.get(_id).then((shellInstance) => {
                 try {
-                    if(shellInstance.status === exports.STATE.CREATED || shellInstance.status === exports.STATE.UNDEPLOYED || shellInstance.status === exports.STATE.DELETE_FAILED) {
+                    if([exports.STATE.CREATED, exports.STATE.UNDEPLOYED, exports.STATE.UNDEPLOYED, exports.STATE.DELETE_FAILED].indexOf(shellInstance.status) !== -1) {
                         exports.update({
                             _id: shellInstance._id,
                             status: exports.STATE.DELETING
