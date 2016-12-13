@@ -51,7 +51,7 @@ server.post('/ShellInstance', utils.jsonHandler(), (req, res, next) => {
 
 server.del('/ShellInstance/:_id', utils.jsonHandler(), (req, res, next) => {
     ShellInstanceService.deleteInstance(req.params._id).then((rs) => {
-        res.send(rs);
+        res.send(rs.SessionId);
     }).catch(next);
 })
 
