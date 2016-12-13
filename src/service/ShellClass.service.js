@@ -76,26 +76,31 @@ exports = module.exports = {
                 ShellInstanceService.countInstanceInClass(_id).then((count) => {
                     if(count > 0) return reject(new restify.PreconditionFailedError(`Need remove ${count} instance${count > 1 ? 's' : ''} in this plugin before deleting`));
                     exports.get(_id).then((shell) => {
-                        let ExecutingLogs = require('./ExecutingLogs.service');
-                        ExecutingLogs.insert({
-                            event_type: ExecutingLogs.EVENT_TYPE.DELETE_PLUGIN,
-                            status: ExecutingLogs.STATUS.RUNNING,
-                            title: shell.name,
-                            shellclass_id: shell._id,
-                            started_time: new Date()
+                        exports.update({
+                            _id: shell._id.toString(),
+                            status: exports.STATE.DELETING
                         }).then((rs) => {
-                            let data = {
-                                SessionId: rs.insertedIds[0].toString(),
-                                Command: appconfig.rabbit.channel.deletePlugin.cmd,
-                                Params: {
-                                    cloud_ip: appconfig.rabbit.cloud_ip,
-                                    blueprint_id: shell.name
-                                },
-                                From: appconfig.rabbit.api.queueName
-                            };                    
-                            let BroadcastService = require('./Broadcast.service');
-                            BroadcastService.broadcastToRabQ(appconfig.rabbit.channel.deletePlugin.exchange, appconfig.rabbit.channel.deletePlugin.queueName, appconfig.rabbit.channel.deletePlugin.exchangeType, data).then((data) => {
-                                resolve(data);
+                            let ExecutingLogs = require('./ExecutingLogs.service');
+                            ExecutingLogs.insert({
+                                event_type: ExecutingLogs.EVENT_TYPE.DELETE_PLUGIN,
+                                status: ExecutingLogs.STATUS.RUNNING,
+                                title: shell.name,
+                                shellclass_id: shell._id,
+                                started_time: new Date()
+                            }).then((rs) => {
+                                let data = {
+                                    SessionId: rs.insertedIds[0].toString(),
+                                    Command: appconfig.rabbit.channel.deletePlugin.cmd,
+                                    Params: {
+                                        cloud_ip: appconfig.rabbit.cloud_ip,
+                                        blueprint_id: shell.name
+                                    },
+                                    From: appconfig.rabbit.api.queueName
+                                };                    
+                                let BroadcastService = require('./Broadcast.service');
+                                BroadcastService.broadcastToRabQ(appconfig.rabbit.channel.deletePlugin.exchange, appconfig.rabbit.channel.deletePlugin.queueName, appconfig.rabbit.channel.deletePlugin.exchangeType, data).then((data) => {
+                                    resolve(data);
+                                }).catch(reject);
                             }).catch(reject);
                         }).catch(reject);    
                     }).catch(reject);
