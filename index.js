@@ -39,6 +39,7 @@ server.opts(/.*/, function (req,res,next) {
 fs.readdir(path.join(__dirname, 'src', 'controller'), function (err, files) {
     if (err) return console.error(err);
     for (var file of files) {
+        if(file.indexOf('.temp') > -1) continue;
         require(`./src/controller/${file}`);
     }
 });
