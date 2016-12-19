@@ -18,7 +18,8 @@ exports = module.exports = {
         DEPLOY_INSTANCE: 2, // 
         UNDEPLOY_INSTANCE: -2, 
         GET_INFORMATION: 3,
-        RESTART_INSTANCE: 4
+        RESTART_INSTANCE: 4,
+        RUN_TESTING: 5
     },
     STATUS: {
         RUNNING: 0,

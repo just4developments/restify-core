@@ -35,35 +35,130 @@
         "default": "centos",
         "component": "text"
     }],
-    "plugins": [{
-        "name": "Item chidl 1",
-        "script": "tst.sh",
-        "scripts": {
-            "test1": {
-                "script": "infor-child.sh",
-                "name": "Testcase information",
-                "x": "${x}",
-                "y": "${y}"
-            }
-        },
-        "des": "Description script 2",
-        "input": [{
-            "param": "x",
-            "label": "Parameter for X",
-            "type": "Number",
-            "default": 1,
-            "component": "select-box",
-            "data": [{
-                "0": "None"
+    "testing": {
+        "name": "Test something",
+        "tasks": [{
+            "name": "Test configuration",
+            "cwd": "/opt",
+            "cmd": "/usr/bin/sh pre-run.sh $cloudify.node_templates.tester_ip $cloudify.node_templates.sut_ip",
+            "log": [],
+            "host": "$cloudify.node_templates.tester_vm",
+            "timeout": 30
+        }, {
+            "name": "Run Test",
+            "cwd": "/opt/dats",
+            "cmd": "/usr/bin/python dats.py -f @dats.conf.template -r {{test_report_dir}}",
+            "log": [{
+                "name": "DATS log",
+                "file_dir": "/opt/dats/dats.log",
+                "interval": "2",
+                "host": "$cloudify.node_templates.tester_vm"
             }, {
-                "1": "Pick someone"
+                "name": "PROX log on traffic generator",
+                "file_dir": "/opt/prox/prox.log",
+                "interval": "2",
+                "host": "$cloudify.node_templates.sut_vm"
+            }, {
+                "name": "PROX log on SUT",
+                "file_dir": "/opt/prox/prox.log",
+                "interval": "2",
+                "host": "$cloudify.node_templates.sut_vm"
+            }],
+            "host": "$cloudify.node_templates.tester_vm",
+            "timeout": 600
+        }, {
+            "name": "Get Result",
+            "cwd": "/opt/dats",
+            "cmd": "/usr/bin/sh post-run.sh",
+            "log": [],
+            "host": "$cloudify.node_templates.tester_vm",
+            "timeout": 30
+        }],
+        "parameters": [{
+            "param": "test_report_dir",
+            "label": "Report Directory",
+            "type": "String",
+            "default": "output",
+            "component": "text"
+        }, {
+            "param": "pkt_sizes",
+            "label": "Package Sizes",
+            "type": "Number",
+            "default": [64, 128, 256, 512, 1024, 1280, 1518],
+            "component": "multi-choice",
+            "data": [{
+                "64": "64 bytes"
+            }, {
+                "128": "128 bytes"
+            }, {
+                "256": "256 bytes"
+            }, {
+                "512": "512 bytes"
+            }, {
+                "1024": "1024 bytes"
+            }, {
+                "1280": "1280 bytes"
+            }, {
+                "1518": "1518 bytes"
             }]
         }, {
-            "param": "y",
-            "label": "Parameter for Y",
+            "param": "tests",
+            "label": "Testcase",
+            "type": "String",
+            "default": "01_port_fwd",
+            "component": "multi-choice",
+            "data": ["001_port_fwd", "002_pkt_touch", "003_tag_untag", "004_acl", "005_load_distributor", "006_buffering-and-latency", "101_bng"]
+        }, {
+            "param": "tolerated_loss",
+            "label": "Tolerated Loss",
             "type": "Number",
-            "default": 2,
+            "default": "0.001",
             "component": "text"
+        }, {
+            "param": "test_duration",
+            "label": "Test duration Loss",
+            "type": "Number",
+            "default": "60",
+            "component": "text"
+        }, {
+            "param": "test_precision",
+            "label": "Test Precision",
+            "type": "Number",
+            "default": "0.1",
+            "component": "text"
+        }, {
+            "param": "level",
+            "label": "Logging Level",
+            "type": "String",
+            "default": "INFO",
+            "component": "select-box",
+            "data": ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
+        }, {
+            "param": "rte_target",
+            "label": "RTE Target",
+            "type": "String",
+            "default": "x86_64-native-linuxapp-gcc",
+            "component": "select-box",
+            "data": ["x86_64-native-linuxapp-gcc", "x86_64-ivshmem-linuxapp-gcc"]
+        }],
+        "testcases": [{
+            "name": "Packet forwarding - No touch",
+            "test_report_dir": "output1",
+            "pkt_sizes": [64, 128, 256, 512, 1024, 1280, 1518],
+            "tests": "01_port_fwd",
+            "tolerated_loss": 0.001
+        }, {
+            "name": "L3 Forwarding",
+            "test_report_dir": "output2",
+            "pkt_sizes": [64, 128, 256, 512, 1024, 1280, 1518],
+            "tests": "002_pkt_touch",
+            "tolerated_loss": 0
+        }, {
+            "name": "MPLS Tags",
+            "test_report_dir": "output3",
+            "pkt_sizes": [64, 128, 256, 512, 1024, 1280, 1518],
+            "tests": "003_tag_untag",
+            "tolerated_loss": 0
         }]
-    }]
+    }
 }

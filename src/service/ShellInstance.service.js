@@ -270,10 +270,9 @@ exports = module.exports = {
         });
     },
 
-    countInstanceInClass: (shellclass_id) => {
+    countInstanceInClass(shellclass_id){
         return exports.find({count: true, where: {shellclass_id: shellclass_id, status: { $ne: exports.STATE.DELETED } }});  
     },
-    
 
     // Call via rabbit mq to execute script
     execute: (_id, index) => {

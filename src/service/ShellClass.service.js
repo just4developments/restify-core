@@ -183,7 +183,7 @@ exports = module.exports = {
                         try {
                             meta = zipEntry.getData().toString();
                             meta = JSON.parse(meta);
-                            utils.validateJson(meta, require('../validation/ShellClass.validation'));
+                            // utils.validateJson(meta, require('../validation/ShellClass.validation'));
                         } catch (e) {
                             return reject(e);
                         }

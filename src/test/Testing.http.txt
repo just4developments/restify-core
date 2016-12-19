@@ -1,0 +1,55 @@
+{
+    des: 'Add',
+    method: 'POST',
+    url: 'http://localhost:8080/Testing',
+    requestHeader: {
+        'content-type': 'application/json'
+    },
+    requestBody: {
+        name: "test 01",
+        shellinstance_id: "5848e43d18868c28a81a2561",
+        params: {
+            a: 1, 
+            b: 2
+        }
+    }
+}
+
+{
+    des: 'Add',
+    method: 'POST',
+    url: 'http://localhost:8080/Testing/execute/58575d688962a50e0097f459',
+    requestHeader: {
+        'content-type': 'application/json'
+    }
+}
+
+{
+    des: 'Get list',
+    method: 'GET',
+    url: 'http://localhost:8080/Testing'
+}
+
+{
+    des: 'Update',
+    method: 'PUT',
+    url: 'http://localhost:8080/Testing/ITEM_ID',
+    requestHeader: {
+        'content-type': 'multipart/form-data'
+    },
+    requestBody: {
+        
+    }
+}
+
+{
+    des: 'Get detail',
+    method: 'GET',
+    url: 'http://localhost:8080/Testing/5857582393cd3c1f50459e27'
+}
+
+{
+    des: 'Delete',
+    method: 'DELETE',
+    url: 'http://localhost:8080/Testing/ITEM_ID'
+}

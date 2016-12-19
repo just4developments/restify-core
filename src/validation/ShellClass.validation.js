@@ -25,11 +25,11 @@ module.exports = {
             },
             "uniqueItems": true
         },
-        "plugins": {
+        "testing": {
             "type": "array",
             "items": {
                 "anyOf": [{
-                    "$ref": "#/definitions/pluginObject"
+                    "$ref": "#/definitions/testingObject"
                 }]                
             },
             "uniqueItems": true
@@ -38,7 +38,7 @@ module.exports = {
     "additionalProperties": false,
     "required": ["name"],
     "definitions": {
-        "pluginObject": {
+        "testingObject": {
             "type": "object",
             "properties": {
                 "name": {
@@ -74,10 +74,7 @@ module.exports = {
                         "name": {
                             "type": "string"
                         },
-                        "script": {
-                            "type": "string"
-                        },
-                        "des": {
+                        "cmd": {
                             "type": "string"
                         },
                         "data": {
@@ -87,7 +84,7 @@ module.exports = {
                     "required": ["name", "script"]
                 }
             },
-            "additionalProperties": false
+            "additionalProperties": true
         },
         "targetRequired": {
             "type": "object",

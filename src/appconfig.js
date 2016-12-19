@@ -55,6 +55,12 @@ module.exports = {
                 exchange: 'logs',
                 queueName: 'administrator',
                 exchangeType: 'fanout'
+            },
+            runTesting: {
+                cmd: 'get_info',
+                exchange: 'logs',
+                queueName: 'administrator',
+                exchangeType: 'fanout'
             }
         },
         cloud_ip: '10.64.0.162'
