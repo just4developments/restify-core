@@ -36,7 +36,7 @@ exports = module.exports = {
                 aggregate,
                 where,
                 fields,
-                sortBy,
+                sort,
                 page = 1,
                 recordsPerPage = 20
             }, opts = func.DONE) {
@@ -53,8 +53,8 @@ exports = module.exports = {
                         if (where) aggregate.splice(0, 0, {
                             $match: where
                         });
-                        if (sortBy) aggregate.push({
-                            $sort: sortBy
+                        if (sort) aggregate.push({
+                            $sort: sort
                         });
                         if (page) aggregate.push({
                             $skip: (page - 1) * recordsPerPage
@@ -76,7 +76,7 @@ exports = module.exports = {
                         return;
                     } else {
                         query = collection.find(where, fields);
-                        if (sortBy) query = query.sort(sortBy);
+                        if (sort) query = query.sort(sort);
                         if (page) query = query.skip((page - 1) * recordsPerPage);
                         if (recordsPerPage) query = query.limit(recordsPerPage);
                     }
