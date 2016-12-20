@@ -1,0 +1,175 @@
+const restify = require('restify');
+const path = require('path');
+
+const db = require('../db');
+const utils = require('../utils');
+
+/************************************
+ ** SERVICE:      testController
+ ** AUTHOR:       Unknown
+ ** CREATED DATE: 12/19/2016, 11:20:49 AM
+ *************************************/
+
+exports = module.exports = {
+	COLLECTION: "test",
+	VALIDATE: {
+		INSERT: 0,
+		UPDATE: 1,
+		GET: 2,
+		DELETE: 3,
+		FIND: 4,
+	},
+	validate(item, action) {
+		let msg;
+		switch (action) {
+			case exports.VALIDATE.INSERT:
+				item._id = db.uuid();
+				item.obj = utils.valid('obj', item.obj, Object, {
+					class: "test",
+					num: 10
+				});
+				if (item.obj) {
+					item.obj.class = utils.valid('class', item.obj.class, String);
+					item.obj.num = utils.valid('num', item.obj.num, Number);
+					item.obj.obj0 = utils.valid('obj0', item.obj.obj0, Object);
+					if (item.obj.obj0) {
+						item.obj.obj0.objName = utils.valid('objName', item.obj.obj0.objName, String);
+						item.obj.obj0.objAge = utils.valid('objAge', item.obj.obj0.objAge, Number);
+						item.obj.obj0.test = utils.valid('test', item.obj.obj0.test, Object);
+						if (item.obj.obj0.test) {
+							item.obj.obj0.test.testName = utils.valid('testName', item.obj.obj0.test.testName, String);
+						}
+					}
+				}
+				item.arr = utils.valid('arr', item.arr, Array, [
+					1,
+					2,
+					3
+				]);
+				item.arr.forEach((itemi, i) => {
+					item.arr[i].class = utils.valid('class', item.arr[i].class, String);
+					item.arr[i].num = utils.valid('num', item.arr[i].num, Number);
+					item.arr[i].arr0 = utils.valid('arr0', item.arr[i].arr0, Array);
+					item.arr[i].arr0.forEach((itemj, j) => {
+						item.arr[i].arr0[j].arr0Name = utils.valid('arr0Name', item.arr[i].arr0[j].arr0Name, String);
+					});
+				});
+				item.images = utils.valid('images', item.images, Array);
+				item.avatar = utils.valid('avatar', item.avatar, String);
+
+				break;
+			case exports.VALIDATE.UPDATE:
+				item._id = db.uuid(utils.valid('_id', item._id, String));
+				item.obj = utils.valid('obj', item.obj, Object, {
+					class: "test",
+					num: 10
+				});
+				if (item.obj) {
+					item.obj.class = utils.valid('class', item.obj.class, String);
+					item.obj.num = utils.valid('num', item.obj.num, Number);
+					item.obj.obj0 = utils.valid('obj0', item.obj.obj0, Object);
+					if (item.obj.obj0) {
+						item.obj.obj0.objName = utils.valid('objName', item.obj.obj0.objName, String);
+						item.obj.obj0.objAge = utils.valid('objAge', item.obj.obj0.objAge, Number);
+						item.obj.obj0.test = utils.valid('test', item.obj.obj0.test, Object);
+						if (item.obj.obj0.test) {
+							item.obj.obj0.test.testName = utils.valid('testName', item.obj.obj0.test.testName, String);
+						}
+					}
+				}
+				item.arr = utils.valid('arr', item.arr, Array, [
+					1,
+					2,
+					3
+				]);
+				item.arr.forEach((itemi, i) => {
+					item.arr[i].class = utils.valid('class', item.arr[i].class, String);
+					item.arr[i].num = utils.valid('num', item.arr[i].num, Number);
+					item.arr[i].arr0 = utils.valid('arr0', item.arr[i].arr0, Array);
+					item.arr[i].arr0.forEach((itemj, j) => {
+						item.arr[i].arr0[j].arr0Name = utils.valid('arr0Name', item.arr[i].arr0[j].arr0Name, String);
+					});
+				});
+				item.images = utils.valid('images', item.images, Array);
+				item.avatar = utils.valid('avatar', item.avatar, String);
+
+				break;
+			case exports.VALIDATE.GET:
+				item._id = db.uuid(utils.valid('_id', item, String));
+
+				break;
+			case exports.VALIDATE.DELETE:
+				item._id = db.uuid(utils.valid('_id', item, String));
+
+				break;
+			case exports.VALIDATE.FIND:
+
+
+				break;
+		}
+		return item;
+	},
+
+	async find(fil = {}, dboReuse) {
+		fil = exports.validate(fil, exports.VALIDATE.FIND);
+
+		const dbo = dboReuse || await db.open(exports.COLLECTION);
+		const dboType = dboReuse ? db.FAIL : db.DONE;
+		const rs = await dbo.find(fil, dboType);
+		return rs;
+	},
+
+	async get(_id, dboReuse) {
+		_id = exports.validate(_id, exports.VALIDATE.GET);
+
+		const dbo = dboReuse || await db.open(exports.COLLECTION);
+		const dboType = dboReuse ? db.FAIL : db.DONE;
+		const rs = await dbo.get(_id, dboType);
+		return rs;
+	},
+
+	async insert(item, dboReuse) {
+		item = exports.validate(item, exports.VALIDATE.INSERT);
+
+		const dbo = dboReuse || await db.open(exports.COLLECTION);
+		const dboType = dboReuse ? db.FAIL : db.DONE;
+		const rs = await dbo.insert(item, dboType);
+		return rs;
+	},
+
+	async update(item, dboReuse) {
+		try {
+			exports.validate(item, exports.VALIDATE.UPDATE);
+
+			const dbo = dboReuse || await db.open(exports.COLLECTION);
+			const oldItem = await dbo.get(item._id, db.FAIL);
+			const dboType = dboReuse ? db.FAIL : db.DONE;
+			const rs = await dbo.update(item, dboType);
+
+			utils.deleteFile(utils.getAbsoluteUpload(oldItem.images, path.join(__dirname, '..', '..', 'assets', 'images', '')), global.appconfig.app.imageResize.product);
+			utils.deleteFile(utils.getAbsoluteUpload(oldItem.avatar, path.join(__dirname, '..', '..', 'assets', 'avatar', '')), global.appconfig.app.imageResize.avatar);
+
+			return rs;
+		} catch (err) {
+			utils.deleteFile(utils.getAbsoluteUpload(item.images, path.join(__dirname, '..', '..', 'assets', 'images', '')), global.appconfig.app.imageResize.product);
+			utils.deleteFile(utils.getAbsoluteUpload(item.avatar, path.join(__dirname, '..', '..', 'assets', 'avatar', '')), global.appconfig.app.imageResize.avatar);
+
+			throw err;
+		}
+	},
+
+	async delete(_id, dboReuse) {
+		exports.validate(_id, exports.VALIDATE.DELETE);
+
+		const dbo = dboReuse || await db.open(exports.COLLECTION);
+		const item = await dbo.get(_id, db.FAIL);
+		const dboType = dboReuse ? db.FAIL : db.DONE;
+		const rs = await dbo.delete(_id, dboType);
+
+		utils.deleteFile(utils.getAbsoluteUpload(item.images, path.join(__dirname, '..', '..', 'assets', 'images', '')), global.appconfig.app.imageResize.product);
+		utils.deleteFile(utils.getAbsoluteUpload(item.avatar, path.join(__dirname, '..', '..', 'assets', 'avatar', '')), global.appconfig.app.imageResize.avatar);
+
+		return rs;
+	}
+
+}

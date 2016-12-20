@@ -59,7 +59,7 @@ exports = module.exports = {
                                     let ShellClassService = require('./ShellClass.service');
                                     ShellClassService.get(shellInstance.shellclass_id).then((shellClass) => {
                                         let data = {
-                                            SessionId: rs.insertedIds[0].toString(),
+                                            SessionId: rs._id.toString(),
                                             Tasks: shellClass.testing.tasks,
                                             Parameters: testInstance.params,                                
                                             InstanceData: shellInstance.inputData,

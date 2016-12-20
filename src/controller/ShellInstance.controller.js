@@ -1,107 +1,69 @@
-let restify = require('restify');
-let path = require('path');
+const restify = require('restify');
+const path = require('path');
 
-let utils = require('../utils');
-let ShellInstanceService = require('../service/ShellInstance.service');
-let ShellClassService = require('../service/ShellClass.service');
+const utils = require('../utils');
+const ShellInstanceService = require('../service/ShellInstance.service');
 
 /************************************
-** CONTROLLER:   ShellInstanceController
-** AUTHOR:       Unknown
-** CREATED DATE: 11/24/2016, 4:49:06 PM
-*************************************/
+ ** CONTROLLER:   ShellInstanceController
+ ** AUTHOR:       Unknown
+ ** CREATED DATE: 12/19/2016, 3:42:44 PM
+ *************************************/
 
-// server.get('/ShellInstance', utils.jsonHandler(), (req, res, next) => {
-//     let where = {};
-//     if(utils.has(req.query.status)) where.status = +req.query.status;
-//     else where.status = { $ne: 7 };
-//     return ShellInstanceService.find({}).then((rs) => {
-//         res.send(rs);
-//     }).catch(next);
-// });
-
-server.get('/ShellInstance/:_id', utils.jsonHandler(), (req, res, next) => {
-    return ShellInstanceService.get(req.params._id).then((rs) => {
-        res.send(rs);
-    }).catch(next);
-});
-
-server.get('/ShellInstanceByClass/:_id', utils.jsonHandler(), (req, res, next) => {
-    let where = {};    
-    where.shellclass_id = req.params._id;
-    if(utils.has(req.query.status)) where.status = +req.query.status;
-    else where.status = { $ne: ShellInstanceService.STATE.DELETED };
-    return ShellInstanceService.find({where: where }).then((rs) => {
-        res.send(rs);
-    }).catch(next);
+// Get instances by class id
+server.get('/ShellInstances/:shellclass_id', utils.jsonHandler(), async(req, res, next) => {
+	let where = {};    
+	try {		
+		where.shellclass_id = req.params.shellclass_id;
+		if(utils.has(req.query.status) === true) where.status = +req.query.status;
+		else where.status = { $ne: ShellInstanceService.STATE.DELETED };
+		const rs = await ShellInstanceService.find({where});
+		res.send(rs);
+	} catch (err) {
+		next(err);
+	}
 });
 
 // Create instance
-server.post('/ShellInstance', utils.jsonHandler(), (req, res, next) => {
-    var body =  req.body;
-    body.status = ShellInstanceService.STATE.CREATING;
-	body.created_date = new Date();
-	body.updated_date = new Date();
-    ShellInstanceService.insert(body).then((rs0) => {
-        ShellInstanceService.createInstance(rs0.ops[0]).then((rs) => {
-            res.send({instance: rs0.ops[0], session: rs.SessionId}); 
-        }).catch(next);
-    }).catch(next);
-});
-
-server.del('/ShellInstance/:_id', utils.jsonHandler(), (req, res, next) => {
-    ShellInstanceService.deleteInstance(req.params._id).then((rs) => {
-        res.send(rs.SessionId);
-    }).catch(next);
+server.post('/ShellInstance/:shellclass_id', utils.jsonHandler(), async(req, res, next) => {
+	try {
+		let body = {
+			shellclass_id: req.params.shellclass_id
+		};
+		if (utils.has(req.body) === true) body.input_data = utils.object(req.body);		
+		const rs = await ShellInstanceService.createInstance(body);
+		res.send(rs);
+	} catch (err) {
+		next(err);
+	}
 })
 
 // Deploy instance
-server.post('/ShellInstance/deploy/:id', utils.jsonHandler(), (req, res, next) => {
-    ShellInstanceService.deployInstance(req.params.id).then((rs) => {
-       res.send(rs.SessionId); 
-    }).catch(next);
-});
+server.post('/ShellInstance/deploy/:_id', utils.jsonHandler(), async(req, res, next) => {
+	try {
+		const rs = await ShellInstanceService.deployInstance(req.params._id);
+		res.send(rs);
+	} catch (err) {
+		next(err);
+	}
+})
 
-// Delete Deploy instance
-server.del('/ShellInstance/deploy/:id', utils.jsonHandler(), (req, res, next) => {
-    ShellInstanceService.undeployInstance(req.params.id).then((rs) => {
-       res.send(rs.SessionId); 
-    }).catch(next);
-});
+// Undeploy instance
+server.del('/ShellInstance/deploy/:_id', utils.jsonHandler(), async(req, res, next) => {
+	try {
+		const rs = await ShellInstanceService.undeployInstance(req.params._id);
+		res.send(rs);
+	} catch (err) {
+		next(err);
+	}
+})
 
-// Execute parent plugin scripts GetInformation
-server.get('/ShellInstance/information/:id', utils.jsonHandler(), (req, res, next) => {
-    ShellInstanceService.getInformation(req.params.id).then((rs) => {
-       res.send(rs.SessionId); 
-    }).catch(next);
-});
-
-// // Execute parent plugin scripts like restart ...
-// server.post('/ShellInstance/execute-script/:id/:name', utils.jsonHandler(), (req, res, next) => {
-//     ShellInstanceService.executeScript(req.params.id, req.params.name).then((rs) => {
-//        res.send(rs.SessionId); 
-//     }).catch(next);
-// });
-
-// // Execute testcase Execute Test
-// server.put('/ShellInstance/execute/:id/:index', utils.jsonHandler(), (req, res, next) => {
-//     ShellInstanceService.execute(req.params.id, +req.params.index).then((rs) => {
-//        res.send(rs.SessionId); 
-//     }).catch(next);
-// });
-
-// // Execute testcase scripts Execute get information test
-// server.put('/ShellInstance/execute/:id/:name/:index', utils.jsonHandler(), (req, res, next) => {
-//     ShellInstanceService.executeScript(req.params.id, req.params.name, +req.params.index).then((rs) => {
-//        res.send(rs.SessionId); 
-//     }).catch(next);
-// });
-
-// server.put('/ShellInstance/:_id', utils.jsonHandler(), (req, res, next) => {
-//     var body = req.body;
-//     body._id = req.params._id;
-// 	body.updated_date = new Date();
-//     ShellInstanceService.update(body).then((rs) => {
-//         res.send(rs);
-//     }).catch(next);
-// });
+// Delete instance
+server.del('/ShellInstance/:_id', utils.jsonHandler(), async(req, res, next) => {
+	try {
+		const rs = await ShellInstanceService.deleteInstance(req.params._id);
+		res.send(rs);
+	} catch (err) {
+		next(err);
+	}
+})

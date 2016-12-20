@@ -6,13 +6,16 @@
         "request": "launch",
         // "program": "${workspaceRoot}/lib/generate/gen.js",
         "program": "${workspaceRoot}/index.js",
+        // "program": "${workspaceRoot}/test.js",
         "stopOnEntry": false,
-        "args": ["--expose-gc"],
+        "args": [],
         "cwd": "${workspaceRoot}",
         "preLaunchTask": null,
         "runtimeExecutable": null,
         "runtimeArgs": [
-            "--nolazy"
+            "--nolazy",
+            "--expose-gc", 
+            "--harmony-async-await"
         ],
         "env": {
             "NODE_ENV": "development"

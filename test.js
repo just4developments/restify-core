@@ -69,6 +69,10 @@
 // var valid = validate(data);
 // if (!valid) console.log(validate.errors);
 // else console.log('ok');
-
-let sc = require('./src/service/ShellClass.service');
-sc.handleShellFile(require('path').join(__dirname, 'test', 'plugin-sample-v01.zip'));
+global.appconfig = require('./src/appconfig');
+let a = require('./src/service/Broadcast.service');
+a.test({
+    SessionId: "58589a02789cb52634833e6a",
+    Status: 0,
+    Result: "Something"
+});

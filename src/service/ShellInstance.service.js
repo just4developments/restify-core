@@ -1,19 +1,26 @@
-let restify = require('restify');
-let path = require('path');
-let _ = require('lodash');
+const restify = require('restify');
+const path = require('path');
+const _ = require('lodash');
 
-let db = require('../db');
-let utils = require('../utils');
+const db = require('../db');
+const utils = require('../utils');
 
 /************************************
  ** SERVICE:      ShellInstanceController
  ** AUTHOR:       Unknown
- ** CREATED DATE: 11/24/2016, 4:49:06 PM
+ ** CREATED DATE: 12/19/2016, 3:42:44 PM
  *************************************/
 
 exports = module.exports = {
-    COLLECTION: 'ShellInstance',
-    STATE: {
+	COLLECTION: "ShellInstance",
+	VALIDATE: {
+		INSERT: 0,
+		UPDATE: 1,
+		GET: 2,
+		DELETE: 3,
+		FIND: 4,
+	},
+	STATE: {
         CREATING: 0,
         CREATED: 1,
         CREATE_FAILED: -1,
@@ -32,372 +39,222 @@ exports = module.exports = {
         SUCCESSED: 1,
         FAILED: -1
     },
-    bindDataInShellInstanceScript: (data, bindingData) => {
-        for (var i in data) {
-            if (typeof data[i] === 'string') {
-                let m = data[i].match(/\$\{([^\}]+)\}$/);
-                if(m) data[i] = eval(`bindingData.${m[1]}`);
-            }
-        }
-        return data;
-    },
-    // Call via rabbit mq to execute script
-    executeScript: (_id, name) => {
-        return new Promise((resolve, reject) => {
-            exports.get(_id).then((shellInstance) => {
-                let ShellClassService = require('./ShellClass.service');
-                ShellClassService.get(shellInstance.shellclass_id).then((shellClass) => {
-                    try {
-                        let scripts = shellClass.scripts;
-                        if (!scripts || !scripts[name]) {
-                            return reject(`Could not find command at "${name}" in plugin ${index}`);
-                        }                        
-                        let ExecutingLogs = require('./ExecutingLogs.service');
-                        ExecutingLogs.insert({
-                            event_type: ExecutingLogs.EVENT_TYPE.SCRIPT,
-                            status: ExecutingLogs.STATUS.RUNNING,
-                            title: shellInstance.name,
-                            event_name: name,
-                            shellinstance_id: _id
-                        }).then((rs) => {
-                            let data = _.clone(scripts[name].data);
-                            data = data === undefined ? undefined : exports.bindDataInShellInstanceScript(data, _.assign({
-                                SessionId: rs.insertedIds[0].toString(),
-                                inputData: shellInstance.inputData,
-                                From: appconfig.rabbit.api.queueName
-                            }, shellClass));
-                            let BroadcastService = require('./Broadcast.service');
-                            // TODO: Thieu queue name va queue type
-                            BroadcastService.broadcastToRabQ(appconfig.rabbit.channel.getInfor.exchange, appconfig.rabbit.getInfor.queueName, appconfig.rabbit.getInfor.exchangeType, data).then((data) => {
-                                resolve(data);
-                            }).catch(reject);
-                        }).catch(reject);
-                    } catch (e) {
-                        reject(e);
-                    }
-                }).catch(reject);
-            });
+	validate(item, action) {
+		let msg;
+		switch (action) {
+			case exports.VALIDATE.INSERT:
+				item.shellclass_id = db.uuid(item.shellclass_id);
+				item.input_data = utils.valid('input_data', item.input_data, Object);
+				item.status = exports.STATE.CREATING;
+				item.created_date = new Date();
+				item.updated_date = new Date();
 
-        });
+				break;
+			case exports.VALIDATE.UPDATE:
+				item.shellclass_id = db.uuid(utils.valid('shellclass_id', item.shellclass_id, [String, db.Uuid]));
+				item.input_data = utils.valid('input_data', item.input_data, Object);
+				item.updated_date = new Date();
+				item.status = utils.valid('status', item.status, Number);
+				
+				break;
+			case exports.VALIDATE.GET:
+				item.shellclass_id = db.uuid(utils.valid('shellclass_id', item, [String, db.Uuid]));
+
+				break;
+			case exports.VALIDATE.DELETE:
+				item._id = db.uuid(utils.valid('_id', item, [String, db.Uuid]));
+
+				break;
+			case exports.VALIDATE.FIND:
+				if(item.shellclass_id) item.shellclass_id = db.uuid(item.shellclass_id);
+
+				break;
+		}
+		return item;
+	},
+
+	async getInstanceAvail(shellclass_id){
+		return await exports.find({count: true, where: {shellclass_id: shellclass_id, status: { $ne: exports.STATE.DELETED } }});
     },
 
-    getInformation: (_id) => {
-        return new Promise((resolve, reject) => {
-            exports.get(_id).then((shellInstance) => {                
-                try {
-                    let ExecutingLogs = require('./ExecutingLogs.service');
-                    ExecutingLogs.insert({
-                        event_type: ExecutingLogs.EVENT_TYPE.GET_INFORMATION,
-                        status: ExecutingLogs.STATUS.RUNNING,
-                        title: shellInstance.name,
-                        event_name: 'GET INFORMATION',
-                        shellinstance_id: _id
-                    }).then((rs) => {
-                        let data = {
-                            SessionId: rs.insertedIds[0].toString(),
-                            cloud_ip: appconfig.rabbit.cloud_ip,
-                            deployment_id: shellInstance.name,
-                            From: appconfig.rabbit.api.queueName
-                        };
-                        let BroadcastService = require('./Broadcast.service');
-                        BroadcastService.broadcastToRabQ(appconfig.rabbit.channel.getInfor.exchange, appconfig.rabbit.channel.getInfor.queueName, appconfig.rabbit.channel.getInfor.exchangeType, data).then((data) => {
-                            resolve(data);
-                        }).catch(reject);
-                    }).catch(reject);
-                } catch (e) {
-                    reject(e);
-                }
-            });
-
-        });
+	async createInstance(shellInstance) {		
+		const ShellClassService = require('./ShellClass.service');
+		shellInstance = await exports.insert(shellInstance);		
+		const shellClass = await ShellClassService.get(shellInstance.shellclass_id);
+		const ExecutingLogs = require('./ExecutingLogs.service');
+		const rabSession = await ExecutingLogs.insert({
+			event_type: ExecutingLogs.EVENT_TYPE.CREATE_INSTANCE,
+			event_name: 'CREATE INSTANCE',
+			status: ExecutingLogs.STATUS.RUNNING,
+			title: shellInstance.input_data.name,
+			shellinstance_id: shellInstance._id
+		});
+		let data = {
+			SessionId: rabSession._id.toString(),
+			Command: appconfig.rabbit.channel.createInstance.cmd,
+			Params: {
+				deployment_id: shellInstance.input_data.name,
+				blueprint_id: shellClass.name,
+				cloud_ip: appconfig.rabbit.cloud_ip,
+				input_string: shellInstance.input_data,
+			},
+			From: appconfig.rabbit.api.queueName
+		}
+		const BroadcastService = require('./Broadcast.service');
+		await BroadcastService.broadcastToRabQ(appconfig.rabbit.channel.createInstance.exchange, appconfig.rabbit.channel.createInstance.queueName, appconfig.rabbit.channel.createInstance.exchangeType, data);
+		return data;
     },
 
-    createInstance: (shellInstance) => {
-        return new Promise((resolve, reject) => {
-            try {
-                let ShellClassService = require('./ShellClass.service');
-                ShellClassService.get(shellInstance.shellclass_id).then((shellClass) => {
-                    let ExecutingLogs = require('./ExecutingLogs.service');
-                    ExecutingLogs.insert({
-                        event_type: ExecutingLogs.EVENT_TYPE.CREATE_INSTANCE,
-                        status: ExecutingLogs.STATUS.RUNNING,
-                        title: shellInstance.name,
-                        shellinstance_id: shellInstance._id
-                    }).then((rs) => {
-                        let data = {
-                            SessionId: rs.insertedIds[0].toString(),
-                            Command: appconfig.rabbit.channel.createInstance.cmd,
-                            Params: {
-                                deployment_id: shellInstance.name,
-                                blueprint_id: shellClass.name,
-                                cloud_ip: appconfig.rabbit.cloud_ip,
-                                input_string: shellInstance.inputData,
-                            },
-                            From: appconfig.rabbit.api.queueName
-                        }
-                        let BroadcastService = require('./Broadcast.service');
-                        BroadcastService.broadcastToRabQ(appconfig.rabbit.channel.createInstance.exchange, appconfig.rabbit.channel.createInstance.queueName, appconfig.rabbit.channel.createInstance.exchangeType, data).then((data) => {
-                            resolve(data);
-                        }).catch(reject);
-                    }).catch(reject);
-                }).catch(reject);
-            } catch (e) {
-                reject(e);
-            }
-        });
+	async deployInstance(_id) {		
+		const shellInstance = await exports.get(_id);
+		if([exports.STATE.CREATED, exports.STATE.UNDEPLOYED, exports.STATE.DEPLOY_FAILED, exports.STATE.DELETE_FAILED].indexOf(shellInstance.status) !== -1) {
+			await exports.updateStatus({
+				_id: shellInstance._id,
+				status: exports.STATE.DEPLOYING
+			});
+			const ExecutingLogs = require('./ExecutingLogs.service');
+			const rabSession = await ExecutingLogs.insert({
+				event_type: ExecutingLogs.EVENT_TYPE.DEPLOY_INSTANCE,
+				status: ExecutingLogs.STATUS.RUNNING,
+				event_name: 'DEPLOY INSTANCE',
+				title: shellInstance.input_data.name,
+				shellinstance_id: shellInstance._id
+			});
+			const data = {
+				SessionId: rabSession._id.toString(),
+				Command: appconfig.rabbit.channel.deployInstance.cmd,
+				Params: {
+					cloud_ip: appconfig.rabbit.cloud_ip,
+					deployment_id: shellInstance.input_data.name,
+				},
+				From: appconfig.rabbit.api.queueName
+			};
+			let BroadcastService = require('./Broadcast.service');
+			await BroadcastService.broadcastToRabQ(appconfig.rabbit.channel.deployInstance.exchange, appconfig.rabbit.channel.deployInstance.queueName, appconfig.rabbit.channel.deployInstance.exchangeType, data);
+			return data.SessionId;
+		}
+		throw new restify.PreconditionFailedError('This instance must be created before deploying');
     },
 
-    undeployInstance: (_id) => {
-        return new Promise((resolve, reject) => {
-            exports.get(_id).then((shellInstance) => {
-                try {
-                    if([exports.STATE.DEPLOYED, exports.STATE.UNDEPLOY_FAILED].indexOf(shellInstance.status) !== -1) {
-                        exports.update({
-                            _id: shellInstance._id,
-                            status: exports.STATE.UNDEPLOYING
-                        }).then((rs) => {
-                            let ExecutingLogs = require('./ExecutingLogs.service');
-                            ExecutingLogs.insert({
-                                event_type: ExecutingLogs.EVENT_TYPE.UNDEPLOY_INSTANCE,
-                                status: ExecutingLogs.STATUS.RUNNING,
-                                title: shellInstance.name,
-                                shellinstance_id: shellInstance._id
-                            }).then((rs) => {
-                                let data = {
-                                    SessionId: rs.insertedIds[0].toString(),
-                                    Command: appconfig.rabbit.channel.undeployInstance.cmd,
-                                    Params: {
-                                        cloud_ip: appconfig.rabbit.cloud_ip,
-                                        deployment_id: shellInstance.name,
-                                    },
-                                    From: appconfig.rabbit.api.queueName
-                                };
-                                let BroadcastService = require('./Broadcast.service');
-                                BroadcastService.broadcastToRabQ(appconfig.rabbit.channel.undeployInstance.exchange, appconfig.rabbit.channel.undeployInstance.queueName, appconfig.rabbit.channel.undeployInstance.exchangeType, data).then((data) => {
-                                    resolve(data);
-                                }).catch(reject);
-                            }).catch(reject);
-                        }).catch(reject);                    
-                    }else {
-                        return reject(new restify.PreconditionFailedError('This instance has not deployed yet'));
-                    }
-                } catch (e) {
-                    reject(e);
-                }
-            });
-        });
+	async undeployInstance(_id){
+		const shellInstance = await exports.get(_id);
+		if([exports.STATE.DEPLOYED, exports.STATE.UNDEPLOY_FAILED].indexOf(shellInstance.status) !== -1) {
+			await exports.updateStatus({
+				_id: shellInstance._id,
+				status: exports.STATE.UNDEPLOYING
+			});
+			const ExecutingLogs = require('./ExecutingLogs.service');
+			const rabSession = await ExecutingLogs.insert({
+				event_type: ExecutingLogs.EVENT_TYPE.UNDEPLOY_INSTANCE,
+				event_name: 'UNDEPLOY INSTANCE',
+				status: ExecutingLogs.STATUS.RUNNING,
+				title: shellInstance.input_data.name,
+				shellinstance_id: shellInstance._id
+			});
+			const data = {
+				SessionId: rabSession._id.toString(),
+				Command: appconfig.rabbit.channel.undeployInstance.cmd,
+				Params: {
+					cloud_ip: appconfig.rabbit.cloud_ip,
+					deployment_id: shellInstance.input_data.name,
+				},
+				From: appconfig.rabbit.api.queueName
+			};
+			const BroadcastService = require('./Broadcast.service');
+			await BroadcastService.broadcastToRabQ(appconfig.rabbit.channel.undeployInstance.exchange, appconfig.rabbit.channel.undeployInstance.queueName, appconfig.rabbit.channel.undeployInstance.exchangeType, data);
+			return data.SessionId;			
+		}
+		throw new restify.PreconditionFailedError('This instance has not deployed yet');
     },
 
-    deployInstance: (_id) => {
-        return new Promise((resolve, reject) => {
-            exports.get(_id).then((shellInstance) => {
-                try {
-                    if([exports.STATE.CREATED, exports.STATE.UNDEPLOYED, exports.STATE.DEPLOY_FAILED, exports.STATE.DELETE_FAILED].indexOf(shellInstance.status) !== -1) {
-                        exports.update({
-                            _id: shellInstance._id,
-                            status: exports.STATE.DEPLOYING
-                        }).then((rs) => {
-                            let ExecutingLogs = require('./ExecutingLogs.service');
-                            ExecutingLogs.insert({
-                                event_type: ExecutingLogs.EVENT_TYPE.DEPLOY_INSTANCE,
-                                status: ExecutingLogs.STATUS.RUNNING,
-                                title: shellInstance.name,
-                                shellinstance_id: shellInstance._id
-                            }).then((rs) => {
-                                let data = {
-                                    SessionId: rs.insertedIds[0].toString(),
-                                    Command: appconfig.rabbit.channel.deployInstance.cmd,
-                                    Params: {
-                                        cloud_ip: appconfig.rabbit.cloud_ip,
-                                        deployment_id: shellInstance.name,
-                                    },
-                                    From: appconfig.rabbit.api.queueName
-                                };
-                                let BroadcastService = require('./Broadcast.service');
-                                BroadcastService.broadcastToRabQ(appconfig.rabbit.channel.deployInstance.exchange, appconfig.rabbit.channel.deployInstance.queueName, appconfig.rabbit.channel.deployInstance.exchangeType, data).then((data) => {
-                                    resolve(data);
-                                }).catch(reject);
-                            }).catch(reject);
-                        }).catch(reject);
-                    }else {
-                        return reject(new restify.PreconditionFailedError('This instance must be created before deploying'));
-                    }
-                } catch (e) {
-                    reject(e);
-                }
-            });
-        });
+	async deleteInstance(_id) {		
+		const shellInstance = await exports.get(_id);
+		if([exports.STATE.CREATED, exports.STATE.UNDEPLOYED, exports.STATE.DEPLOY_FAILED, exports.STATE.DELETE_FAILED].indexOf(shellInstance.status) !== -1) {
+			const TestcaseService = require('./Testcase.service');
+			const count = await TestcaseService.getTestcaseAvail(_id);
+			if(count > 0) throw new restify.PreconditionFailedError(`Need remove ${count} testcase${count > 1 ? 's' : ''} in this instance before deleting`);
+
+			await exports.updateStatus({
+				_id: shellInstance._id,
+				status: exports.STATE.DELETING
+			});
+			const ExecutingLogs = require('./ExecutingLogs.service');
+			const rabSession = await ExecutingLogs.insert({
+				event_type: ExecutingLogs.EVENT_TYPE.DELETE_INSTANCE,
+				event_name: 'DELETE INSTANCE',
+				status: ExecutingLogs.STATUS.RUNNING,
+				title: shellInstance.input_data.name,
+				shellinstance_id: shellInstance._id
+			});
+			const data = {
+				SessionId: rabSession._id.toString(),
+				Command: appconfig.rabbit.channel.deleteInstance.cmd,
+				Params: {
+					cloud_ip: appconfig.rabbit.cloud_ip,
+					deployment_id: shellInstance.input_data.name,
+				},
+				From: appconfig.rabbit.api.queueName
+			};
+			const BroadcastService = require('./Broadcast.service');
+			await BroadcastService.broadcastToRabQ(appconfig.rabbit.channel.deleteInstance.exchange, appconfig.rabbit.channel.deleteInstance.queueName, appconfig.rabbit.channel.deleteInstance.exchangeType, data);
+			return data.SessionId;
+		}
+		throw new restify.PreconditionFailedError('This instance must be undeployed or created before deleting');
     },
 
-    deleteInstance: (_id) => {
-        return new Promise((resolve, reject) => {
-            exports.get(_id).then((shellInstance) => {
-                try {
-                    if([exports.STATE.CREATED, exports.STATE.UNDEPLOYED, exports.STATE.DEPLOY_FAILED, exports.STATE.DELETE_FAILED].indexOf(shellInstance.status) !== -1) {
-                        exports.update({
-                            _id: shellInstance._id,
-                            status: exports.STATE.DELETING
-                        }).then((rs) => {
-                            let ExecutingLogs = require('./ExecutingLogs.service');
-                            ExecutingLogs.insert({
-                                event_type: ExecutingLogs.EVENT_TYPE.DELETE_INSTANCE,
-                                status: ExecutingLogs.STATUS.RUNNING,
-                                title: shellInstance.name,
-                                shellinstance_id: shellInstance._id
-                            }).then((rs) => {
-                                let data = {
-                                    SessionId: rs.insertedIds[0].toString(),
-                                    Command: appconfig.rabbit.channel.deleteInstance.cmd,
-                                    Params: {
-                                        cloud_ip: appconfig.rabbit.cloud_ip,
-                                        deployment_id: shellInstance.name,
-                                    },
-                                    From: appconfig.rabbit.api.queueName
-                                };
-                                let BroadcastService = require('./Broadcast.service');
-                                BroadcastService.broadcastToRabQ(appconfig.rabbit.channel.deleteInstance.exchange, appconfig.rabbit.channel.deleteInstance.queueName, appconfig.rabbit.channel.deleteInstance.exchangeType, data).then((data) => {
-                                    resolve(data);
-                                }).catch(reject);
-                            }).catch(reject);
-                        }).catch(reject);
-                    } else {
-                        return reject(new restify.PreconditionFailedError('This instance must be undeployed or created before deleting'));
-                    }
-                } catch (e) {
-                    reject(e);
-                }
-            });
-        });
-    },
+	async find(fil = {}, dboReuse) {
+		fil.where = exports.validate(fil.where, exports.VALIDATE.FIND);
 
-    countInstanceInClass(shellclass_id){
-        return exports.find({count: true, where: {shellclass_id: shellclass_id, status: { $ne: exports.STATE.DELETED } }});  
-    },
+		const dbo = dboReuse || await db.open(exports.COLLECTION);
+		const dboType = dboReuse ? db.FAIL : db.DONE;
+		const rs = await dbo.find(fil, dboType);
+		return rs;
+	},
 
-    // Call via rabbit mq to execute script
-    execute: (_id, index) => {
-        return new Promise((resolve, reject) => {
-            exports.get(_id).then((shellInstance) => {
-                let ShellClassService = require('./ShellClass.service');
-                ShellClassService.get(shellInstance.data.shellclass_id).then((shellClass) => {
-                    try {
-                        let ExecutingLogs = require('./ExecutingLogs.service');
-                        ExecutingLogs.insert({
-                            event_type: ExecutingLogs.EVENT_TYPE.EXECUTING,
-                            status: ExecutingLogs.STATUS.RUNNING,
-                            title: shellClass.name,
-                            shellinstance_id: _id
-                        }).then((rs) => {
-                            let data = _.clone(index === undefined ? shellInstance.data : shellInstance.data.shell_instances[index]);
-                            data.SessionId = rs.insertedIds[0].toString();
-                            delete data.shellclass_id;
-                            delete data.target;
-                            let BroadcastService = require('./Broadcast.service');
-                            BroadcastService.broadcastToRabQ(shellInstance.data.target, appconfig.rabbit.executing.channelType, data).then((data) => {
-                                resolve(data);
-                            }).catch(reject);
-                        }).catch(reject);
-                    } catch (e) {
-                        reject(e);
-                    }
-                }).catch(reject);
-            });
-        });
-    },
+	async get(shellclass_id, dboReuse) {
+		shellclass_id = exports.validate(shellclass_id, exports.VALIDATE.GET);
 
-    // // Call via rabbit mq to install
-    // install: (shellInstance) => {
-    //     return new Promise((resolve, reject) => {
-    //         try {
-    //             let ShellClassService = require('./ShellClass.service');
-    //             ShellClassService.get(shellInstance.data.shellclass_id).then((item) => {
-    //                 let data = {
-    //                     cloud_ip: '10.64.0.162',
-    //                     blueprint_id: shellInstance.name,
-    //                     archive_file_link: `${appconfig.staticUrl}${item.content}`,
-    //                     blueprint_file_name: shellInstance.yaml
-    //                 };
-    //                 let ExecutingLogs = require('./ExecutingLogs.service');
-    //                 ExecutingLogs.insert({
-    //                     event_type: ExecutingLogs.EVENT_TYPE.INSTALLING,
-    //                     status: ExecutingLogs.STATUS.RUNNING,
-    //                     title: item.name,
-    //                     shellinstance_id: shellInstance._id,
-    //                     started_time: new Date()
-    //                 }).then((rs) => {
-    //                     data.SessionId = rs.insertedIds[0].toString();
-    //                     let BroadcastService = require('./Broadcast.service');
-    //                     BroadcastService.broadcastToRabQ(appconfig.rabbit.installing.channelName, appconfig.rabbit.installing.channelType, data).then((data) => {
-    //                         resolve(data);
-    //                     }).catch(reject);
-    //                 }).catch(reject);
-    //             });
-    //         } catch (e) {
-    //             reject(e);
-    //         }
-    //     });
-    // },
+		const dbo = dboReuse || await db.open(exports.COLLECTION);
+		const dboType = dboReuse ? db.FAIL : db.DONE;
+		const rs = await dbo.get(shellclass_id, dboType);
+		return rs;
+	},
 
-    validate: (obj, action) => {
-        switch (action) {
-            case 0: // For inserting
-                break;
-            case 1: // For updating
-                if (!utils.has(obj._id)) throw new restify.BadRequestError('_id is required!');
-                break;
-        }
-        return obj;
-    },
+	async updateStatus({_id, status}, dboReuse) {
+		const dbo = dboReuse || await db.open(exports.COLLECTION);
+		const dboType = dboReuse ? db.FAIL : db.DONE;
+		const rs = await dbo.update({_id, status}, dboType);
 
-    find: (fil) => {
-        return new Promise((resolve, reject) => {
-            db.open(exports.COLLECTION).then((db) => {
-                db.find(fil).then(resolve).catch(reject);
-            }).catch(reject);
-        });
-    },
+		return rs;
+	},
 
-    get: (_id) => {
-        return new Promise((resolve, reject) => {
-            db.open(exports.COLLECTION).then((db) => {
-                db.get(_id).then(resolve).catch(reject);;
-            }).catch(reject);
-        });
-    },
+	async insert(item, dboReuse) {
+		item = exports.validate(item, exports.VALIDATE.INSERT);
 
-    insert: (obj) => {
-        return new Promise((resolve, reject) => {
-            try {
-                obj = exports.validate(obj, 0);
-                db.open(exports.COLLECTION).then((db) => {
-                    db.insert(obj).then(resolve).catch(reject);
-                }).catch(reject);
-            } catch (e) {
-                reject(e);
-            }
-        });
-    },
+		const dbo = dboReuse || await db.open(exports.COLLECTION);
+		const dboType = dboReuse ? db.FAIL : db.DONE;
+		const rs = await dbo.insert(item, dboType);
+		return rs;
+	},
 
-    update: (obj) => {
-        return new Promise((resolve, reject0) => {
-            try {
-                exports.validate(obj, 1);
-                obj.updated_date = new Date();
-                db.open(exports.COLLECTION).then((db) => {
-                    db.update(obj).then(resolve).catch(reject0);
-                }).catch(reject0)
-            } catch (e) {
+	async update(item, dboReuse) {
+		_id = exports.validate(item, exports.VALIDATE.UPDATE);
 
-                reject0(e);
-            }
-        });
-    },
+		const dbo = dboReuse || await db.open(exports.COLLECTION);
+		const dboType = dboReuse ? db.FAIL : db.DONE;
+		const rs = await dbo.update(item, dboType);
 
-    delete: (_id) => {
-        return new Promise((resolve, reject0) => {
-            db.open(exports.COLLECTION).then((db) => {
-                db.delete(_id).then(resolve).catch(reject0);
-            }).catch(reject0)
-        });
-    }
+		return rs;
+	},
+
+	async delete(shellclass_id, dboReuse) {
+		_id = exports.validate(shellclass_id, exports.VALIDATE.DELETE);
+
+		const dbo = await db.open(exports.COLLECTION);
+		const dboType = dboReuse ? db.FAIL : db.DONE;
+		const rs = await dbo.delete(shellclass_id, dboType);
+
+		return rs;
+	}
+
 }

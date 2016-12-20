@@ -1,0 +1,107 @@
+const restify = require('restify');
+const path = require('path');
+
+const utils = require('../utils');
+const testService = require('../service/test.service');
+
+/************************************
+ ** CONTROLLER:   testController
+ ** AUTHOR:       Unknown
+ ** CREATED DATE: 12/19/2016, 11:20:49 AM
+ *************************************/
+
+server.get('/test', utils.jsonHandler(), async(req, res, next) => {
+	try {
+		let where = {};
+
+		const rs = await testService.find({
+			where: where
+		});
+		res.send(rs);
+	} catch (err) {
+		next(err);
+	}
+});
+
+server.get('/test/:_id', utils.jsonHandler(), async(req, res, next) => {
+	try {
+		const rs = await testService.get(req.params._id);
+		res.send(rs);
+	} catch (err) {
+		next(err);
+	}
+});
+
+server.post('/test', utils.fileUploadHandler({
+	images: {
+		uploadDir: "assets/images/",
+		multiples: true,
+		httpPath: "/images/${filename}"
+		// resize: global.appconfig.app.imageResize.product
+	},
+	avatar: {
+		uploadDir: "assets/avatar/",
+		multiples: false,
+		httpPath: "/avatar/${filename}"
+		// resize: global.appconfig.app.imageResize.avatar
+	}
+}), async(req, res, next) => {
+	try {
+		let body = {};
+		if (utils.has(req.body.name) === true) body.name = req.body.name;
+		if (utils.has(req.body.age) === true) body.age = +req.body.age;
+		if (utils.has(req.body.date) === true) body.date = utils.date(req.body.date);
+		if (utils.has(req.body.bol) === true) body.bol = utils.boolean(req.body.bol);
+		if (utils.has(req.body.obj) === true) body.obj = utils.object(req.body.obj);
+		if (utils.has(req.body.arr) === true) body.arr = utils.object(req.body.arr);
+		if (utils.has(req.file.images) === true) body.images = req.file.images;
+		if (utils.has(req.file.avatar) === true) body.avatar = req.file.avatar;
+
+		const rs = await testService.insert(body);
+		res.send(rs);
+	} catch (err) {
+		next(err);
+	}
+})
+
+server.put('/test/:_id', utils.fileUploadHandler({
+	images: {
+		uploadDir: "assets/images/",
+		multiples: true,
+		httpPath: "/images/${filename}"
+		// resize: global.appconfig.app.imageResize.product
+	},
+	avatar: {
+		uploadDir: "assets/avatar/",
+		multiples: false,
+		httpPath: "/avatar/${filename}"
+		// resize: global.appconfig.app.imageResize.avatar
+	}
+}), async(req, res, next) => {
+	try {
+		let body = {};
+		body._id = req.params._id;
+		if (utils.has(req.body.name) === true) body.name = req.body.name;
+		if (utils.has(req.body.age) === true) body.age = +req.body.age;
+		if (utils.has(req.body.date) === true) body.date = utils.date(req.body.date);
+		if (utils.has(req.body.bol) === true) body.bol = utils.boolean(req.body.bol);
+		if (utils.has(req.body.obj) === true) body.obj = utils.object(req.body.obj);
+		if (utils.has(req.body.arr) === true) body.arr = utils.object(req.body.arr);
+		if (utils.has(req.file.images) === true) body.images = req.file.images;
+		if (utils.has(req.file.avatar) === true) body.avatar = req.file.avatar;
+
+		const rs = await testService.update(body);
+		res.send(rs);
+	} catch (err) {
+		next(err);
+	}
+})
+
+server.del('/test/:_id', utils.jsonHandler(), async(req, res, next) => {
+	try {
+		const rs = await testService.delete(req.params._id);
+		res.send(rs);
+	} catch (err) {
+		next(err);
+	}
+})

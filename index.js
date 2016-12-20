@@ -50,9 +50,11 @@ server.opts(/.*/, function (req,res,next) {
 
 fs.readdir(path.join(__dirname, 'src', 'controller'), function (err, files) {
     if (err) return console.error(err);
-    for (var file of files) {
-        require(`./src/controller/${file}`);
-    }
+    files.forEach((file) => {
+        if(file.indexOf('.js') != -1){
+            require(`./src/controller/${file}`);
+        } 
+    });
 });
 
 server.on('InternalServer', function (req, res, err, cb) {
@@ -70,11 +72,7 @@ io.sockets.on('connection', function (socket) {
     });
 });
 
-BroadcastService.listenFromRabQ(appconfig.rabbit.api.exchange, appconfig.rabbit.api.queueName, appconfig.rabbit.api.exchangeType).then(() => {
-    console.log('RabitQ Listened');
-}).catch((err) => {
-    console.error(err);
-});
+BroadcastService.listenFromRabQ(appconfig.rabbit.api.exchange, appconfig.rabbit.api.queueName, appconfig.rabbit.api.exchangeType);
 
 server.listen(appconfig.listen, () => {
     console.info("Server is running at %d", appconfig.listen);

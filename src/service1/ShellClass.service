@@ -1,0 +1,185 @@
+let restify = require('restify');
+let fs = require('fs');
+let path = require('path');
+let AdmZip = require('adm-zip');
+let _ = require('lodash');
+
+let db = require('../db');
+let utils = require('../utils');
+
+/************************************
+ ** SERVICE:      ShellClassController
+ ** AUTHOR:       Unknown
+ ** CREATED DATE: 11/7/2016, 2:02:46 PM
+ *************************************/
+
+exports = module.exports = {
+    COLLECTION: 'ShellClass',
+    STATE: {
+        UPLOADING: 0,
+        UPLOADED: 1,
+        UPLOAD_FAILED: -1,
+        DELETING: 2,
+        DELETED: 3,
+        DELETE_FAILED: 1
+    },
+
+    async deletePlugin(_id) {
+        const ShellInstanceService = require('./ShellInstance.service');
+        ShellInstanceService.countInstanceInClass(_id).then((count) => {
+            if(count > 0) return reject(new restify.PreconditionFailedError(`Need remove ${count} instance${count > 1 ? 's' : ''} in this plugin before deleting`));
+            exports.get(_id).then((shell) => {
+                exports.update({
+                    _id: shell._id.toString(),
+                    status: exports.STATE.DELETING
+                }).then((rs) => {
+                    let ExecutingLogs = require('./ExecutingLogs.service');
+                    ExecutingLogs.insert({
+                        event_type: ExecutingLogs.EVENT_TYPE.DELETE_PLUGIN,
+                        status: ExecutingLogs.STATUS.RUNNING,
+                        title: shell.name,
+                        shellclass_id: shell._id,
+                        started_time: new Date()
+                    }).then((rs) => {
+                        let data = {
+                            SessionId: rs._id.toString(),
+                            Command: appconfig.rabbit.channel.deletePlugin.cmd,
+                            Params: {
+                                cloud_ip: appconfig.rabbit.cloud_ip,
+                                blueprint_id: shell.name
+                            },
+                            From: appconfig.rabbit.api.queueName
+                        };                    
+                        let BroadcastService = require('./Broadcast.service');
+                        BroadcastService.broadcastToRabQ(appconfig.rabbit.channel.deletePlugin.exchange, appconfig.rabbit.channel.deletePlugin.queueName, appconfig.rabbit.channel.deletePlugin.exchangeType, data).then((data) => {
+                            resolve(data);
+                        }).catch(reject);
+                    }).catch(reject);
+                }).catch(reject);    
+            }).catch(reject);
+        }).catch(reject);                
+    },
+
+    async uploadPlugin(shell) {
+        let ExecutingLogs = require('./ExecutingLogs.service');
+        let rs = await ExecutingLogs.insert({
+            event_type: ExecutingLogs.EVENT_TYPE.UPLOAD_PLUGIN,
+            status: ExecutingLogs.STATUS.RUNNING,
+            title: shell.name,
+            shellclass_id: shell._id,
+            started_time: new Date()
+        });
+        let data = {
+            SessionId: rs._id.toString(),
+            Command: appconfig.rabbit.channel.uploadPlugin.cmd,
+            Params: {
+                cloud_ip: appconfig.rabbit.cloud_ip,
+                blueprint_id: shell.name,
+                archive_file_link: `${appconfig.staticUrl}${shell.path}`,
+                blueprint_file_name: shell.yaml
+            },
+            From: appconfig.rabbit.api.queueName
+        };                    
+        let BroadcastService = require('./Broadcast.service');
+        await BroadcastService.broadcastToRabQ(appconfig.rabbit.channel.uploadPlugin.exchange, appconfig.rabbit.channel.uploadPlugin.queueName, appconfig.rabbit.channel.uploadPlugin.exchangeType, data);
+        return data;
+    },
+
+    async insertUploadingShell(newShell){
+        let meta = exports.handleShellFile(path.join(__dirname, '..', '..', 'assets', newShell));
+        let obj = _.extend({            
+            path: newShell,
+            created_date: new Date(),
+            updated_date: new Date(),
+            status: exports.STATE.UPLOADING
+        }, meta);
+        exports.validate(obj, 0);
+        return await exports.insert(obj);
+    },
+
+    handleShellFile(inputFile){
+        var zip = new AdmZip(inputFile);
+        let hasMeta = false;
+        let hasSh = false;
+        let meta;
+        zip.getEntries().forEach(function (zipEntry) {
+            if(zipEntry.isDirectory){
+                zip.getEntries(zipEntry.entryName).forEach(function (zipEntry) {
+                    if (/config\.json$/.test(zipEntry.entryName)) {
+                        hasMeta = true;
+                        meta = zipEntry.getData().toString();
+                        meta = JSON.parse(meta);
+                        // utils.validateJson(meta, require('../validation/ShellClass.validation'));
+                    }
+                });
+            }
+            if (!hasMeta && /config\.json$/.test(zipEntry.entryName)) {
+                hasMeta = true;
+                meta = zipEntry.getData().toString();
+                meta = JSON.parse(meta);
+                // utils.validateJson(meta, require('../validation/ShellClass.validation'));
+            }
+        });
+        if (!hasMeta) throw new Error('Need file config.json in plugin');
+        return meta;
+    },
+
+    validate: (obj, action) => {
+        switch (action) {
+            case 0: // For inserting
+                // if (!utils.has(obj.name)) throw new restify.BadRequestError('name is required!');
+                // if (!utils.has(obj.target)) throw new restify.BadRequestError('target is required!');
+                break;
+            case 1: // For updating
+                if (!utils.has(obj._id)) throw new restify.BadRequestError('_id is required!');
+                // if (!utils.has(obj.name)) throw new restify.BadRequestError('name is required!');
+                // if (!utils.has(obj.target)) throw new restify.BadRequestError('target is required!');
+                break;
+            case 3: // For executing                    
+                break;
+        }
+        return obj;
+    },
+
+    async find(fil){
+        const dbo = dboReuse || await db.open(exports.COLLECTION);
+		const dboType = dboReuse ? db.FAIL : db.DONE;
+        return await dbo.find(fil, dboType);
+    },
+
+    async get(_id, dboReuse) {
+        const dbo = dboReuse || await db.open(exports.COLLECTION);
+		const dboType = dboReuse ? db.FAIL : db.DONE;
+        return dbo.get(_id, dboType);
+    },
+
+    async insert(obj, dboReuse){
+        obj = exports.validate(obj, 0);
+        const dbo = dboReuse || await db.open(exports.COLLECTION);
+		const dboType = dboReuse ? db.FAIL : db.DONE;
+        const rs = await dbo.insert(obj, dboType);
+        return rs;
+    },
+
+    update: (obj) => {
+        return new Promise((resolve, reject) => {
+            try {
+                exports.validate(obj, 1);
+                db.open(exports.COLLECTION).then((db) => {
+                    db.update(obj).then(resolve).catch(reject);
+                }).catch(reject);
+
+            } catch (e) {
+                reject(e);
+            }
+        });
+    },
+
+    delete: (_id) => {
+        return new Promise((resolve, reject) => {
+            db.open(exports.COLLECTION).then((db) => {
+                db.delete(_id).then(resolve).catch(reject);
+            }).catch(reject);
+        });
+    }
+}

@@ -1,16 +1,26 @@
-let restify = require('restify');
+const restify = require('restify');
+const path = require('path');
+const _ = require('lodash');
 
-let db = require('../db');
-let utils = require('../utils');
+const db = require('../db');
+const utils = require('../utils');
+
 /************************************
- ** SERVICE:      exportsController
+ ** SERVICE:      ExecutingLogsController
  ** AUTHOR:       Unknown
- ** CREATED DATE: 11/8/2016, 1:46:16 PM
+ ** CREATED DATE: 12/19/2016, 2:42:21 PM
  *************************************/
 
 exports = module.exports = {
-    COLLECTION: 'ExecutingLogs',
-    EVENT_TYPE: {
+	COLLECTION: "ExecutingLogs",
+	VALIDATE: {
+		INSERT: 0,
+		UPDATE: 1,
+		GET: 2,
+		DELETE: 3,
+		FIND: 4,
+	},
+	EVENT_TYPE: {
         UPLOAD_PLUGIN: 0,
         DELETE_PLUGIN: 0,
         CREATE_INSTANCE: 1,
@@ -19,77 +29,95 @@ exports = module.exports = {
         UNDEPLOY_INSTANCE: -2, 
         GET_INFORMATION: 3,
         RESTART_INSTANCE: 4,
-        RUN_TESTING: 5
+        RUN_TESTCASE: 5
     },
     STATUS: {
         RUNNING: 0,
         SUCCESSED: 1,
         FAILED: -1
     },
+	validate(item, action) {
+		let msg;
+		switch (action) {
+			case exports.VALIDATE.INSERT:
+				if(item.shellclass_id) item.shellclass_id = db.uuid(item.shellclass_id);
+				if(item.shellinstance_id) item.shellinstance_id = db.uuid(item.shellinstance_id);
+				item.event_type = utils.valid('event_type', item.event_type, Number);
+				item.status = utils.valid('status', item.status, Number);
+				item.title = utils.valid('title', item.title, String);
+				item.started_time = utils.valid('started_time', item.started_time, Date, new Date());
 
-    validate: (obj, action) => {
-        switch (action) {
-            case 0: // For inserting
-                obj.started_time = new Date();
-                if (!utils.has(obj.event_type)) throw new restify.BadRequestError('event_type is required!');
-                if (!utils.has(obj.status)) throw new restify.BadRequestError('status is required!');
-                if (!utils.has(obj.title)) throw new restify.BadRequestError('title is required!');
-                // if (!utils.has(obj.shellclass_id)) throw new restify.BadRequestError('shellclass_id is required!');
-                break;
-            case 1: // For updating
-                obj.finished_time = new Date();
-                if (!utils.has(obj.status)) throw new restify.BadRequestError('status is required!');
-                if (!utils.has(obj.result)) throw new restify.BadRequestError('result is required!');
-                break;
-        }
-        return obj;
-    },
+				break;
+			case exports.VALIDATE.UPDATE:
+				if(item.shellclass_id) item.shellclass_id = db.uuid(item.shellclass_id);
+				if(item.shellinstance_id) item.shellinstance_id = db.uuid(item.shellinstance_id);
+				item.event_type = utils.valid('event_type', item.event_type, Number);
+				item.status = utils.valid('status', item.status, Number);
+				item.title = utils.valid('title', item.title, String);
+				item.started_time = utils.valid('started_time', item.started_time, Date, new Date());
 
-    find: (fil) => {
-        return new Promise((resolve, reject) => {
-            db.open(exports.COLLECTION).then((db) => {
-                db.find(fil).then(resolve).catch(reject);
-            }).catch(reject);
-        });
-    },
+				break;
+			case exports.VALIDATE.GET:
+				item.shellclass_id = db.uuid(utils.valid('shellclass_id', item, [String, db.Uuid]));
 
-    get: (_id) => {
-        return new Promise((resolve, reject) => {
-            db.open(exports.COLLECTION).then((db) => {
-                db.get(_id).then(resolve).catch(reject);;
-            }).catch(reject);
-        });
-    },
+				break;
+			case exports.VALIDATE.DELETE:
+				item.shellclass_id = db.uuid(utils.valid('shellclass_id', item, [String, db.Uuid]));
 
-    insert: (obj) => {
-        return new Promise((resolve, reject) => {
-            try {
-                obj = exports.validate(obj, 0);
-                db.open(exports.COLLECTION).then((db) => {
-                    db.insert(obj).then(resolve).catch(reject);
-                }).catch(reject);
-            } catch (e) {
-                reject(e);
-            }
-        });
-    },
+				break;
+			case exports.VALIDATE.FIND:
 
-    update: (obj) => {
-        return new Promise((resolve, reject) => {
-            try {
-                exports.validate(obj, 1);
-                db.open(exports.COLLECTION).then((db) => {
-                    db.update(obj, db.FAIL).then(resolve).catch(reject);
-                });
-            } catch (e) {
-                reject(e);
-            }
-        });
-    },
 
-    delete: (_id) => {
-        return db.open(exports.COLLECTION).then((db) => {
-            db.delete(_id);
-        }).catch(reject);
-    }
+				break;
+		}
+		return item;
+	},
+
+	async find(fil = {}, dboReuse) {
+		fil = exports.validate(fil, exports.VALIDATE.FIND);
+
+		const dbo = dboReuse || await db.open(exports.COLLECTION);
+		const dboType = dboReuse ? db.FAIL : db.DONE;
+		const rs = await dbo.find(fil, dboType);
+		return rs;
+	},
+
+	async get(shellclass_id, dboReuse) {
+		shellclass_id = exports.validate(shellclass_id, exports.VALIDATE.GET);
+
+		const dbo = dboReuse || await db.open(exports.COLLECTION);
+		const dboType = dboReuse ? db.FAIL : db.DONE;
+		const rs = await dbo.get(shellclass_id, dboType);
+		return rs;
+	},
+
+	async insert(item, dboReuse) {
+		item = exports.validate(item, exports.VALIDATE.INSERT);
+
+		const dbo = dboReuse || await db.open(exports.COLLECTION);
+		const dboType = dboReuse ? db.FAIL : db.DONE;
+		const rs = await dbo.insert(item, dboType);
+		return rs;
+	},
+
+	async update(item, dboReuse) {
+		exports.validate(item, exports.VALIDATE.UPDATE);
+
+		const dbo = dboReuse || await db.open(exports.COLLECTION);
+		const dboType = dboReuse ? db.FAIL : db.DONE;
+		const rs = await dbo.update(item, dboType);
+
+		return rs;
+	},
+
+	async delete(shellclass_id, dboReuse) {
+		exports.validate(shellclass_id, exports.VALIDATE.DELETE);
+
+		const dbo = await db.open(exports.COLLECTION);
+		const dboType = dboReuse ? db.FAIL : db.DONE;
+		const rs = await dbo.delete(shellclass_id, dboType);
+
+		return rs;
+	}
+
 }

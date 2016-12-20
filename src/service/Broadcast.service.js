@@ -1,145 +1,163 @@
-let amqp = require('amqplib/callback_api');
-let uuid = require('node-uuid');
-let ExecutingLogs = require('./ExecutingLogs.service');
+const amqp = require('amqplib/callback_api');
+const uuid = require('node-uuid');
+const ExecutingLogs = require('./ExecutingLogs.service');
+const _ = require('lodash');
 
 exports = module.exports = {
 
-    uploadedPlugin: (logItem) => {
-        return new Promise((resolve, reject) => {
-            let ShellClassService = require('../service/ShellClass.service');
-            ShellClassService.get(logItem.shellclass_id.toString()).then((shellClass) => {
-                if(shellClass.status !== ShellClassService.STATE.UPLOADING) return reject(new restify.PreconditionFailedError(`This instance state is ${shellClass.status} != UPLOADING`));
-                ShellClassService.update({
-                    _id: shellClass._id,
-                    status: logItem.status === ExecutingLogs.STATUS.SUCCESSED ? ShellClassService.STATE.UPLOADED : ShellClassService.STATE.UPLOAD_FAILED
-                }).then(resolve).catch(reject);
-            }).catch(reject);
+    async uploadedPlugin(logItem){
+        const ShellClassService = require('../service/ShellClass.service');
+        const shellClass = await ShellClassService.get(logItem.shellclass_id);
+        if(shellClass.status !== ShellClassService.STATE.UPLOADING) throw new restify.PreconditionFailedError(`This instance state is ${shellClass.status} != UPLOADING`);
+        await ShellClassService.update({
+            _id: shellClass._id,
+            status: logItem.status === ExecutingLogs.STATUS.SUCCESSED ? ShellClassService.STATE.UPLOADED : ShellClassService.STATE.UPLOAD_FAILED
         });
+        return true;
     },
     
-    deletedPlugin: (logItem) => {
-        return new Promise((resolve, reject) => {
-            let ShellClassService = require('../service/ShellClass.service');
-            ShellClassService.get(logItem.shellclass_id.toString()).then((shellClass) => {
-                if(shellClass.status !== ShellClassService.STATE.DELETING) return reject(new restify.PreconditionFailedError(`This instance state is ${shellClass.status} != DELETING`));
-                ShellClassService.update({
-                    _id: shellClass._id,
-                    status: logItem.status === ExecutingLogs.STATUS.SUCCESSED ? ShellClassService.STATE.DELETED : ShellClassService.STATE.DELETE_FAILED
-                }).then(resolve).catch(reject);
-            }).catch(reject);
+    async deletedPlugin(logItem){
+        const ShellClassService = require('../service/ShellClass.service');
+        const shellClass = await ShellClassService.get(logItem.shellclass_id);
+        if(shellClass.status !== ShellClassService.STATE.DELETING) throw new restify.PreconditionFailedError(`This instance state is ${shellClass.status} != DELETING`);
+        await ShellClassService.update({
+            _id: shellClass._id,
+            status: logItem.status === ExecutingLogs.STATUS.SUCCESSED ? ShellClassService.STATE.DELETED : ShellClassService.STATE.DELETE_FAILED
         });
+        return true;
     },
 
-    createdInstance: (logItem) => {
-        return new Promise((resolve, reject) => {
-            let ShellInstanceService = require('../service/ShellInstance.service');
-            ShellInstanceService.get(logItem.shellinstance_id.toString()).then((shellInstance) => {
-                if(shellInstance.status === ShellInstanceService.STATE.CREATING) {
-                    if(logItem.status === ExecutingLogs.STATUS.SUCCESSED){                    
-                        ShellInstanceService.update({
-                            _id: shellInstance._id,
-                            status: ShellInstanceService.STATE.CREATED
-                        }).then(resolve).catch(reject);
-                    }else{
-                        ShellInstanceService.delete(shellInstance._id).then(resolve).catch(reject);
-                    }
-                }else {
-                    return reject(new restify.PreconditionFailedError(`This instance state is ${shellInstance.status} != CREATING`));
-                }
-            }).catch(reject);
-        });
-    },
-
-    deployedInstance: (logItem) => {
-        return new Promise((resolve, reject) => {
-            let ShellInstanceService = require('../service/ShellInstance.service');
-            ShellInstanceService.get(logItem.shellinstance_id.toString()).then((shellInstance) => {
-                if(shellInstance.status !== ShellInstanceService.STATE.DEPLOYING) return reject(new restify.PreconditionFailedError(`This instance state is ${shellInstance.status} != DEPLOYING`));
-                ShellInstanceService.update({
+    async createdInstance(logItem){
+        const ShellInstanceService = require('../service/ShellInstance.service');
+        const shellInstance = await ShellInstanceService.get(logItem.shellinstance_id.toString());
+        if(shellInstance.status === ShellInstanceService.STATE.CREATING) {
+            if(logItem.status === ExecutingLogs.STATUS.SUCCESSED){                    
+                await ShellInstanceService.update({
                     _id: shellInstance._id,
-                    status: logItem.status === ExecutingLogs.STATUS.SUCCESSED ? ShellInstanceService.STATE.DEPLOYED : ShellInstanceService.STATE.DEPLOY_FAILED
-                }).then(resolve).catch(reject);
-            }).catch(reject);
-        });
+                    status: ShellInstanceService.STATE.CREATED
+                });
+                return true;
+            }else{
+                await ShellInstanceService.delete(shellInstance._id);
+                return false;
+            }
+        }
+        return reject(new restify.PreconditionFailedError(`This instance state is ${shellInstance.status} != CREATING`));
     },
 
-    undeployedInstance: (logItem) => {
-        return new Promise((resolve, reject) => {
-            let ShellInstanceService = require('../service/ShellInstance.service');
-            ShellInstanceService.get(logItem.shellinstance_id.toString()).then((shellInstance) => {
-                if(shellInstance.status !== ShellInstanceService.STATE.UNDEPLOYING) return reject(new restify.PreconditionFailedError(`This instance state is ${shellInstance.status} != UNDEPLOYING`));
-                ShellInstanceService.update({
-                    _id: shellInstance._id,
-                    status: logItem.status === ExecutingLogs.STATUS.SUCCESSED ? ShellInstanceService.STATE.UNDEPLOYED : ShellInstanceService.STATE.UNDEPLOY_FAILED
-                }).then(resolve).catch(reject);
-            }).catch(reject);
+    async deployedInstance(logItem) {
+        const ShellInstanceService = require('../service/ShellInstance.service');
+        const shellInstance = await ShellInstanceService.get(logItem.shellinstance_id.toString());
+        if(shellInstance.status !== ShellInstanceService.STATE.DEPLOYING) throw new restify.PreconditionFailedError(`This instance state is ${shellInstance.status} != DEPLOYING`);
+        await ShellInstanceService.update({
+            _id: shellInstance._id,
+            status: logItem.status === ExecutingLogs.STATUS.SUCCESSED ? ShellInstanceService.STATE.DEPLOYED : ShellInstanceService.STATE.DEPLOY_FAILED
         });
+        return true;
     },
 
-    deletedInstance: (logItem) => {
-        return new Promise((resolve, reject) => {
-            let ShellInstanceService = require('../service/ShellInstance.service');
-            ShellInstanceService.get(logItem.shellinstance_id.toString()).then((shellInstance) => {
-                if(shellInstance.status !== ShellInstanceService.STATE.DELETING) return reject(new restify.PreconditionFailedError(`This instance state is ${shellInstance.status} != DELETING`));
-                ShellInstanceService.update({
-                    _id: shellInstance._id,
-                    status: logItem.status === ExecutingLogs.STATUS.SUCCESSED ? ShellInstanceService.STATE.DELETED : ShellInstanceService.STATE.DELETE_FAILED
-                }).then(resolve).catch(reject);
-            }).catch(reject);
+    async undeployedInstance(logItem){
+        const ShellInstanceService = require('../service/ShellInstance.service');
+        const shellInstance = await ShellInstanceService.get(logItem.shellinstance_id.toString());
+        if(shellInstance.status !== ShellInstanceService.STATE.UNDEPLOYING) throw new restify.PreconditionFailedError(`This instance state is ${shellInstance.status} != UNDEPLOYING`);
+        await ShellInstanceService.update({
+            _id: shellInstance._id,
+            status: logItem.status === ExecutingLogs.STATUS.SUCCESSED ? ShellInstanceService.STATE.UNDEPLOYED : ShellInstanceService.STATE.UNDEPLOY_FAILED
         });
+        return true;
     },
 
-    listenFromRabQ: (exchange, queueName, exchangeType) => {
+    async deletedInstance(logItem){
+        const ShellInstanceService = require('../service/ShellInstance.service');
+        const shellInstance = await ShellInstanceService.get(logItem.shellinstance_id.toString());
+        if(shellInstance.status !== ShellInstanceService.STATE.DELETING) throw new restify.PreconditionFailedError(`This instance state is ${shellInstance.status} != DELETING`);
+        await ShellInstanceService.update({
+            _id: shellInstance._id,
+            status: logItem.status === ExecutingLogs.STATUS.SUCCESSED ? ShellInstanceService.STATE.DELETED : ShellInstanceService.STATE.DELETE_FAILED
+        });
+        return true;
+    },
+
+    async test(rs){
+        try{
+            const executingLog = await ExecutingLogs.get(rs.SessionId);
+            executingLog.status = rs.Status ? ExecutingLogs.STATUS.FAILED : ExecutingLogs.STATUS.SUCCESSED;
+            executingLog.result = rs.Result;
+            await ExecutingLogs.update(executingLog);
+            switch (executingLog.event_type) {
+                case ExecutingLogs.EVENT_TYPE.UPLOAD_PLUGIN:
+                    exports.uploadedPlugin(executingLog);
+                    break;
+                case ExecutingLogs.EVENT_TYPE.DELETE_PLUGIN:
+                    exports.deletedPlugin(executingLog);
+                    break;
+                case ExecutingLogs.EVENT_TYPE.CREATE_INSTANCE:
+                    exports.createdInstance(executingLog);
+                    break;
+                case ExecutingLogs.EVENT_TYPE.DEPLOY_INSTANCE: 
+                    exports.deployedInstance(executingLog);
+                    break;
+                case ExecutingLogs.EVENT_TYPE.UNDEPLOY_INSTANCE: 
+                    exports.undeployedInstance(executingLog);
+                    break;
+                case ExecutingLogs.EVENT_TYPE.DELETE_INSTANCE: 
+                    exports.deletedInstance(executingLog);
+                    break;
+                default:
+                    setTimeout(() => {
+                        exports.broadcastToWeb(rs.SessionId, executingLog);
+                    }, appconfig.rabbit.toWebTimeout);
+                    break;
+            }
+        }catch(error){
+            console.error(error);
+        }
+    },
+
+    listenFromRabQ(exchange, queueName, exchangeType){
         console.log('Listened from RabQ', queueName);
         return new Promise((resolve, reject) => {
             amqp.connect(appconfig.rabbit.url, function (err, conn) {
                 if (err) return reject(err);
-                conn.createChannel(function (err, ch) {
+                conn.createChannel((err, ch) => {
                     if (err) return reject(err);
                     ch.assertQueue(queueName, {durable: false});
-                    ch.consume(queueName, function (msg) {                        
-                        let rs = msg.content.toString();
+                    ch.consume(queueName, async (msg) => {                        
                         console.log("Received from rabbitMQ", rs);
                         try{
-                            rs = JSON.parse(rs);
-                        }catch(e){
-                            console.error('JSON format failed: ', e);
-                            return reject(e);
-                        }                            
-                        ExecutingLogs.get(rs.SessionId).then((item) => {
-                            item.status = rs.Status ? ExecutingLogs.STATUS.FAILED : ExecutingLogs.STATUS.SUCCESSED;
-                            item.result = rs.Result;
-                            ExecutingLogs.update(item).then((rs0) => {
-                                let done = () => {
-                                    setTimeout(() => {
-                                        exports.broadcastToWeb(rs.SessionId, item);
+                            const rs = JSON.parse(msg.content.toString());
+                            const executingLog = await ExecutingLogs.get(rs.SessionId);
+                            executingLog.status = rs.Status ? ExecutingLogs.STATUS.FAILED : ExecutingLogs.STATUS.SUCCESSED;
+                            executingLog.result = rs.Result;
+                            await ExecutingLogs.update(executingLog);
+                            switch (executingLog.event_type) {
+                                case ExecutingLogs.EVENT_TYPE.UPLOAD_PLUGIN:
+                                    await exports.uploadedPlugin(executingLog);
+                                    break;
+                                case ExecutingLogs.EVENT_TYPE.DELETE_PLUGIN:
+                                    await exports.deletedPlugin(executingLog);
+                                    break;
+                                case ExecutingLogs.EVENT_TYPE.CREATE_INSTANCE:
+                                    await exports.createdInstance(executingLog);
+                                    break;
+                                case ExecutingLogs.EVENT_TYPE.DEPLOY_INSTANCE: 
+                                    await exports.deployedInstance(executingLog);
+                                    break;
+                                case ExecutingLogs.EVENT_TYPE.UNDEPLOY_INSTANCE: 
+                                    await exports.undeployedInstance(executingLog);
+                                    break;
+                                case ExecutingLogs.EVENT_TYPE.DELETE_INSTANCE: 
+                                    await exports.deletedInstance(executingLog);
+                                    break;
+                                default:
+                                    setTimeout(async () => {
+                                        await exports.broadcastToWeb(rs.SessionId, executingLog);
                                     }, appconfig.rabbit.toWebTimeout);
-                                };
-                                switch (item.event_type) {
-                                    case ExecutingLogs.EVENT_TYPE.UPLOAD_PLUGIN:
-                                        exports.uploadedPlugin(item).then(done).catch(reject);   
-                                        break;
-                                    case ExecutingLogs.EVENT_TYPE.DELETE_PLUGIN:
-                                        exports.deletedPlugin(item).then(done).catch(reject);   
-                                        break;
-                                    case ExecutingLogs.EVENT_TYPE.CREATE_INSTANCE:
-                                        exports.createdInstance(item).then(done).catch(reject);   
-                                        break;
-                                    case ExecutingLogs.EVENT_TYPE.DEPLOY_INSTANCE: 
-                                        exports.deployedInstance(item).then(done).catch(reject);
-                                        break;
-                                    case ExecutingLogs.EVENT_TYPE.UNDEPLOY_INSTANCE: 
-                                        exports.undeployedInstance(item).then(done).catch(reject);
-                                        break;
-                                    case ExecutingLogs.EVENT_TYPE.DELETE_INSTANCE: 
-                                        exports.deletedInstance(item).then(done).catch(reject);
-                                        break;
-                                    default:
-                                        done();
-                                        break;
-                                }
-                            }).catch(reject);
-                        }).catch(reject);
+                                    break;
+                            }
+                        }catch(error){
+                            console.error(error);
+                        }
                     }, {
                         noAck: true
                     });
@@ -152,18 +170,22 @@ exports = module.exports = {
     broadcastToRabQ: (exchange, queueName, exchangeType, data) => {
         console.log('BroadcastToRabQ', queueName, data);
         return new Promise((resolve, reject) => {
-            amqp.connect(appconfig.rabbit.url, function (err, conn) {
-                conn.createChannel(function (err, ch) {
-                    ch.assertQueue(queueName, {durable: false});
-                    ch.sendToQueue(queueName, new Buffer(JSON.stringify(data)));
-                    resolve(data);
+            try{
+                amqp.connect(appconfig.rabbit.url, function (err, conn) {
+                    conn.createChannel(function (err, ch) {
+                        ch.assertQueue(queueName, {durable: false});
+                        ch.sendToQueue(queueName, new Buffer(JSON.stringify(data)));
+                        resolve(data);
+                    });
+                    if (conn){
+                        setTimeout(() => {
+                            conn.close;
+                        }, appconfig.rabbit.closeTimeout);
+                    }
                 });
-                if (conn){
-                    setTimeout(() => {
-                        conn.close;
-                    }, appconfig.rabbit.closeTimeout);
-                }
-            });
+            }catch(error){
+                reject(error);
+            }
         });
     },
 

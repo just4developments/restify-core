@@ -2,6 +2,7 @@
     "name": "Script 2",
     "des": "Description script 2",
     "yaml": "openstack-blueprint.yaml",
+    "mano": "cloudify",
     "scripts": {
         "getInformation": {
             "script": "infor.sh",
