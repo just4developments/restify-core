@@ -142,13 +142,13 @@ exports = module.exports = {
 
 	async uploadPlugin(newShell){
 		const meta = exports.handleShellFile(path.join(__dirname, '..', '..', 'assets', newShell));
-        const obj = _.extend(meta, {
+        const shellMeta = _.extend(meta, {
             path: newShell,
             created_date: new Date(),
             updated_date: new Date(),
             status: exports.STATE.UPLOADING
         });
-		const shellClass = await exports.insert(obj);
+		const shellClass = await exports.insert(shellMeta);
 		let ExecutingLogs = require('./ExecutingLogs.service');
 		let rabSession = await ExecutingLogs.insert({
 			event_type: ExecutingLogs.EVENT_TYPE.UPLOAD_PLUGIN,
@@ -163,13 +163,13 @@ exports = module.exports = {
 			Params: {
 				cloud_ip: appconfig.rabbit.cloud_ip,
 				blueprint_id: shellClass.name,
-				archive_file_link: `${appconfig.staticUrl}${shellClass.path}`,
+				archive_file_link: 'https://doc-0o-6s-docs.googleusercontent.com/docs/securesc/u9vbanucnqtv8v4mjno65fgpnhpqog7g/i1a7o85dqb3i63duurjal42qshhctot3/1482213600000/10869540118886159925/10869540118886159925/0B3cSCCgAKiwHYjQ0VkRBYnVPaVU?e=download', //`${appconfig.staticUrl}${shellClass.path}`,
 				blueprint_file_name: shellClass.yaml
 			},
 			From: appconfig.rabbit.api.queueName
 		};                    
 		let BroadcastService = require('./Broadcast.service');
-		await BroadcastService.broadcastToRabQ(appconfig.rabbit.channel.uploadPlugin.exchange, appconfig.rabbit.channel.uploadPlugin.queueName, appconfig.rabbit.channel.uploadPlugin.exchangeType, data);
+		await BroadcastService.broadcastToRabQ(appconfig.rabbit.channel.uploadPlugin.queueName, data);
 
 		return {
 			class: shellClass,
@@ -204,7 +204,7 @@ exports = module.exports = {
 			From: appconfig.rabbit.api.queueName
 		};                    
 		const BroadcastService = require('./Broadcast.service');
-		await BroadcastService.broadcastToRabQ(appconfig.rabbit.channel.deletePlugin.exchange, appconfig.rabbit.channel.deletePlugin.queueName, appconfig.rabbit.channel.deletePlugin.exchangeType, data);			
+		await BroadcastService.broadcastToRabQ(appconfig.rabbit.channel.deletePlugin.queueName, data);			
 		return data.SessionId;
     },
 

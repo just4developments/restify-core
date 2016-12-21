@@ -1,50 +1,75 @@
-# restify-core
-Fast, easy and flexiable to implement and maintaince project base on restify.
+# Validium API
+Provide APIs for uploading plugin, manage instances, testcase ...
 
-## Feature:
-1. Create project base on Restify
-2. Auto generate APIs layer (Controller, service, database (mongo: available, others: Implement db interface to customize))
-3. Optimize FileUpload and resize image via configuration file
+## 1. How to run
 
-Config API Generation at lib/generate/initial.js 
-
+Run on DEV server
 ```sh
-module.exports = {
-    tables: { 
-        test: { // Collection which you want to generate
-            _id: GenType.Key(GenType.String), // 
-            name: GenType.String("Unknown"),
-            age: GenType.Number(20),
-            date: GenType.Date('now'),
-            obj: GenType.Object({class: 'test'}),
-            arr: GenType.Array([1,2,3])
-            images: GenType.File({uploadDir: 'assets/images/', multiples: true, "httpPath": "/images/${filename}", "resize": Native("global.appconfig.app.imageResize.product")}),
-            avatar: GenType.File({uploadDir: 'assets/avatar/', multiples: false, "httpPath": "/avatar/${filename}", "resize": Native("global.appconfig.app.imageResize.avatar")})
-        }
+    npm start
+```
+
+Run on PM2 (For Production)
+```sh
+    npm run pm2
+```
+
+## 2. Configuration
+
+```javascript
+    listen: 8080, // Port listening for API
+    staticUrl: 'http://10.64.0.168:8080', // Prefix link for uploading file (ex: plugin)
+    db: {
+        url: 'mongodb://localhost:27017/validium' // Database url
     },
-    outdir: 'src'
-};
-```
-In that: 
-```sh
-    GenType.Key: _id mongo which be auto generated
-    GenType.String: required
-    GenType.String(defaultValue): String with default value
-    GenType.Number: same GenType.String
-    GenType.Date: required
-    GenType.Date('now'): Default is today (= new Date())
-    GenType.Date(year, month, day, hh, mm, ss): (same new Date() in javascript: Oct = 9)
-    GenType.Object: same GenType.String
-    GenType.Array: same GenType.String
-    GenType.File({
-        uploadDir: 'assets/images/', // Upload file to physical path
-        multiples: true, // Upload multiple file. If multiples = true ? Array : Path image file
-        "httpPath": "/images/${filename}", // Path get after upload which is inserted into database (It's web path not physical path)
-        "resize": Native("global.appconfig.app.imageResize.product") // Auto resize image base on config in src/appconfig.js
-    }): 
-```
-
-Generate APIs from lib/generate/initial.js config file
-```sh
-npm run gen
+    rabbit: {        
+        url: 'amqp://10.64.0.168', // Rabbit server
+        closeTimeout: 500, // timeout to close connection in rabbit
+        toWebTimeout: 2000, // timeout to send data to web via api queue
+        api: {
+            queueName: 'api6' // Rabbit queue name which interact with APIs (No realtime)
+        },
+        log: {
+            queueName: 'log'    // Rabbit queue name which interact with Log progressing (Realtime)
+        },
+        channel : { // Declare command name and queue name which are used to interact with system
+            uploadPlugin: {           
+                cmd: "upload_plugin",
+                queueName: 'vnf_onboarding'
+            },
+            deletePlugin: {                
+                cmd: "delete_plugin",
+                queueName: 'vnf_onboarding'
+            },
+            createInstance: {                
+                cmd: 'create_deployment',
+                queueName: 'vnf_onboarding'
+            },
+            deleteInstance: {                
+                cmd: 'delete_deployment',
+                queueName: 'vnf_onboarding'
+            },
+            deployInstance: {                
+                cmd: 'install_deployment',
+                queueName: 'vnf_onboarding'
+            },
+            undeployInstance: {                
+                cmd: 'uninstall_deployment',
+                queueName: 'vnf_onboarding'
+            },
+            getInfor: {
+                cmd: 'get_info',
+                queueName: 'administrator'
+            },
+            runTesting: {
+                cmd: 'run_tasks',
+                queueName: 'benchmark'
+            }
+        },
+        cloud_ip: '10.64.0.162' // Fix cloud ip
+    },
+    static: {
+        shells: {
+            whiteList: undefined //['192.168.0.11'] // IP can download to install shell scripts
+        }
+    }
 ```

@@ -72,7 +72,11 @@ io.sockets.on('connection', function (socket) {
     });
 });
 
-BroadcastService.listenFromRabQ(appconfig.rabbit.api.exchange, appconfig.rabbit.api.queueName, appconfig.rabbit.api.exchangeType);
+BroadcastService.listenFromRabQ().then((data) => {
+    console.log('Listened from RabQ', appconfig.rabbit.api.queueName);
+}).catch((error) => {
+    console.error(error);
+});
 
 server.listen(appconfig.listen, () => {
     console.info("Server is running at %d", appconfig.listen);

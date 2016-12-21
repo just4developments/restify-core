@@ -50,16 +50,19 @@
             "cwd": "/opt/dats",
             "cmd": "/usr/bin/python dats.py -f @dats.conf.template -r {{test_report_dir}}",
             "log": [{
+                "id": "id1",
                 "name": "DATS log",
                 "file_dir": "/opt/dats/dats.log",
                 "interval": "2",
                 "host": "$cloudify.node_templates.tester_vm"
             }, {
+                "id": "id2",
                 "name": "PROX log on traffic generator",
                 "file_dir": "/opt/prox/prox.log",
                 "interval": "2",
                 "host": "$cloudify.node_templates.sut_vm"
             }, {
+                "id": "id3",
                 "name": "PROX log on SUT",
                 "file_dir": "/opt/prox/prox.log",
                 "interval": "2",

@@ -100,6 +100,14 @@ exports = module.exports = {
 		return rs;
 	},
 
+	async updateStatus(item, dboReuse) {
+		const dbo = dboReuse || await db.open(exports.COLLECTION);
+		const dboType = dboReuse ? db.FAIL : db.DONE;
+		const rs = await dbo.update(item, dboType);
+
+		return rs;
+	},
+
 	async update(item, dboReuse) {
 		exports.validate(item, exports.VALIDATE.UPDATE);
 

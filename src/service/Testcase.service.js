@@ -36,7 +36,7 @@ exports = module.exports = {
 		let msg;
 		switch (action) {
 			case exports.VALIDATE.INSERT:
-				item.shellinstance_id = db.uuid(utils.valid('shellinstance_id', item.shellinstance_id, String));
+				item.shellinstance_id = db.uuid(utils.valid('shellinstance_id', item.shellinstance_id, [String, db.Uuid]));
 				item.params = utils.valid('params', item.params, Object);
 				item.created_date = new Date();
 				item.updated_date = new Date();
@@ -81,23 +81,46 @@ exports = module.exports = {
 				status: ExecutingLogs.STATUS.RUNNING,
 				title: testCase.params.name,
 				event_name: "RUN TESTCASE",
-				testinstance_id: _id
+				testcase_id: _id
 			});
+
 			const ShellInstanceService = require('./ShellInstance.service');
 			const ShellClassService = require('./ShellClass.service');
 
 			const shellInstance = await ShellInstanceService.get(testCase.shellinstance_id);		
 			const shellClass = await ShellClassService.get(shellInstance.shellclass_id);
 			const data = {
-				SessionId: rabSession._id.toString(),
-				Tasks: shellClass.testing.tasks,
-				Parameters: testCase.params,
-				InstanceData: shellInstance.input_data,
+				SessionId: rabSession._id.toString(),				
+				Command: appconfig.rabbit.channel.runTesting.cmd,
+				Params: {
+					cloud_ip: appconfig.rabbit.cloud_ip,
+					blueprint_id: shellClass.name,
+					deployment_id: shellInstance.input_data.name,
+					tasks: shellClass.testing.tasks,
+					params: testCase.params,
+					instance_data: shellInstance.input_data
+				},
 				From: appconfig.rabbit.api.queueName
 			};
 			const BroadcastService = require('./Broadcast.service');
-			await BroadcastService.broadcastToRabQ(appconfig.rabbit.channel.runTesting.exchange, appconfig.rabbit.runTesting.queueName, appconfig.rabbit.runTesting.exchangeType, data);
-			return data.SessionId;
+			await BroadcastService.broadcastToRabQ(appconfig.rabbit.channel.runTesting.queueName, data);
+			let logInfo = {};
+			for(let i in shellClass.testing.tasks){
+				const task = shellClass.testing.tasks[i];
+				let logs = task.log;
+				if(logs && logs.length > 0){
+					logInfo[task.name] = logs.map((e) => {
+						return {
+							id: e.id,
+							title: e.name
+						}
+					});
+				}
+			}
+			return {
+				logInfo: logInfo,
+				sessionId: data.SessionId
+			};
 		}
 		throw new restify.PreconditionFailedError('This testcase is running');
 	},

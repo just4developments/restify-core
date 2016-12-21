@@ -9,58 +9,43 @@ module.exports = {
         closeTimeout: 500,
         toWebTimeout: 2000,
         api: {
-            exchange: 'logs',
-            exchangeType: 'fanout',
             queueName: 'api6'            
+        },
+        log: {
+            queueName: 'log'            
         },
         channel : {
             uploadPlugin: {                
                 cmd: "upload_plugin",
-                exchange: 'logs',
-                queueName: 'vnf_onboarding',
-                exchangeType: 'fanout'
+                queueName: 'vnf_onboarding'
             },
             deletePlugin: {                
                 cmd: "delete_plugin",
-                exchange: 'logs',
-                queueName: 'vnf_onboarding',
-                exchangeType: 'fanout'
+                queueName: 'vnf_onboarding'
             },
             createInstance: {                
                 cmd: 'create_deployment',
-                exchange: 'logs',
-                queueName: 'vnf_onboarding',
-                exchangeType: 'fanout'
+                queueName: 'vnf_onboarding'
             },
             deleteInstance: {                
                 cmd: 'delete_deployment',
-                exchange: 'logs',
-                queueName: 'vnf_onboarding',
-                exchangeType: 'fanout'
+                queueName: 'vnf_onboarding'
             },
             deployInstance: {                
                 cmd: 'install_deployment',
-                exchange: 'logs',
-                queueName: 'vnf_onboarding',
-                exchangeType: 'fanout'
+                queueName: 'vnf_onboarding'
             },
             undeployInstance: {                
                 cmd: 'uninstall_deployment',
-                exchange: 'logs',
-                queueName: 'vnf_onboarding',
-                exchangeType: 'fanout'
+                queueName: 'vnf_onboarding'
             },
             getInfor: {
                 cmd: 'get_info',
-                exchange: 'logs',
-                queueName: 'administrator',
-                exchangeType: 'fanout'
+                queueName: 'administrator'
             },
             runTesting: {
-                cmd: 'get_info',
-                exchange: 'logs',
-                queueName: 'administrator',
-                exchangeType: 'fanout'
+                cmd: 'run_tasks',
+                queueName: 'benchmark'
             }
         },
         cloud_ip: '10.64.0.162'
@@ -69,9 +54,5 @@ module.exports = {
         shells: {
             whiteList: undefined //['192.168.0.11'] // IP can download to install shell scripts
         }
-    },
-    oauth: {
-        clientId: 'test1',
-        clientSecret: '3A@$us3D_udrAphU'
     }
 }

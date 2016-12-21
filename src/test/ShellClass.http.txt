@@ -1,0 +1,26 @@
+{
+    method: 'POST',
+    des: 'Upload plugin but not install yet',
+    url: 'http://localhost:8080/ShellClass',
+    requestHeader: {
+        'content-type': 'multipart/form-data'
+    },
+    requestBody: {
+        'file:shells': 'D:\\sources\\validium\\test\\plugin-sample-v01.zip'
+    }
+}
+
+{
+    des: 'Get ShellClass',
+    method: 'GET',
+    url: 'http://localhost:8080/ShellClass?status=1&page=1&recordsPerPage=20'
+}
+
+{
+    des: 'Delete plugin',
+    method: 'DELETE',
+    url: 'http://localhost:8080/ShellClass/5857b1eb1d501311503c22d2',
+    requestHeader: {
+        'content-type': 'application/json'
+    }
+}

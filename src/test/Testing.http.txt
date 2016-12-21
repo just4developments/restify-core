@@ -11,8 +11,10 @@
         name: "test 01",
         shellinstance_id: "5848e43d18868c28a81a2561",
         params: {
-            a: 1, 
-            b: 2
+            "name": "L3 Forwarding",
+            "test_report_dir": "output2",
+            "tests": "002_pkt_touch",
+            "tolerated_loss": 0
         }
     }
 }

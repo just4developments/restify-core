@@ -10,6 +10,16 @@ const ShellInstanceService = require('../service/ShellInstance.service');
  ** CREATED DATE: 12/19/2016, 3:42:44 PM
  *************************************/
 
+// Get instance information
+server.get('/ShellInstance/information/:id', utils.jsonHandler(), async(req, res, next) => {
+    try {
+		const rs = ShellInstanceService.getInformation(req.params.id);
+		res.send(rs);
+	}catch(err){
+		next(err);
+	} 
+});
+
 // Get instances by class id
 server.get('/ShellInstances/:shellclass_id', utils.jsonHandler(), async(req, res, next) => {
 	let where = {};    

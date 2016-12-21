@@ -1,0 +1,54 @@
+{
+    des: 'Create new instance from new plugin',
+    method: 'POST',
+    url: 'http://localhost:8080/ShellInstance/5858e5ff5cab9c2ac865cb8d',
+    requestHeader: {
+        'content-type': 'application/json'
+    },
+    requestBody: {
+        name: "may ao a", 
+        'target': 'test1',
+        'image': 'afb00c05-cfa1-458f-9c48-eb9999794ac4',
+        flavor: '5fccf6db-c01f-4bc4-9fa4-b52a61d7cfef',
+        agent_user: 'centos'
+    }
+}
+
+{
+    method: 'GET',
+    url: 'http://localhost:8080/ShellInstance'
+}
+
+{
+    des: 'Get instanceS by shell class',
+    method: 'GET',
+    url: 'http://localhost:8080/ShellInstances/5858e5ff5cab9c2ac865cb8d'
+}
+
+
+{
+    des: 'Deploy instance',
+    method: 'POST',
+    url: 'http://localhost:8080/ShellInstance/deploy/5857c1c3a06e111d24af399e',
+    requestHeader: {
+        'content-type': 'application/json'
+    }
+}
+
+{
+    des: 'UNDeploy instance',
+    method: 'DELETE',
+    url: 'http://localhost:8080/ShellInstance/deploy/5857c1c3a06e111d24af399e',
+    requestHeader: {
+        'content-type': 'application/json'
+    }
+}
+
+{
+    des: 'Delete instance',
+    method: 'DELETE',
+    url: 'http://localhost:8080/ShellInstance/5857c1b6a06e111d24af399c',
+    requestHeader: {
+        'content-type': 'application/json'
+    }
+}
