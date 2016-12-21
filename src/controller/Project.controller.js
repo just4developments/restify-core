@@ -10,12 +10,14 @@ const ProjectService = require('../service/Project.service');
  ** CREATED DATE: 12/16/2016, 4:03:22 PM
  *************************************/
 
+// Get project short information
 server.get('/Project', utils.jsonHandler(), async(req, res, next) => {
 	try {
 		let where = {};
 
 		const rs = await ProjectService.find({
-			where: where
+			where: where,
+			fields: {accounts: 0, roles: 0}
 		});
 		res.send(rs);
 	} catch (err) {
@@ -23,6 +25,7 @@ server.get('/Project', utils.jsonHandler(), async(req, res, next) => {
 	}
 });
 
+// Get project details information
 server.get('/Project/:_id', utils.jsonHandler(), async(req, res, next) => {
 	try {
 		const rs = await ProjectService.get(req.params._id);
@@ -32,18 +35,13 @@ server.get('/Project/:_id', utils.jsonHandler(), async(req, res, next) => {
 	}
 });
 
-server.post('/Project', utils.fileUploadHandler({
-	avatar: {
-		uploadDir: "assets/avatar/",
-		multiples: false,
-		httpPath: "/avatar/${filename}",
-		resize: global.appconfig.app.imageResize.avatar
-	}
-}), async(req, res, next) => {
+// Create new project
+server.post('/Project', utils.jsonHandler(), async(req, res, next) => {
 	try {
 		let body = {};
 		if (utils.has(req.body.name) === true) body.name = req.body.name;
 		if (utils.has(req.body.status) === true) body.status = +req.body.status;
+		if (utils.has(req.body.roles) === true) body.roles = req.body.roles;
 
 		const rs = await ProjectService.insert(body);
 		res.send(rs);
@@ -52,19 +50,14 @@ server.post('/Project', utils.fileUploadHandler({
 	}
 })
 
-server.put('/Project/:_id', utils.fileUploadHandler({
-	avatar: {
-		uploadDir: "assets/avatar/",
-		multiples: false,
-		httpPath: "/avatar/${filename}",
-		resize: global.appconfig.app.imageResize.avatar
-	}
-}), async(req, res, next) => {
+// Update project
+server.put('/Project/:_id', utils.jsonHandler(), async(req, res, next) => {
 	try {
 		let body = {};
 		body._id = req.params._id;
 		if (utils.has(req.body.name) === true) body.name = req.body.name;
 		if (utils.has(req.body.status) === true) body.status = +req.body.status;
+		if (utils.has(req.body.roles) === true) body.roles = req.body.roles;
 
 		const rs = await ProjectService.update(body);
 		res.send(rs);
@@ -73,6 +66,7 @@ server.put('/Project/:_id', utils.fileUploadHandler({
 	}
 })
 
+// Remove project
 server.del('/Project/:_id', utils.jsonHandler(), async(req, res, next) => {
 	try {
 		const rs = await ProjectService.delete(req.params._id);

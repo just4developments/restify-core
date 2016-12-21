@@ -20,32 +20,25 @@
 {
 	des: 'Update',
 	method: 'PUT',
-	url: 'http://localhost:9000/Project/ITEM_ID',
+	url: 'http://localhost:9000/Project/5859f93ff672360eac29a41f',
 	requestHeader: {
 		'content-type': 'application/json'
 	},
 	requestBody: {
-		name: '',
-		status: 0,
-		created_at: new Date(),
-		updated_at: new Date(),
-		accounts: [_id:
-			username: ''
-			password: ''
-			status: 0
-			email: ''
-			birth_day: new Date()
-			'file:avatar': null
-			created_at: new Date()
-			updated_at: new Date()
-		]
+		name: 'Project 02',
+		status: 1,
+		roles: {
+			user: [
+				{ path: '^/account/.*$', actions: ['ADD', 'EDIT'] }
+			]
+		}
 	}
 }
 
 {
 	des: 'Get detail',
 	method: 'GET',
-	url: 'http://localhost:9000/Project/ITEM_ID'
+	url: 'http://localhost:9000/Project/5859f93ff672360eac29a41f'
 }
 
 {
