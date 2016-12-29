@@ -54,6 +54,16 @@ server.head('/Authoriz', utils.jsonHandler(), async(req, res, next) => {
 	}
 });
 
+// Get author
+server.get('/Authoriz', utils.jsonHandler(), async(req, res, next) => {
+	try {
+		const rs = await AccountService.getAuthoriz(req.headers.token);
+		res.send(rs);
+	} catch (err) {
+		next(err);
+	}
+});
+
 // Check login
 server.head('/Login', utils.jsonHandler(), async(req, res, next) => {
 	try {
@@ -73,16 +83,15 @@ server.post('/Account', utils.fileUploadHandler({
 		httpPath: "/avatar/${filename}",
 		resize: global.appconfig.app.imageResize.avatar
 	}
-}), async(req, res, next) => {
+}), utils.jsonHandler(), async(req, res, next) => {
 	try {
 		let body = {};
 		if (utils.has(req.body.username) === true) body.username = req.body.username;
 		if (utils.has(req.body.password) === true) body.password = req.body.password;
 		if (utils.has(req.body.status) === true) body.status = +req.body.status;
-		if (utils.has(req.body.email) === true) body.email = req.body.email;
-		if (utils.has(req.body.birth_day) === true) body.birth_day = utils.date(req.body.birth_day);
+		if (utils.has(req.body.more) === true) body.more = utils.object(req.body.more);
 		if (utils.has(req.file.avatar) === true) body.avatar = req.file.avatar;
-		if (utils.has(req.body.roles) === true) body.roles = req.body.roles;
+		if (utils.has(req.body.roles) === true) body.roles = utils.object(req.body.roles);
 
 		const rs = await AccountService.insert(body, req.headers.pj);
 		res.send(rs);
@@ -96,7 +105,6 @@ server.put('/Account/:accountId/Role', utils.jsonHandler(), async(req, res, next
 	try {
 		let body = {};
 		if (utils.has(req.body.roles) === true) body.roles = req.body.roles;
-
 		const rs = await AccountService.updateRole(req.headers.pj, req.params.accountId, req.body.roles);
 		res.send(rs);
 	} catch (err) {
@@ -116,8 +124,7 @@ server.put('/Account/:_id', utils.fileUploadHandler({
 		let body = {};
 		body._id = req.params._id;
 		if (utils.has(req.body.status) === true) body.status = +req.body.status;
-		if (utils.has(req.body.email) === true) body.email = req.body.email;
-		if (utils.has(req.body.birth_day) === true) body.birth_day = utils.date(req.body.birth_day);
+		if (utils.has(req.body.more) === true) body.more = utils.object(req.body.more);
 		if (utils.has(req.file.avatar) === true) body.avatar = req.file.avatar;
 
 		const rs = await AccountService.update(body);

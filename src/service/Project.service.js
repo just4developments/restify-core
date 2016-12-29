@@ -3,6 +3,7 @@ const path = require('path');
 
 const db = require('../db');
 const utils = require('../utils');
+const MemcachedService = require('./Memcached.service');
 
 /************************************
  ** SERVICE:      ProjectController
@@ -30,6 +31,9 @@ exports = module.exports = {
 				item.name = utils.valid('name', item.name, String);
 				item.status = utils.valid('status', item.status, Number);
 				item.roles = utils.valid('roles', item.roles, Object);
+				for(let i in item.roles){
+					if(!item.roles[i]._id) item.roles[i]._id = db.uuid();
+				}
 				item.created_at = new Date();
 				item.updated_at = new Date();
 				item.accounts = [];
@@ -37,9 +41,14 @@ exports = module.exports = {
 				break;
 			case exports.VALIDATE.UPDATE:
 				item._id = db.uuid(utils.valid('_id', item._id, String));
-				item.name = utils.valid('name', item.name, String);
-				item.status = utils.valid('status', item.status, Number);
-				item.roles = utils.valid('roles', item.roles, Object);
+				// item.name = utils.valid('name', item.name, String);
+				// item.status = utils.valid('status', item.status, Number);
+				if(item.roles) {
+					item.roles = utils.valid('roles', item.roles, Object);
+					for(let i in item.roles){
+						if(!item.roles[i]._id) item.roles[i]._id = db.uuid();
+					}
+				}
 				item.updated_at = new Date();
 
 				break;
@@ -66,21 +75,27 @@ exports = module.exports = {
 		return item;
 	},
 
-	async reloadInit() {
-		global.PROJECT_ROLEs = {};
-		const dbo = await db.open(exports.COLLECTION);
-		const rs = await dbo.find({
-			where: {
-				status: 1
-			},
-			fields: {
-				_id: 1,
-				roles: 1
-			}
-		});
-		for(let pj of rs){
-			global.PROJECT_ROLEs[pj._id] = pj.roles;
+	async getRolesCached(_id, isReload) {
+		let roles = await MemcachedService.get(`project.${_id}`);
+		if(!roles || isReload){
+			roles = {};
+			const dbo = await db.open(exports.COLLECTION);
+			const rs = await dbo.find({
+				where: {
+					_id: db.uuid(_id),
+					status: 1
+				},
+				fields: {
+					_id: 1,
+					roles: 1
+				}
+			});
+			if(rs.length !== 1) throw 'Not found';
+			roles = rs[0].roles;
+		}else {
+			await MemcachedService.touch(`project.${_id}`, 300);
 		}
+		return roles;
 	},
 
 	async find(fil = {}, dboReuse) {
@@ -154,12 +169,11 @@ exports = module.exports = {
 	},
 
 	async update(item, dboReuse) {
-		item = exports.validate(item, exports.VALIDATE.UPDATE);
-
+		item = exports.validate(item, exports.VALIDATE.UPDATE);		
 		const dbo = dboReuse || await db.open(exports.COLLECTION);
 		const dboType = dboReuse ? db.FAIL : db.DONE;
 		const rs = await dbo.update(item, dboType);
-
+		exports.getRolesCached(item._id, true);
 		return rs;
 	},
 
@@ -174,5 +188,3 @@ exports = module.exports = {
 	}
 
 };
-
-exports.reloadInit();

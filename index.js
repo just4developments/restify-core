@@ -45,6 +45,8 @@ fs.readdir(path.join(__dirname, 'src', 'controller'), function (err, files) {
     });
 });
 
+require('./src/ui/index');
+
 server.listen(appconfig.listen, () => {
     console.info("Server is running at %d", appconfig.listen);
 });

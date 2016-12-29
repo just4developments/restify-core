@@ -1,0 +1,237 @@
+<html ng-app="myApp">
+
+<head>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/lodash/4.17.3/lodash.min.js"></script>
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.1/angular.min.js"></script>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.indigo-pink.min.css">
+    <script defer src="https://code.getmdl.io/1.3.0/material.min.js"></script>
+    <style>
+        .input {}
+        
+        .input>i {
+            float: left;
+            position: relative;
+            left: 11px;
+            top: 2px;
+            color: #3f51b5;
+            padding: 1px 1px 2px;
+            background-color: white;
+        }
+        
+        .input input {
+            padding: 6px 4px 6px 33px;
+            border: solid 1px #3f51b5;
+            background: #3f51b5;
+            color: white;
+            margin-left: -16px;
+        }
+        
+        .actions {
+            margin-left: 23px;
+        }
+        
+        .action .input {
+            margin: 1px 0px;
+        }
+        
+        .action .input i {
+            font-size: 12px;
+            left: 5px;
+            color: white;
+            padding: 4px;
+            top: 0px;
+            background: #3f51b5;
+        }
+        
+        .action .input input {
+            padding: 2px 2px 2px 24px;
+            font-size: 12px;
+            background: #ffffff;
+            color: #3f51b5;
+            font-weight: bold;
+        }
+        
+        ul {
+            list-style: none;
+            margin: 0px;
+            padding: 0px;
+        }
+        
+        .page {
+            margin-bottom: 16px;
+        }
+        
+        .mdl-card__title {
+            color: #555;
+        }
+
+        fieldset {
+            border: solid 1px #ccc;
+            position: relative;
+            margin: 16px;
+        }
+
+        fieldset legend {
+            margin-bottom: 16px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        
+        fieldset > div {
+            position: absolute;
+            right: 12px;
+            top: -8px;
+            background: white;
+        }
+    </style>
+</head>
+
+<body ng-controller="MainController">
+    <select ng-model="currentProjectId" ng-change="changeProject()">
+            <option ng-repeat="p in projects" ng-value="p._id">{{p.name}}</option>
+        </select>
+    <hr/>
+    <div ng-if="currentProject">
+        <h3 style="margin-left: 16px">{{currentProject.name}} Project</h3>
+        <button style="position: fixed; bottom: 50px; right: 50%; z-index: 100;" class="mdl-button mdl-js-button mdl-button--fab mdl-button--colored"
+            ng-click="save()">
+                <i class="material-icons">done</i>
+            </button>
+        <hr/>
+        <div ng-if="currentProject">
+            <h5 align="center">
+                <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" ng-click="addRole()"><i class="material-icons">person_add</i> Add Role</button>
+            </h5>
+            <br/>
+            <div class="mdl-grid">
+                <div ng-repeat="(rname, rvalue) in currentProject.roles track by rname" class="mdl-card mdl-shadow--3dp mdl-cell mdl-cell--3-col">
+                    <div style="color: #ccc; font-size: 10px; text-align: right;">{{rvalue._id}}</div>
+                    <div class="mdl-card__title">
+                        <h2 class="mdl-card__title-text" title="{{rvalue._id}}">
+                            <i class="material-icons">person</i> {{rname}}                            
+                        </h2>
+                    </div>
+                    <div class="mdl-card__menu">
+                        <button class="mdl-button mdl-js-button mdl-button--icon mdl-button--accent" ng-click="clonePage(rvalue)"><i class="material-icons">queue</i></button>
+                        <button class="mdl-button mdl-js-button mdl-button--icon mdl-button--accent" ng-click="delPage(rname)"><i class="material-icons">delete</i></button>
+                    </div>
+                    <fieldset>
+                        <div>
+                            <button class="mdl-button mdl-js-button mdl-button--icon mdl-button--accent" ng-click="addPage('api', rvalue)"><i class="material-icons">add</i></button>                            
+                        </div>
+                        <legend>API</legend>
+                        <ul class="pages">
+                            <li ng-repeat="n in rvalue.api track by $index" class="page">
+                                <div class="input">
+                                    <i class="material-icons">public</i>
+                                    <input type="text" ng-model="n.path" ng-blur="saveModel('api', n, rname, $index)" />
+                                    <button class="mdl-button mdl-js-button mdl-button--icon mdl-button--accent" ng-click="addAction('api', rvalue, $index)"><i class="material-icons">add</i></button>
+                                    <button class="mdl-button mdl-js-button mdl-button--icon mdl-button--accent" ng-click="cloneAction('api', rvalue, $index)"><i class="material-icons">queue</i></button>
+                                </div>
+                                <ul class="actions">
+                                    <li ng-repeat="a in n.actions track by $index" class="action">
+                                        <div class="input">
+                                            <i class="material-icons">enhanced_encryption</i> <input type="text" size="8"
+                                                ng-model="a" ng-blur="saveModel('api', a, rname, $parent.$index, $index)" />
+                                        </div>
+                                    </li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </fieldset>
+                    <fieldset>
+                        <legend>Web</legend>
+                        <div>
+                            <button class="mdl-button mdl-js-button mdl-button--icon mdl-button--accent" ng-click="addPage('web', rvalue)"><i class="material-icons">add</i></button>
+                        </div>
+                        <ul class="pages">
+                            <li ng-repeat="n in rvalue.web track by $index" class="page">
+                                <div class="input">
+                                    <i class="material-icons">public</i>
+                                    <input type="text" ng-model="n.path" ng-blur="saveModel('web', n, rname, $index)" />
+                                    <button class="mdl-button mdl-js-button mdl-button--icon mdl-button--accent" ng-click="addAction('web', rvalue, $index)"><i class="material-icons">add</i></button>
+                                    <button class="mdl-button mdl-js-button mdl-button--icon mdl-button--accent" ng-click="cloneAction('web', rvalue, $index)"><i class="material-icons">queue</i></button>
+                                </div>
+                                <ul class="actions">
+                                    <li ng-repeat="a in n.actions track by $index" class="action">
+                                        <div class="input">
+                                            <i class="material-icons">enhanced_encryption</i> <input type="text" size="8"
+                                                ng-model="a" ng-blur="saveModel('web', a, rname, $parent.$index, $index)" />
+                                        </div>
+                                    </li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </fieldset>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+<script type="text/javascript">
+    angular.module('myApp', []).controller('MainController', ['$http', '$scope', ($http, $scope) => {
+        $http.get('/Project').then((resp) => {
+            $scope.projects = resp.data;
+        });
+        $scope.changeProject = () => {
+            $http.get('/Project/' + $scope.currentProjectId).then((resp) => {
+                $scope.currentProject = resp.data;
+            });
+        }
+        $scope.addRole = () => {
+            let name = window.prompt('Enter role name');
+            if (!name) return;
+            $scope.currentProject.roles[name] = {
+                api: [],
+                web: []
+            };
+        }
+        $scope.addPage = (mode, page) => {
+            page[mode].push({
+                path: '',
+                actions: []
+            });
+        }
+        $scope.clonePage = (page) => {
+            let name = window.prompt('Enter role name');
+            if (!name) return;
+            $scope.currentProject.roles[name] = _.cloneDeep(page);
+        }
+        $scope.delPage = (name) => {
+            delete $scope.currentProject.roles[name];
+        }
+        $scope.addAction = (mode, page, index) => {
+            page[mode][index].actions.push('');
+        }
+        $scope.cloneAction = (mode, page, index) => {
+            page[mode].push(_.cloneDeep(page[mode][index]));
+        }
+        $scope.saveModel = (mode, vl, name, pageIndex, actionIndex) => {
+            if (actionIndex !== undefined) {
+                if (vl) $scope.currentProject.roles[name][mode][pageIndex].actions[actionIndex] = vl.toUpperCase();
+                else $scope.currentProject.roles[name][mode][pageIndex].actions.splice(actionIndex, 1);
+            } else if (pageIndex !== undefined) {
+                if (vl.path) $scope.currentProject.roles[name][mode][pageIndex] = vl;
+                else $scope.currentProject.roles[name][mode].splice(pageIndex, 1);
+            }
+            // else
+            //     $scope.currentProject.roles[name] = vl;
+        }
+        $scope.save = () => {
+            $http.put('/Project/' + $scope.currentProject._id, {
+                roles: $scope.currentProject.roles
+            }).then((resp) => {
+                console.log(resp);
+            }).catch((err) => {
+                alert(err);
+            });
+            console.log($scope.currentProject.roles);
+        }
+        setTimeout(function () {
+            componentHandler.upgradeDom();
+        }, 500);
+    }]);
+</script>
+
+</html>

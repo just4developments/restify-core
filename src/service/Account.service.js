@@ -31,9 +31,9 @@ exports = module.exports = {
 				item.username = utils.valid('username', item.username, String);
 				item.password = utils.valid('password', item.password, String);
 				item.status = utils.valid('status', item.status, Number, 0);
-				item.email = utils.valid('email', item.email, String);
+				if(item.more) item.more = utils.valid('more', item.more, Object);
 				item.roles = utils.valid('roles', item.roles, Array);
-				item.birth_day = utils.valid('birth_day', item.birth_day, Date);
+				if(item.roles.length === 0) throw new restify.BadRequestError(`roles is required`);
 				item.created_at = new Date();
 				item.updated_at = new Date();
 
@@ -41,8 +41,7 @@ exports = module.exports = {
 			case exports.VALIDATE.UPDATE:
 				item._id = db.uuid(utils.valid('_id', item._id, String));
 				item.status = utils.valid('status', item.status, Number, 0);
-				item.email = utils.valid('email', item.email, String);
-				item.birth_day = utils.valid('birth_day', item.birth_day, Date);
+				if(item.more) item.more = utils.valid('more', item.more, Object);
 				item.updated_at = new Date();
 
 				break;
@@ -128,9 +127,9 @@ exports = module.exports = {
 		}
 	},
 
-	async getAccountCached(token){
+	async getAccountCached(token, isReload){
 		let account = await MemcachedService.get(`account.${token}`);
-		if(!account){
+		if(!account || isReload){
 			account = await MemcachedService.set(`account.${token}`, await exports.getByToken(token), 300);
 		}else{
 			await MemcachedService.touch(`account.${token}`, 300);
@@ -141,21 +140,43 @@ exports = module.exports = {
 	async authoriz(rawToken, path, actions){
 		if(!rawToken) throw new restify.ProxyAuthenticationRequiredError();
 		const [projectId, token] = rawToken.split('-');
-		const roles = global.PROJECT_ROLEs[projectId];
+		const projectService = require('./Project.service');
+		const roles = await projectService.getRolesCached(projectId);
 		if(!roles) throw new restify.ForbiddenError('Could not found the project');
 		const acc = await exports.getAccountCached(token);
 		for(let accRole of acc.roles){
-			const role = roles[accRole];
+			const role = roles[accRole].api;
 			if(!role) throw new restify.ForbiddenError(`Not found ${accRole} in global roles`);
 			for(let auth of role){
 				if(new RegExp(auth.path, 'gi').test(path) && _.some(actions, (a) => {
-					return 	auth.actions.includes(a);
+					for(var auAction of auth.actions){
+						if(new RegExp(auAction, 'gi').test(a)){
+							return true;
+						}
+					}
+					return false;
 				})){
 					return;
 				}
 			}	
 		}
 		throw new restify.UnauthorizedError('Not allow');
+	},
+
+	async getAuthoriz(rawToken, mode='web'){
+		if(!rawToken) throw new restify.ProxyAuthenticationRequiredError();
+		const [projectId, token] = rawToken.split('-');
+		const projectService = require('./Project.service');
+		const roles = await projectService.getRolesCached(projectId);
+		if(!roles) throw new restify.ForbiddenError('Could not found the project');
+		const acc = await exports.getAccountCached(token);
+		let accRoles = [];
+		for(let accRole of acc.roles){
+			const role = roles[accRole][mode];
+			if(!role) throw new restify.ForbiddenError(`Not found ${accRole} in global roles`);
+			accRoles = accRoles.concat(role);			
+		}
+		return accRoles;
 	},
 
 	async getByToken(token) {
@@ -195,8 +216,20 @@ exports = module.exports = {
 		return rs.accounts.length === 1 ? rs.accounts[0] : null;
 	},
 
+	async getUserByUsername(projectId, username){
+		const dbo = await db.open(exports.COLLECTION);
+		const user = await dbo.find({where: {
+			_id: db.uuid(projectId),
+			'accounts.username': username
+		}});
+		if(user.length === 1) return user[0];
+		return null;
+	},
+
 	async insert(item, projectId, dboReuse) {
 		item = exports.validate(item, exports.VALIDATE.INSERT);
+		const existedUser = await exports.getUserByUsername(projectId, item.username);
+		if(existedUser) throw new restify.InternalServerError(`User ${item.username} was existed`);
 		const projectService = require('./Project.service');
 		const dbo = dboReuse || await db.open(exports.COLLECTION);
 		const dboType = dboReuse ? db.FAIL : db.DONE;
@@ -205,6 +238,14 @@ exports = module.exports = {
 		if(account){
 			throw 'Existed account';
 		}
+		const roles = await projectService.getRolesCached(projectId);
+		item.roles = item.roles.map((roleId) => {
+			for(let roleName in roles){
+				if(roleId === roles[roleName]._id.toString()) return roleName;
+			}
+		});
+		item.roles = _.reject(item.roles, function(val){ return _.isUndefined(val) });
+		item = exports.validate(item, exports.VALIDATE.INSERT);
 		item = await projectService.addAccount(projectId, item, dbo);
 		await dbo.close();
 		return item;
