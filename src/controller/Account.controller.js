@@ -36,7 +36,7 @@ const AccountService = require('../service/Account.service');
 // My information
 server.get('/Me', utils.jsonHandler(), async(req, res, next) => {
 	try {
-		const [projectId, token] = req.headers.token.split('-');
+		const [projectId, userId, token] = req.headers.token.split('-');
 		const rs = await AccountService.getMe(token);
 		res.send(rs);
 	} catch (err) {
