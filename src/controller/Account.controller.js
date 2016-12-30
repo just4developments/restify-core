@@ -48,7 +48,8 @@ server.get('/Me', utils.jsonHandler(), async(req, res, next) => {
 server.head('/Authoriz', utils.jsonHandler(), async(req, res, next) => {
 	try {
 		const rs = await AccountService.authoriz(req.headers.token, req.headers.path, req.headers.actions.split(','));
-		res.send(rs);
+		res.header('actions', rs.join(','));
+		res.end();
 	} catch (err) {
 		next(err);
 	}

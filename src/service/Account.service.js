@@ -85,19 +85,20 @@ exports = module.exports = {
 		try {
 			// TODO: exports.validate(item, exports.VALIDATE.UPDATE_ROLE);
 			const dbo = await db.open(exports.COLLECTION);
-			return projectId + "-" + await dbo.manual(async (collection, dbo) => {
+			const user = await exports.getUserByUsername(projectId, username, password);
+			if(!user) throw new restify.ForbiddenError("Username or password is wrong");
+			return projectId + "-" + user._id + '-' + await dbo.manual(async (collection, dbo) => {
 				const token = db.uuid();
 				const rs = await collection.update({
 					_id: db.uuid(projectId),
-					'accounts.username': username,
-					'accounts.password': password
+					'accounts._id': user._id,
 				}, {
 					$set: {
 						'accounts.$.token': token
 					}
 				});
 				if(rs.result.n > 0) return token;
-				throw new restify.ForbiddenError("Username or password is wrong");
+				throw new restify.ForbiddenError("Something is wrong");
 			});
 		} catch (err) {
 			throw err;
@@ -139,7 +140,7 @@ exports = module.exports = {
 
 	async authoriz(rawToken, path, actions){
 		if(!rawToken) throw new restify.ProxyAuthenticationRequiredError();
-		const [projectId, token] = rawToken.split('-');
+		const [projectId, accountId, token] = rawToken.split('-');
 		const projectService = require('./Project.service');
 		const roles = await projectService.getRolesCached(projectId);
 		if(!roles) throw new restify.ForbiddenError('Could not found the project');
@@ -156,7 +157,7 @@ exports = module.exports = {
 					}
 					return false;
 				})){
-					return;
+					return auth.actions;
 				}
 			}	
 		}
@@ -165,7 +166,7 @@ exports = module.exports = {
 
 	async getAuthoriz(rawToken, mode='web'){
 		if(!rawToken) throw new restify.ProxyAuthenticationRequiredError();
-		const [projectId, token] = rawToken.split('-');
+		const [projectId, accountId, token] = rawToken.split('-');
 		const projectService = require('./Project.service');
 		const roles = await projectService.getRolesCached(projectId);
 		if(!roles) throw new restify.ForbiddenError('Could not found the project');
@@ -216,13 +217,15 @@ exports = module.exports = {
 		return rs.accounts.length === 1 ? rs.accounts[0] : null;
 	},
 
-	async getUserByUsername(projectId, username){
+	async getUserByUsername(projectId, username, password){
 		const dbo = await db.open(exports.COLLECTION);
-		const user = await dbo.find({where: {
+		let where = {
 			_id: db.uuid(projectId),
 			'accounts.username': username
-		}});
-		if(user.length === 1) return user[0];
+		};
+		if(password) where['accounts.password'] = password;
+		const user = await dbo.find({where: where, fields: { 'accounts.$': 1} });
+		if(user.length === 1 && user[0].accounts.length === 1) return user[0].accounts[0];
 		return null;
 	},
 
