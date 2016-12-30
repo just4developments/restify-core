@@ -14,6 +14,10 @@ const MemcachedService = require('./Memcached.service');
 
 exports = module.exports = {
 	COLLECTION: "Project",
+	STATUS: {
+		ACTIVE: 1,
+		INACTIVE: 0
+	},
 	VALIDATE: {
 		INSERT: 0,
 		UPDATE: 1,
@@ -87,6 +91,7 @@ exports = module.exports = {
 			const dbo = await db.open(exports.COLLECTION);
 			const user = await exports.getUserByUsername(projectId, username, password);
 			if(!user) throw new restify.ForbiddenError("Username or password is wrong");
+			if(user.status !== exports.STATUS.ACTIVE) throw new restify.ForbiddenError("You have not been actived yet");
 			return projectId + "-" + user._id + '-' + await dbo.manual(async (collection, dbo) => {
 				const token = db.uuid();
 				const rs = await collection.update({
@@ -221,7 +226,8 @@ exports = module.exports = {
 		const dbo = await db.open(exports.COLLECTION);
 		let where = {
 			_id: db.uuid(projectId),
-			'accounts.username': username
+			'accounts.username': username,
+			status: 1
 		};
 		if(password) where['accounts.password'] = password;
 		const user = await dbo.find({where: where, fields: { 'accounts.$': 1} });
