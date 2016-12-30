@@ -77,21 +77,13 @@ server.head('/Login', utils.jsonHandler(), async(req, res, next) => {
 });
 
 // Create new account
-server.post('/Account', utils.fileUploadHandler({
-	avatar: {
-		uploadDir: "assets/avatar/",
-		multiples: false,
-		httpPath: "/avatar/${filename}",
-		resize: global.appconfig.app.imageResize.avatar
-	}
-}), utils.jsonHandler(), async(req, res, next) => {
+server.post('/Account', utils.jsonHandler(), async(req, res, next) => {
 	try {
 		let body = {};
 		if (utils.has(req.body.username) === true) body.username = req.body.username;
 		if (utils.has(req.body.password) === true) body.password = req.body.password;
 		if (utils.has(req.body.status) === true) body.status = +req.body.status;
 		if (utils.has(req.body.more) === true) body.more = utils.object(req.body.more);
-		if (utils.has(req.file.avatar) === true) body.avatar = req.file.avatar;
 		if (utils.has(req.body.roles) === true) body.roles = utils.object(req.body.roles);
 
 		const rs = await AccountService.insert(body, req.headers.pj);
@@ -113,20 +105,12 @@ server.put('/Account/:accountId/Role', utils.jsonHandler(), async(req, res, next
 	}
 })
 
-server.put('/Account/:_id', utils.fileUploadHandler({
-	avatar: {
-		uploadDir: "assets/avatar/",
-		multiples: false,
-		httpPath: "/avatar/${filename}",
-		resize: global.appconfig.app.imageResize.avatar
-	}
-}), async(req, res, next) => {
+server.put('/Account/:_id', utils.jsonHandler(), async(req, res, next) => {
 	try {
 		let body = {};
 		body._id = req.params._id;
 		if (utils.has(req.body.status) === true) body.status = +req.body.status;
 		if (utils.has(req.body.more) === true) body.more = utils.object(req.body.more);
-		if (utils.has(req.file.avatar) === true) body.avatar = req.file.avatar;
 
 		const rs = await AccountService.update(body);
 		res.send(rs);

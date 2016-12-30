@@ -74,10 +74,10 @@ exports = module.exports = {
 			});
 		}, dboType);
 		const me = rs.accounts.length === 1 ? rs.accounts[0] : null;
-		me.roles = me.role.web;
 		delete me.token;
+		delete me.roles;
 		delete me.password;
-		delete me._id;		
+		delete me._id;
 		return me;
 	},
 
@@ -265,11 +265,11 @@ exports = module.exports = {
 			const dboType = dboReuse ? db.FAIL : db.DONE;
 			const rs = await dbo.update(item, dboType);
 
-			utils.deleteFile(utils.getAbsoluteUpload(oldItem.avatar, path.join(__dirname, '..', '..', 'assets', 'avatar', '')), global.appconfig.app.imageResize.avatar);
+			// utils.deleteFile(utils.getAbsoluteUpload(oldItem.avatar, path.join(__dirname, '..', '..', 'assets', 'avatar', '')), global.appconfig.app.imageResize.avatar);
 
 			return rs;
 		} catch (err) {
-			utils.deleteFile(utils.getAbsoluteUpload(item.avatar, path.join(__dirname, '..', '..', 'assets', 'avatar', '')), global.appconfig.app.imageResize.avatar);
+			// utils.deleteFile(utils.getAbsoluteUpload(item.avatar, path.join(__dirname, '..', '..', 'assets', 'avatar', '')), global.appconfig.app.imageResize.avatar);
 
 			throw err;
 		}
@@ -293,7 +293,7 @@ exports = module.exports = {
 			});
 		}, dboType);
 
-		utils.deleteFile(utils.getAbsoluteUpload(item.avatar, path.join(__dirname, '..', '..', 'assets', 'avatar', '')), global.appconfig.app.imageResize.avatar);
+		// utils.deleteFile(utils.getAbsoluteUpload(item.avatar, path.join(__dirname, '..', '..', 'assets', 'avatar', '')), global.appconfig.app.imageResize.avatar);
 
 		return rs;
 	}
