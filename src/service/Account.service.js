@@ -4,7 +4,7 @@ const _ = require('lodash');
 
 const db = require('../db');
 const utils = require('../utils');
-const MemcachedService = require('./Memcached.service');
+const MemcachedService = require('./Rediscached.service');
 
 /************************************
  ** SERVICE:      AccountController
