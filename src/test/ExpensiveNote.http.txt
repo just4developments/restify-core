@@ -1,0 +1,107 @@
+{
+	des: 'Add',
+	method: 'POST',
+	url: 'http://localhost:9001/ExpensiveNote',
+	requestHeader: {
+		'content-type': 'application/json'
+	},
+	requestBody: {
+		user_id: '5866894cd0b26a265843c378',
+		wallets: [
+			{
+				icon: 'icon',
+				name: 'vi tien',
+				money: 0,
+				type: 1
+			}
+		],
+		type_spendings: [
+			{
+				name: 'di lam',
+				icon: 'icon di lam',
+				type: -1
+			}
+		],
+		spendings: [
+			// {
+			// 	money: 0,
+			// 	input_date: new Date(),
+			// 	des: '',
+			// 	type_spending_id:,
+			// 	wallet_id:,
+			// 	is_monitor: 0
+			// }
+		]
+	}
+}
+
+{
+	des: 'Get list',
+	method: 'GET',
+	url: 'http://localhost:9001/ExpensiveNote'
+}
+
+{
+	des: 'Update',
+	method: 'PUT',
+	url: 'http://localhost:9001/ExpensiveNote/ITEM_ID',
+	requestHeader: {
+		'content-type': 'application/json'
+	},
+	requestBody: {
+		user_id: ,
+		wallets: [_id:
+			icon: ''
+			name: ''
+			money: 0
+			type: 0
+		],
+		type_spendings: [_id:
+			name: ''
+			icon: ''
+			type: 0
+			parent_id:
+		],
+		spendings: [_id:
+			money: 0
+			input_date: new Date()
+			des: ''
+			type_spending_id:
+			wallet_id:
+			is_monitor: 0
+		]
+	}
+}
+
+{
+	des: 'Get detail',
+	method: 'GET',
+	url: 'http://localhost:9001/ExpensiveNote/ITEM_ID'
+}
+
+{
+	des: 'Delete',
+	method: 'DELETE',
+	url: 'http://localhost:9001/ExpensiveNote/ITEM_ID'
+}
+
+
+/////////////////////////// ADD spendings
+
+{
+	method: 'POST',
+	url: 'http://localhost:9001/ExpensiveNote/Spending/5866894cd0b26a265843c378',
+	requestHeader: {
+		'content-type': 'application/json'
+	},
+	requestBody: {
+		{
+			money: 0,
+		 	input_date: new Date(),
+		 	des: 'des',
+		 	type_spending_id: '58668c22e955e61a00c2bb76',
+		 	wallet_id: '58668c22e955e61a00c2bb75',
+		 	is_monitor: 0
+		}
+	}
+}
