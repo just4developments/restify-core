@@ -19,7 +19,8 @@
     "jimp": "^0.2.27",
     "lodash": "^4.17.2",
     "node-uuid": "^1.4.7",
-    "restify": "^4.2.0"
+    "restify": "^4.2.0",
+    "unirest": "^0.5.1"
   },
   "devDependencies": {
     "js-beautify": "^1.6.4"
