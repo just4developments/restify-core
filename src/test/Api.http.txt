@@ -3,17 +3,30 @@
 	method: 'POST',
 	url: 'http://localhost:9000/Account',
 	requestHeader: {
-		'content-type': 'multipart/form-data',
-		'pj': '5859f93ff672360eac29a41f'
+		'content-type': 'application/json',
+		'pj': '5866861fb439a60c787bff3b'
 	},
 	requestBody: {
-		username: 'abc',
-		password: '1243',
-		more: '{"abc": "dcd"}',
-		'file:avatar': 'D:\\logo.png',
-		'roles': '["58649930809f461b50708a7f"]'
+		username: 'thanh',
+		password: '123',
+		more: {"abc": "dcd"},
+		status: 1,
+		'roles': ["5866870db439a60c787bff3f"]
 	}
 }
+
+{
+	des: 'Update account',
+	method: 'PUT',
+	url: 'http://localhost:9000/Account/5866872fb439a60c787bff42',
+	requestHeader: {
+		'content-type': 'application/json'
+	},
+	requestBody: {
+		status: 1
+	}
+}
+
 
 {
 	des: 'Update role for account',
@@ -25,10 +38,7 @@
 	requestBody: {
 		roles: [
 			'user'
-		], 
-		more: {
-			abc: 'def'
-		}
+		]
 	}
 }
 
@@ -38,7 +48,7 @@
 	requestHeader: {
 		username: 'thanh',
 		password: '123',
-		'pj': '5859f93ff672360eac29a41f'
+		'pj': '5866861fb439a60c787bff3b'
 	},
 	url: 'http://localhost:9000/Login'
 }
@@ -111,25 +121,21 @@
 {
 	des: 'Update project',
 	method: 'PUT',
-	url: 'http://localhost:9000/Project/5859f93ff672360eac29a41f',
+	url: 'http://localhost:9000/Project/5866861fb439a60c787bff3b',
 	requestHeader: {
 		'content-type': 'application/json'
 	},
 	requestBody: {
 		name: 'Project 02',
 		status: 1,
-		roles: {
-			user: [
-				{ path: '^/ShellClass/?.*$', actions: ['ADD', 'EDIT'] }
-			]
-		}
+		roles: {}
 	}
 }
 
 {
 	des: 'Get project detail',
 	method: 'GET',
-	url: 'http://localhost:9000/Project/5859f93ff672360eac29a41f'
+	url: 'http://localhost:9000/Project/5866861fb439a60c787bff3b'
 }
 
 {

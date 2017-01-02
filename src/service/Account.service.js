@@ -262,14 +262,24 @@ exports = module.exports = {
 
 	
 
-	async update(item, dboReuse) {
+	async update(projectId, accountId, infor, dboReuse) {
 		try {
 			item = exports.validate(item, exports.VALIDATE.UPDATE);
 
 			const dbo = dboReuse || await db.open(exports.COLLECTION);
-			const oldItem = await dbo.get(item._id, db.FAIL);
 			const dboType = dboReuse ? db.FAIL : db.DONE;
-			const rs = await dbo.update(item, dboType);
+			roles = await dbo.manual(async (collection, dbo) => {
+				await collection.update({
+					_id: db.uuid(projectId),
+					'accounts._id': db.uuid(item._id)
+				}, {
+					$set: {
+						'accounts.$.status': roles
+					}
+				}, false, true);
+				return roles;
+			});
+			return roles;
 
 			// utils.deleteFile(utils.getAbsoluteUpload(oldItem.avatar, path.join(__dirname, '..', '..', 'assets', 'avatar', '')), global.appconfig.app.imageResize.avatar);
 

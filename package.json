@@ -17,9 +17,11 @@
   "dependencies": {
     "async": "^2.1.4",
     "jimp": "^0.2.27",
-    "lodash": "^4.17.2",
+    "lodash": "^4.17.3",
     "memcached": "^2.2.2",
+    "mongodb": "^2.2.16",
     "node-uuid": "^1.4.7",
+    "redis": "^2.6.3",
     "restify": "^4.2.0"
   },
   "devDependencies": {

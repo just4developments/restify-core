@@ -133,8 +133,8 @@ exports = module.exports = {
 				$push: {
 					'accounts': account
 				}
-			}, dboType);
-		});
+			});
+		}, dboType);
 
 		return account;
 	},
