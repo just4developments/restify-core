@@ -76,8 +76,23 @@ exports = module.exports = {
 		const dbo = dboReuse || await db.open(exports.COLLECTION);
 		const dboType = dboReuse ? db.FAIL : db.DONE;
 		const rs = await dbo.manual(async(collection, dbo) => {
-			const rs = await collection.findOne(fil.where, {'spendings': 1, _id: 0});
-			return rs ? rs.spendings : [];
+			const rs = await collection.aggregate([{
+				$match: {
+					"user_id": auth.accountId
+				}
+			}, {
+				$unwind: '$spendings'
+			}, {
+				$match: fil.where
+			}, {
+				$project: {
+					_id: 0,
+					"spendings": 1
+				}
+			}]).map((e) => {
+				return e.spendings;
+			});
+			return await rs.toArray()
 		}, dboType);
 		return rs;
 	},

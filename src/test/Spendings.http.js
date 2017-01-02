@@ -23,7 +23,7 @@
 		'content-type': 'application/json',
 		'token': '5866861fb439a60c787bff3b-5866894cd0b26a265843c378-58668956d0b26a265843c379'
 	},
-	url: 'http://localhost:9001/Spendings'
+	url: 'http://localhost:9001/Spendings?walletId=586730f5d4b88d2550c8e99e&month=11&year=2016'
 }
 
 {
