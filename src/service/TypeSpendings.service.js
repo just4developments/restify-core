@@ -28,7 +28,7 @@ exports = module.exports = {
 				item.name = utils.valid('name', item.name, String);
 				item.icon = utils.valid('icon', item.icon, String);
 				item.type = utils.valid('type', item.type, Number);
-				if(item.parent_id) utils.valid('parent_id', item.parent_id, [String, db.Uuid]);
+				if(item.parent_id) item.parent_id = db.uuid(item.parent_id);
 
 				break;
 			case exports.VALIDATE.UPDATE:
@@ -36,7 +36,7 @@ exports = module.exports = {
 				item.name = utils.valid('name', item.name, String);
 				item.icon = utils.valid('icon', item.icon, String);
 				item.type = utils.valid('type', item.type, Number);
-				if(item.parent_id) utils.valid('parent_id', item.parent_id, [String, db.Uuid]);
+				if(item.parent_id) item.parent_id = db.uuid(item.parent_id);
 
 				break;
 			case exports.VALIDATE.GET:
@@ -71,6 +71,10 @@ exports = module.exports = {
 				$project: {
 					_id: 0,
 					"type_spendings": 1
+				}
+			}, {
+				$sort: {
+					"type_spendings.parent_id": 1
 				}
 			}]).map((e) => {
 				return e.type_spendings;
@@ -138,6 +142,16 @@ exports = module.exports = {
 		const dbo = await db.open(exports.COLLECTION);
 		const dboType = dboReuse ? db.FAIL : db.DONE;
 		const rs = await dbo.manual(async(collection, dbo) => {
+			const childs = await collection.count({
+				user_id: auth.accountId,
+				"type_spendings.parent_id": _id
+			});
+			if(childs > 0) throw new restify.BadRequestError("Need to remove all of childs before delete it");
+			const refSpending = await collection.count({
+				user_id: auth.accountId,
+				"spendings.type_spending_id": _id
+			});
+			if(refSpending > 0) throw new restify.BadRequestError("Some items in spending is using it. Must remove it first");
 			const rs = await collection.update({
 				user_id: auth.accountId
 			}, {

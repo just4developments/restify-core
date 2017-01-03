@@ -4,12 +4,13 @@
 	url: 'http://localhost:9001/TypeSpendings',
 	requestHeader: {
 		'content-type': 'application/json',
-		'token': '586b55c48a1b181fa80d39a5-586b56038a1b181fa80d39a8-586b561a8a1b181fa80d39a9'
+		'token': '586bb85baa5bdf0644e494da-586bb875aa5bdf0644e494dd-586bbaac0d542f33cc82015c'
 	},
 	requestBody: {
-		name: 'Luong',
+		name: 'thuong',
 		icon: 'icon luong',
-		type: 1
+		type: -1,
+		parent_id: '586bbaf305309404e44bad8c'
 	}
 }
 
@@ -18,7 +19,7 @@
 	method: 'GET',
 	requestHeader: {
 		'content-type': 'application/json',
-		'token': '5866861fb439a60c787bff3b-5866894cd0b26a265843c378-58668956d0b26a265843c379'
+		'token': '586bb85baa5bdf0644e494da-586bb875aa5bdf0644e494dd-586bbaac0d542f33cc82015c'
 	},
 	url: 'http://localhost:9001/TypeSpendings'
 }
@@ -54,7 +55,7 @@
 	method: 'DELETE',
 	requestHeader: {
 		'content-type': 'application/json',
-		'token': '5866861fb439a60c787bff3b-5866894cd0b26a265843c378-58668956d0b26a265843c379'
+		'token': '586bb85baa5bdf0644e494da-586bb875aa5bdf0644e494dd-586bbaac0d542f33cc82015c'
 	},
-	url: 'http://localhost:9001/TypeSpendings/58672b44d78aa801d41f4a4a'
+	url: 'http://localhost:9001/TypeSpendings/586bbbe705309404e44bad92'
 }

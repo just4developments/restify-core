@@ -21,9 +21,9 @@
 	method: 'GET',
 	requestHeader: {
 		'content-type': 'application/json',
-		'token': '5866861fb439a60c787bff3b-5866894cd0b26a265843c378-58668956d0b26a265843c379'
+		'token': '586bb85baa5bdf0644e494da-586bb875aa5bdf0644e494dd-586bbaac0d542f33cc82015c'
 	},
-	url: 'http://localhost:9001/Spendings?walletId=586730f5d4b88d2550c8e99e&month=11&year=2016'
+	url: 'http://localhost:9001/Spendings'
 }
 
 {
@@ -55,9 +55,9 @@
 	method: 'DELETE',
 	requestHeader: {
 		'content-type': 'application/json',
-		'token': '5866861fb439a60c787bff3b-5866894cd0b26a265843c378-58668956d0b26a265843c379'
+		'token': '586bb85baa5bdf0644e494da-586bb875aa5bdf0644e494dd-586bbaac0d542f33cc82015c'
 	},
-	url: 'http://localhost:9001/Spendings/5869398c32cafe2fa8460595'
+	url: 'http://localhost:9001/Spendings/586bbbe705309404e44bad92'
 }
 
 {

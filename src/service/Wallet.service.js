@@ -138,6 +138,11 @@ exports = module.exports = {
 		const dbo = await db.open(exports.COLLECTION);
 		const dboType = dboReuse ? db.FAIL : db.DONE;
 		const rs = await dbo.manual(async(collection, dbo) => {
+			const refSpending = await collection.count({
+				user_id: auth.accountId,
+				"spendings.wallet_id": _id
+			});
+			if(refSpending > 0) throw new restify.BadRequestError("Some items in spending is using it. Must remove it first");
 			const rs = await collection.update({
 				user_id: auth.accountId
 			}, {
