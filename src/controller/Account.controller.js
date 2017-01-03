@@ -76,6 +76,15 @@ server.head('/Login', utils.jsonHandler(), async(req, res, next) => {
 	}
 });
 
+server.get('/More', utils.jsonHandler(), async(req, res, next) => {
+	try {
+		const key = req.query.key;
+		res.send(rs);
+	} catch (err) {
+		next(err);
+	}
+});
+
 // Create new account
 server.post('/Account', utils.jsonHandler(), async(req, res, next) => {
 	try {

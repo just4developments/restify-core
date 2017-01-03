@@ -92,7 +92,7 @@ exports = module.exports = {
 			const user = await exports.getUserByUsername(projectId, username, password);
 			if(!user) throw new restify.ForbiddenError("Username or password is wrong");
 			if(user.status !== exports.STATUS.ACTIVE) throw new restify.ForbiddenError("You have not been actived yet");
-			const token = projectId + "-" + user._id + '-' + await dbo.manual(async (collection, dbo) => {
+			return projectId + "-" + user._id + '-' + await dbo.manual(async (collection, dbo) => {
 				const token = db.uuid();
 				const rs = await collection.update({
 					_id: db.uuid(projectId),
@@ -102,11 +102,12 @@ exports = module.exports = {
 						'accounts.$.token': token
 					}
 				});
-				if(rs.result.n > 0) return token;
+				if(rs.result.n > 0) {
+					await exports.setAccountCached(token, user);
+					return token;
+				}
 				throw new restify.ForbiddenError("Something is wrong");
 			});
-			await exports.setAccountCached(token, user);
-			return token;
 		} catch (err) {
 			throw err;
 		}
