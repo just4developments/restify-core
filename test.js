@@ -1,8 +1,5 @@
-let _ = require('lodash');
-let a = [1,2,3,4];
-let b = [2];
-let isOk = _.some(a, (a0) => {
-    console.log(a0);
-    return b.includes(a0);
-});
-console.log(isOk);
+global.appconfig = require('./src/appconfig');
+const CachedService = require('./src/service/Cached.service');
+CachedService.del('account.586b1eb386a7d81eb46b7333').then((err) => {
+    console.log(err);
+})

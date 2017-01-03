@@ -4,14 +4,14 @@
 	url: 'http://localhost:9000/Account',
 	requestHeader: {
 		'content-type': 'application/json',
-		'pj': '5866861fb439a60c787bff3b'
+		'pj': '586b55c48a1b181fa80d39a5'
 	},
 	requestBody: {
 		username: 'thanh',
 		password: '123',
-		more: {"abc": "dcd"},
+		more: {"email": "doanthuanthanh88@gmail.com"},
 		status: 1,
-		'roles': ["5866870db439a60c787bff3f"]
+		'roles': ["586b55c48a1b181fa80d39a6"]
 	}
 }
 
@@ -48,7 +48,7 @@
 	requestHeader: {
 		username: 'thanh',
 		password: '123',
-		'pj': '5866861fb439a60c787bff3b'
+		'pj': '586b55c48a1b181fa80d39a5'
 	},
 	url: 'http://localhost:9000/Login'
 }
@@ -66,7 +66,7 @@
 	des: 'Check authorization',
 	method: 'HEAD',
 	requestHeader: {
-		'token': '5859f93ff672360eac29a41f-585a4b345fb38402a80d6ac5',
+		'token': '5859f93ff672360eac29a41f-5859fb62de0ac62de0713422-586b324bf8040c0f649c46aa',
 		'path': 'ShellClass',
 		'actions': 'FIND',
 	},
@@ -77,7 +77,7 @@
 	des: 'Get authorization',
 	method: 'GET',
 	requestHeader: {
-		'token': '5859f93ff672360eac29a41f-585a4b345fb38402a80d6ac5'
+		'token': '5859f93ff672360eac29a41f-5859fb62de0ac62de0713422-586b235907885f129001519b'
 	},
 	url: 'http://localhost:9000/Authoriz'
 }
@@ -135,7 +135,7 @@
 {
 	des: 'Get project detail',
 	method: 'GET',
-	url: 'http://localhost:9000/Project/5866861fb439a60c787bff3b'
+	url: 'http://localhost:9000/Project/5859f93ff672360eac29a41f'
 }
 
 {

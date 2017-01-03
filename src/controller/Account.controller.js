@@ -34,10 +34,9 @@ const AccountService = require('../service/Account.service');
 // });
 
 // My information
-server.get('/Me', utils.jsonHandler(), async(req, res, next) => {
-	try {
-		const [projectId, userId, token] = req.headers.token.split('-');
-		const rs = await AccountService.getMe(token);
+server.get('/Me', utils.jsonHandler(), utils.auth, async(req, res, next) => {
+	try {		
+		const rs = await AccountService.getMe(req.auth);
 		res.send(rs);
 	} catch (err) {
 		next(err);
@@ -45,9 +44,9 @@ server.get('/Me', utils.jsonHandler(), async(req, res, next) => {
 });
 
 // Check author
-server.head('/Authoriz', utils.jsonHandler(), async(req, res, next) => {
+server.head('/Authoriz', utils.jsonHandler(), utils.auth, async(req, res, next) => {
 	try {
-		const rs = await AccountService.authoriz(req.headers.token, req.headers.path, req.headers.actions.split(','));
+		const rs = await AccountService.authoriz(req.auth, req.headers.path, req.headers.actions.split(','));
 		res.header('actions', rs.join(','));
 		res.end();
 	} catch (err) {
@@ -56,9 +55,9 @@ server.head('/Authoriz', utils.jsonHandler(), async(req, res, next) => {
 });
 
 // Get author
-server.get('/Authoriz', utils.jsonHandler(), async(req, res, next) => {
+server.get('/Authoriz', utils.jsonHandler(), utils.auth, async(req, res, next) => {
 	try {
-		const rs = await AccountService.getAuthoriz(req.headers.token);
+		const rs = await AccountService.getAuthoriz(req.auth);
 		res.send(rs);
 	} catch (err) {
 		next(err);
@@ -71,15 +70,6 @@ server.head('/Login', utils.jsonHandler(), async(req, res, next) => {
 		const token = await AccountService.login(req.headers.pj, req.headers.username, req.headers.password);
 		res.header('token', token);
 		res.end();
-	} catch (err) {
-		next(err);
-	}
-});
-
-server.get('/More', utils.jsonHandler(), async(req, res, next) => {
-	try {
-		const key = req.query.key;
-		res.send(rs);
 	} catch (err) {
 		next(err);
 	}

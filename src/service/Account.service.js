@@ -67,12 +67,13 @@ exports = module.exports = {
 		return item;
 	},
 
-	async getMe(token, dboReuse) {
+	async getMe(auth, dboReuse) {
+		if(!auth) throw new restify.NotAuthorizedError();
 		const dbo = dboReuse || await db.open(exports.COLLECTION);
 		const dboType = dboReuse ? db.FAIL : db.DONE;
 		const rs = await dbo.manual(async(collection, dbo) => {
 			return await collection.findOne({
-				'accounts.token': db.uuid(token)
+				'accounts.token': db.uuid(auth.token)
 			}, {
 				'accounts.$': 1,
 			});
@@ -151,13 +152,12 @@ exports = module.exports = {
 		return account;
 	},
 
-	async authoriz(rawToken, path, actions){
-		if(!rawToken) throw new restify.NotAuthorizedError();
-		const [projectId, accountId, token] = rawToken.split('-');
+	async authoriz(auth, path, actions){
+		if(!auth) throw new restify.NotAuthorizedError();
 		const projectService = require('./Project.service');
-		const roles = await projectService.getRolesCached(projectId);
+		const roles = await projectService.getRolesCached(auth.projectId);
 		if(!roles) throw new restify.InternalServerError('Could not found the project');
-		const acc = await exports.getAccountCached(token);
+		const acc = await exports.getAccountCached(auth.token);
 		for(let accRole of acc.roles){
 			const role = roles[accRole].api;
 			if(!role) throw new restify.InternalServerError(`Not found ${accRole} in global roles`);
@@ -177,13 +177,12 @@ exports = module.exports = {
 		throw new restify.ForbiddenError('Not allow');
 	},
 
-	async getAuthoriz(rawToken, mode='web'){
-		if(!rawToken) throw new restify.NotAuthorizedError();
-		const [projectId, accountId, token] = rawToken.split('-');
+	async getAuthoriz(auth, mode='web'){
+		if(!auth) throw new restify.NotAuthorizedError();
 		const projectService = require('./Project.service');
-		const roles = await projectService.getRolesCached(projectId);
+		const roles = await projectService.getRolesCached(auth.projectId);
 		if(!roles) throw new restify.InternalServerError('Could not found the project');
-		const acc = await exports.getAccountCached(token);
+		const acc = await exports.getAccountCached(auth.token);
 		let accRoles = [];
 		for(let accRole of acc.roles){
 			const role = roles[accRole][mode];

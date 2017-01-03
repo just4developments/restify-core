@@ -6,8 +6,14 @@
 		'content-type': 'application/json'
 	},
 	requestBody: {
-		name: 'Project 02',
-		status: 1
+		name: 'Validium',
+		status: 1,
+		roles: {
+			user: {
+				api: [],
+				web: []
+			}
+		}
 	}
 }
 
