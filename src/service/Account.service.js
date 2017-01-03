@@ -90,8 +90,8 @@ exports = module.exports = {
 			// TODO: exports.validate(item, exports.VALIDATE.UPDATE_ROLE);
 			const dbo = await db.open(exports.COLLECTION);
 			const user = await exports.getUserByUsername(projectId, username, password);
-			if(!user) throw new restify.ForbiddenError("Username or password is wrong");
-			if(user.status !== exports.STATUS.ACTIVE) throw new restify.ForbiddenError("You have not been actived yet");
+			if(!user) throw new restify.BadRequestError("Username or password is wrong");
+			if(user.status !== exports.STATUS.ACTIVE) throw new restify.BadRequestError("You have not been actived yet");
 			return projectId + "-" + user._id + '-' + await dbo.manual(async (collection, dbo) => {
 				const token = db.uuid();
 				const rs = await collection.update({
@@ -106,7 +106,7 @@ exports = module.exports = {
 					await exports.setAccountCached(token, user, user.token);
 					return token;
 				}
-				throw new restify.ForbiddenError("Something is wrong");
+				throw new restify.BadRequestError("Something is wrong");
 			});
 		} catch (err) {
 			throw err;
@@ -139,28 +139,28 @@ exports = module.exports = {
 	async setAccountCached(token, account, oldToken){
 		if(oldToken) await CachedService.del(`account.${oldToken}`);
 		if(!account) account = await exports.getByToken(token);
-		if(!account) throw new restify.RequestExpiredError('Token was changed');
+		if(!account) throw new restify.BadRequestError('Token was changed');
 		await CachedService.set(`account.${token}`, account, 1800);
 		return account;
 	},
 
 	async getAccountCached(token, isReload){
 		let account = await CachedService.get(`account.${token}`);
-		if(!account) throw new restify.RequestExpiredError('Not found account in cache');
+		if(!account) throw new restify.RequestTimeoutError('Not found account in cache');
 		await CachedService.touch(`account.${token}`, 1800);
 		return account;
 	},
 
 	async authoriz(rawToken, path, actions){
-		if(!rawToken) throw new restify.ProxyAuthenticationRequiredError();
+		if(!rawToken) throw new restify.NotAuthorizedError();
 		const [projectId, accountId, token] = rawToken.split('-');
 		const projectService = require('./Project.service');
 		const roles = await projectService.getRolesCached(projectId);
-		if(!roles) throw new restify.ForbiddenError('Could not found the project');
+		if(!roles) throw new restify.InternalServerError('Could not found the project');
 		const acc = await exports.getAccountCached(token);
 		for(let accRole of acc.roles){
 			const role = roles[accRole].api;
-			if(!role) throw new restify.ForbiddenError(`Not found ${accRole} in global roles`);
+			if(!role) throw new restify.InternalServerError(`Not found ${accRole} in global roles`);
 			for(let auth of role){
 				if(new RegExp(auth.path, 'gi').test(path) && _.some(actions, (a) => {
 					for(var auAction of auth.actions){
@@ -174,20 +174,20 @@ exports = module.exports = {
 				}
 			}	
 		}
-		throw new restify.UnauthorizedError('Not allow');
+		throw new restify.ForbiddenError('Not allow');
 	},
 
 	async getAuthoriz(rawToken, mode='web'){
-		if(!rawToken) throw new restify.ProxyAuthenticationRequiredError();
+		if(!rawToken) throw new restify.NotAuthorizedError();
 		const [projectId, accountId, token] = rawToken.split('-');
 		const projectService = require('./Project.service');
 		const roles = await projectService.getRolesCached(projectId);
-		if(!roles) throw new restify.ForbiddenError('Could not found the project');
+		if(!roles) throw new restify.InternalServerError('Could not found the project');
 		const acc = await exports.getAccountCached(token);
 		let accRoles = [];
 		for(let accRole of acc.roles){
 			const role = roles[accRole][mode];
-			if(!role) throw new restify.ForbiddenError(`Not found ${accRole} in global roles`);
+			if(!role) throw new restify.InternalServerError(`Not found ${accRole} in global roles`);
 			accRoles = accRoles.concat(role);			
 		}
 		return accRoles;
