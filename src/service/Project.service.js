@@ -76,7 +76,7 @@ exports = module.exports = {
 	},
 
 	async getRolesCached(_id, isReload) {
-		let roles = await MemcachedService.get(`project.${_id}`);
+		let roles = await CachedService.get(`project.${_id}`);
 		if(!roles || isReload){
 			roles = {};
 			const dbo = await db.open(exports.COLLECTION);
@@ -93,7 +93,7 @@ exports = module.exports = {
 			if(rs.length !== 1) throw 'Not found';
 			roles = rs[0].roles;
 		}else {
-			await MemcachedService.touch(`project.${_id}`, 300);
+			await CachedService.touch(`project.${_id}`, 300);
 		}
 		return roles;
 	},
