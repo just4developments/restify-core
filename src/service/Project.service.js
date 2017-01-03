@@ -3,7 +3,7 @@ const path = require('path');
 
 const db = require('../db');
 const utils = require('../utils');
-const MemcachedService = require('./Rediscached.service');
+const CachedService = require('./Cached.service');
 
 /************************************
  ** SERVICE:      ProjectController

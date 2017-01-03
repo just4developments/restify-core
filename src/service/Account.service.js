@@ -4,7 +4,7 @@ const _ = require('lodash');
 
 const db = require('../db');
 const utils = require('../utils');
-const MemcachedService = require('./Rediscached.service');
+const CachedService = require('./Cached.service');
 
 /************************************
  ** SERVICE:      AccountController
@@ -134,11 +134,11 @@ exports = module.exports = {
 	},
 
 	async getAccountCached(token, isReload){
-		let account = await MemcachedService.get(`account.${token}`);
+		let account = await CachedService.get(`account.${token}`);
 		if(!account || isReload){
-			account = await MemcachedService.set(`account.${token}`, await exports.getByToken(token), 300);
+			account = await CachedService.set(`account.${token}`, await exports.getByToken(token), 300);
 		}else{
-			await MemcachedService.touch(`account.${token}`, 300);
+			await CachedService.touch(`account.${token}`, 300);
 		}
 		return account;
 	},
