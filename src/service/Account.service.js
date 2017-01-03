@@ -137,17 +137,17 @@ exports = module.exports = {
 	},
 
 	async setAccountCached(token, account, oldToken){
-		if(oldToken) await CachedService.del(oldToken);
+		if(oldToken) await CachedService.del(`account.${oldToken}`);
 		if(!account) account = await exports.getByToken(token);
 		if(!account) throw new restify.RequestExpiredError('Token was changed');
-		await CachedService.set(`account.${token}`, account, 900);
+		await CachedService.set(`account.${token}`, account, 1800);
 		return account;
 	},
 
 	async getAccountCached(token, isReload){
 		let account = await CachedService.get(`account.${token}`);
 		if(!account) throw new restify.RequestExpiredError('Not found account in cache');
-		await CachedService.touch(`account.${token}`, 900);
+		await CachedService.touch(`account.${token}`, 1800);
 		return account;
 	},
 
