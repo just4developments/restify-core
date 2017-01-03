@@ -103,7 +103,7 @@ exports = module.exports = {
 					}
 				});
 				if(rs.result.n > 0) {
-					await exports.setAccountCached(token, user);
+					await exports.setAccountCached(token, user, user.token);
 					return token;
 				}
 				throw new restify.ForbiddenError("Something is wrong");
@@ -136,17 +136,18 @@ exports = module.exports = {
 		}
 	},
 
-	async setAccountCached(token, account){
+	async setAccountCached(token, account, oldToken){
+		if(oldToken) await CachedService.del(oldToken);
 		if(!account) account = await exports.getByToken(token);
 		if(!account) throw new restify.RequestExpiredError('Token was changed');
-		await CachedService.set(`account.${token}`, account, 300);
+		await CachedService.set(`account.${token}`, account, 900);
 		return account;
 	},
 
 	async getAccountCached(token, isReload){
 		let account = await CachedService.get(`account.${token}`);
 		if(!account) throw new restify.RequestExpiredError('Not found account in cache');
-		await CachedService.touch(`account.${token}`, 300);
+		await CachedService.touch(`account.${token}`, 900);
 		return account;
 	},
 
