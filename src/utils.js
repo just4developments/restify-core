@@ -31,14 +31,8 @@ exports = module.exports = _.extend(require('../lib/core/utils'), {
                                 token: db.uuid(token[2])
                             };
                             return next();                    
-                        case 401: 
-                            return next(new restify.UnauthorizedError());
-                        case 403: 
-                            return next(new restify.ForbiddenError());
-                        case 407: 
-                            return next(new restify.ProxyAuthenticationRequiredError());
                         default:
-                            return next(new restify.InternalError());
+                            return next(new restify.ForbiddenError());
                     }
                 });
         };

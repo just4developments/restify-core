@@ -6,11 +6,17 @@
 		'content-type': 'application/json'
 	},
 	requestBody: {
-		user_id: '5866894cd0b26a265843c378',
+		user_id: '586b56038a1b181fa80d39a8',
 		wallets: [
 			{
 				icon: 'icon',
-				name: 'vi tien',
+				name: 'vi tien 01',
+				money: 0,
+				type: 1
+			},
+			{
+				icon: 'icon',
+				name: 'vi tien 02',
 				money: 0,
 				type: 1
 			}
@@ -20,6 +26,11 @@
 				name: 'di lam',
 				icon: 'icon di lam',
 				type: -1
+			},
+			{
+				name: 'luong',
+				icon: 'icon luong',
+				type: 1
 			}
 		],
 		spendings: [

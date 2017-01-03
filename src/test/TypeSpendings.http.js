@@ -4,12 +4,12 @@
 	url: 'http://localhost:9001/TypeSpendings',
 	requestHeader: {
 		'content-type': 'application/json',
-		'token': '5866861fb439a60c787bff3b-5866894cd0b26a265843c378-58668956d0b26a265843c379'
+		'token': '586b55c48a1b181fa80d39a5-586b56038a1b181fa80d39a8-586b561a8a1b181fa80d39a9'
 	},
 	requestBody: {
-		name: 'di hoc',
-		icon: 'icon hoc',
-		type: -1
+		name: 'Luong',
+		icon: 'icon luong',
+		type: 1
 	}
 }
 

@@ -4,11 +4,11 @@
 	url: 'http://localhost:9001/Wallet',
 	requestHeader: {
 		'content-type': 'application/json',
-		'token': '5866861fb439a60c787bff3b-5866894cd0b26a265843c378-58668956d0b26a265843c379'
+		'token': '586b55c48a1b181fa80d39a5-586b56038a1b181fa80d39a8-586b561a8a1b181fa80d39a9'
 	},
 	requestBody: {
 		icon: 'icon vi',
-		name: 'vi 02',
+		name: 'vi 05',
 		money: 15000,
 		type: 1
 	}

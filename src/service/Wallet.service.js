@@ -61,20 +61,6 @@ exports = module.exports = {
 		const dbo = dboReuse || await db.open(exports.COLLECTION);
 		const dboType = dboReuse ? db.FAIL : db.DONE;
 		const rs = await dbo.manual(async(collection, dbo) => {
-			const rs = await collection.findOne({
-				user_id: auth.accountId
-			}, {wallets: 1, _id: 0});
-			return rs.wallets;
-		}, dboType);
-		return rs;
-	},
-
-	async get(_id, auth, dboReuse) {
-		_id = exports.validate(_id, exports.VALIDATE.GET);
-
-		const dbo = dboReuse || await db.open(exports.COLLECTION);
-		const dboType = dboReuse ? db.FAIL : db.DONE;
-		const rs = await dbo.manual(async(collection, dbo) => {
 			const rs = await collection.aggregate([{
 				$match: {
 					"user_id": auth.accountId
@@ -90,6 +76,21 @@ exports = module.exports = {
 				return e.wallets;
 			});
 			return await rs.toArray()
+		}, dboType);
+		return rs;
+	},
+
+	async get(_id, auth, dboReuse) {
+		_id = exports.validate(_id, exports.VALIDATE.GET);
+
+		const dbo = dboReuse || await db.open(exports.COLLECTION);
+		const dboType = dboReuse ? db.FAIL : db.DONE;
+		const rs = await dbo.manual(async(collection, dbo) => {
+			const rs = await collection.findOne({
+				user_id: auth.accountId,
+				"wallets._id": _id
+			}, {'wallets.$': 1, _id: 0});
+			return rs.wallets.length === 1 ? rs.wallets[0] : null;
 		}, dboType);
 		return rs;
 	},
