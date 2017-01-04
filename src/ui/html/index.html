@@ -89,11 +89,11 @@
 
 <body ng-controller="MainController">
     <select ng-model="currentProjectId" ng-change="changeProject()">
-            <option ng-repeat="p in projects" ng-value="p._id">{{p.name}}</option>
-        </select>
+        <option ng-repeat="p in projects" ng-value="p._id">{{p.name}}</option>
+    </select>
     <hr/>
     <div ng-if="currentProject">
-        <h3 style="margin-left: 16px">{{currentProject.name}} Project</h3>
+        <h3 style="margin-left: 16px">{{currentProject.name}} Project <small>{{currentProject._id}}</small></h3>        
         <button style="position: fixed; bottom: 50px; right: 50%; z-index: 100;" class="mdl-button mdl-js-button mdl-button--fab mdl-button--colored"
             ng-click="save()">
                 <i class="material-icons">done</i>

@@ -33,7 +33,9 @@ exports = module.exports = {
 			case exports.VALIDATE.INSERT:
 				item._id = db.uuid();
 				item.username = utils.valid('username', item.username, String);
-				item.password = utils.valid('password', item.password, String);
+				if(!item.password && !item.app) item.password = utils.valid('password', item.password, String);	
+				else if(item.password) item.password = utils.valid('password', item.password, String);
+				else item.app = utils.valid('app', item.app, String);
 				item.status = utils.valid('status', item.status, Number, 0);
 				if(item.more) item.more = utils.valid('more', item.more, Object);
 				item.roles = utils.valid('roles', item.roles, Array);
@@ -86,32 +88,28 @@ exports = module.exports = {
 		return me;
 	},
 
-	async login(projectId, username, password){
-		try {
-			// TODO: exports.validate(item, exports.VALIDATE.UPDATE_ROLE);
-			const dbo = await db.open(exports.COLLECTION);
-			const user = await exports.getUserByUsername(projectId, username, password);
-			if(!user) throw new restify.BadRequestError("Username or password is wrong");
-			if(user.status !== exports.STATUS.ACTIVE) throw new restify.BadRequestError("You have not been actived yet");
-			return projectId + "-" + user._id + '-' + await dbo.manual(async (collection, dbo) => {
-				const token = db.uuid();
-				const rs = await collection.update({
-					_id: db.uuid(projectId),
-					'accounts._id': user._id,
-				}, {
-					$set: {
-						'accounts.$.token': token
-					}
-				});
-				if(rs.result.n > 0) {
-					await exports.setAccountCached(token, user, user.token);
-					return token;
+	async login(projectId, username, password, app){
+		// TODO: exports.validate(item, exports.VALIDATE.UPDATE_ROLE);
+		const dbo = await db.open(exports.COLLECTION);
+		const user = await exports.verifyLogin(projectId, username, password, app);
+		if(!user) throw new restify.BadRequestError("Username or password is wrong");
+		if(user.status !== exports.STATUS.ACTIVE) throw new restify.BadRequestError("You have not been actived yet");
+		return projectId + "-" + user._id + '-' + await dbo.manual(async (collection, dbo) => {
+			const token = db.uuid();
+			const rs = await collection.update({
+				_id: db.uuid(projectId),
+				'accounts._id': user._id,
+			}, {
+				$set: {
+					'accounts.$.token': token
 				}
-				throw new restify.BadRequestError("Something is wrong");
 			});
-		} catch (err) {
-			throw err;
-		}
+			if(rs.result.n > 0) {
+				await exports.setAccountCached(token, user, user.token);
+				return token;
+			}
+			throw new restify.BadRequestError("Something is wrong");
+		});
 	},
 
 	async updateRole(projectId, accountId, roles, dboReuse) {
@@ -229,16 +227,36 @@ exports = module.exports = {
 		return rs.accounts.length === 1 ? rs.accounts[0] : null;
 	},
 
-	async getUserByUsername(projectId, username, password){
+	async verifyLogin(projectId, username, password, app){
 		const dbo = await db.open(exports.COLLECTION);
 		let where = {
 			_id: db.uuid(projectId),
 			'accounts.username': username,
 			status: 1
 		};
-		if(password) where['accounts.password'] = password;
+		const users = await dbo.find({where: where, fields: { 'accounts.$': 1} });
+		if(users.length === 1 && users[0].accounts.length === 1) {
+			const user = users[0].accounts[0];
+			if(user.app) {
+				if(user.app === app) return user;
+				throw new restify.BadRequestError("WRONG_APP");	
+			}else {
+				if(user.password === password) return user;	
+				throw new restify.BadRequestError("WRONG_PASS");					
+			}
+		}
+		throw new restify.BadRequestError("NOT_EXISTED");
+	},
+
+	async getUserByUsername(projectId, username, password, app){
+		const dbo = await db.open(exports.COLLECTION);
+		let where = {
+			_id: db.uuid(projectId),
+			'accounts.username': username,
+			status: 1
+		};
 		const user = await dbo.find({where: where, fields: { 'accounts.$': 1} });
-		if(user.length === 1 && user[0].accounts.length === 1) return user[0].accounts[0];
+		if(user.length === 1 && user[0].accounts.length === 1) return user[0].accounts[0];				
 		return null;
 	},
 

@@ -67,9 +67,36 @@ server.get('/Authoriz', utils.jsonHandler(), utils.auth, async(req, res, next) =
 // Check login
 server.head('/Login', utils.jsonHandler(), async(req, res, next) => {
 	try {
-		const token = await AccountService.login(req.headers.pj, req.headers.username, req.headers.password);
+		const token = await AccountService.login(req.headers.pj, req.headers.username, req.headers.password, req.headers.app);
 		res.header('token', token);
 		res.end();
+	} catch (err) {
+		next(err);
+	}
+});
+
+// Login and auto create new account when user not existed
+server.post('/Login', utils.jsonHandler(), async(req, res, next) => {
+	try {
+		try {
+			const token = await AccountService.login(req.headers.pj, req.body.username, req.body.password, req.headers.app);
+			res.header('token', token);
+			res.end();
+		}catch(e){
+			if(e.body.message !== 'NOT_EXISTED') throw e;
+			let body = {};
+			if (utils.has(req.body.username) === true) body.username = req.body.username;
+			if (utils.has(req.body.password) === true) body.password = req.body.password;
+			if (utils.has(req.headers.app) === true) body.app = req.headers.app;
+			if (utils.has(req.body.status) === true) body.status = +req.body.status;
+			if (utils.has(req.body.more) === true) body.more = utils.object(req.body.more);
+			if (utils.has(req.body.roles) === true) body.roles = utils.object(req.body.roles);
+
+			const rs = await AccountService.insert(body, req.headers.pj);
+			const token = await AccountService.login(req.headers.pj, req.body.username, req.body.password, req.headers.app);
+			res.header('token', token);
+			res.end();
+		}		
 	} catch (err) {
 		next(err);
 	}

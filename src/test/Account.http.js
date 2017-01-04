@@ -17,12 +17,28 @@
 }
 
 {
+	des: 'Login and auto create',
+	method: 'POST',
+	url: 'http://localhost:9000/Login',
+	requestHeader: {
+		'content-type': 'application/json',
+		'pj': '586b55c48a1b181fa80d39a5'
+	},
+	requestBody: {
+		username: 'thanh',
+		password: '123',
+		status: 1,
+		roles: ['586b55c48a1b181fa80d39a6']
+	}
+}
+
+{
 	des: 'Login',
 	method: 'HEAD',
 	requestHeader: {
 		username: 'thanh',
 		password: '123',
-		'pj': '5859f93ff672360eac29a41f'
+		'pj': '586b55c48a1b181fa80d39a5'
 	},
 	url: 'http://localhost:9000/Login'
 }
