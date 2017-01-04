@@ -87,9 +87,26 @@ exports = module.exports = {
 				$group : {         
 					_id : { 
 						month: "$spendings.month", 
-						year: "$spendings.year"  
+						year: "$spendings.year"
 					},         
-					money: { $sum: "$spendings.money" }     
+					smoney: { 
+						$sum: {
+							$cond: [
+								{$eq: ["$spendings.type", -1]}, 
+								"$spendings.money",
+								0
+							]
+						}
+					},
+					emoney:   { 
+						$sum: {
+							$cond: [
+								{$eq: ["$spendings.type", 1]}, 
+								"$spendings.money",
+								0
+							]
+						}
+					},   
 				} 
 			}]);
 			return await rs.toArray();
