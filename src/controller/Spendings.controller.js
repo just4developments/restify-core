@@ -10,6 +10,28 @@ const SpendingsService = require('../service/Spendings.service');
  ** CREATED DATE: 12/30/2016, 11:36:13 PM
  *************************************/
 
+server.get('/StatisticByMonth', utils.jsonHandler(), utils.auth('Spending', 'ADD'), async(req, res, next) => {
+	try {
+		const rs = await SpendingsService.statisticByMonth(req.auth);
+		res.send(rs);
+	} catch (err) {
+		next(err);
+	}
+});
+
+server.get('/StatisticByTypeSpending', utils.jsonHandler(), utils.auth('Spending', 'ADD'), async(req, res, next) => {
+	try {
+		let where = {};
+		if(utils.has(req.query.type)) where['spendings.type'] = +req.query.type;
+		if(utils.has(req.query.month)) where['spendings.month'] = +req.query.month;
+		if(utils.has(req.query.year)) where['spendings.year'] = +req.query.year;
+		const rs = await SpendingsService.statisticByTypeSpending(where, req.auth);
+		res.send(rs);
+	} catch (err) {
+		next(err);
+	}
+});
+
 server.get('/Spendings', utils.jsonHandler(), utils.auth('Spending', 'ADD'), async(req, res, next) => {
 	try {
 		let where = {};
@@ -48,6 +70,7 @@ server.post('/Spendings', utils.jsonHandler(), utils.auth('Spending', 'ADD'), as
 		if (utils.has(req.body.input_date) === true) body.input_date = utils.date(req.body.input_date);
 		if (utils.has(req.body.des) === true) body.des = req.body.des;
 		if (utils.has(req.body.type_spending_id) === true) body.type_spending_id = req.body.type_spending_id;
+		if (utils.has(req.body.type) === true) body.type = req.body.type;
 		if (utils.has(req.body.wallet_id) === true) body.wallet_id = req.body.wallet_id;
 		if (utils.has(req.body.is_monitor) === true) body.is_monitor = utils.boolean(req.body.is_monitor);
 
@@ -66,6 +89,7 @@ server.put('/Spendings/:_id', utils.jsonHandler(), utils.auth('Spending', 'UPDAT
 		if (utils.has(req.body.input_date) === true) body.input_date = utils.date(req.body.input_date);
 		if (utils.has(req.body.des) === true) body.des = req.body.des;
 		if (utils.has(req.body.type_spending_id) === true) body.type_spending_id = req.body.type_spending_id;
+		if (utils.has(req.body.type) === true) body.type = req.body.type;
 		if (utils.has(req.body.wallet_id) === true) body.wallet_id = req.body.wallet_id;
 		if (utils.has(req.body.is_monitor) === true) body.is_monitor = utils.boolean(req.body.is_monitor);
 

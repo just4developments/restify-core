@@ -31,6 +31,7 @@ exports = module.exports = {
 				item.type_spending_id = db.uuid(utils.valid('type_spending_id', item.type_spending_id, [String, db.Uuid]));
 				item.wallet_id = db.uuid(utils.valid('wallet_id', item.wallet_id, [String, db.Uuid]));
 				item.is_monitor = utils.valid('is_monitor', item.is_monitor, Boolean, false);
+				item.type = utils.valid('type', item.type, Number);
 				item.date = item.input_date.getDate();
 				item.month = item.input_date.getMonth();
 				item.year = item.input_date.getFullYear();
@@ -47,6 +48,7 @@ exports = module.exports = {
 				item.date = item.input_date.getDate();
 				item.month = item.input_date.getMonth();
 				item.year = item.input_date.getFullYear();
+				item.type = utils.valid('type', item.type, Number);
 
 				break;
 			case exports.VALIDATE.GET:
@@ -68,6 +70,57 @@ exports = module.exports = {
 				break;
 		}
 		return item;
+	},
+
+	async statisticByMonth(auth, dboReuse) {
+		const dbo = dboReuse || await db.open(exports.COLLECTION);
+		const dboType = dboReuse ? db.FAIL : db.DONE;
+		const rs = await dbo.manual(async(collection, dbo) => {
+			const rs = await collection.aggregate([
+			{ 
+				$match: { user_id : auth.accountId } 
+			}, { 
+				$project: { _id: 0, spendings: 1 } 
+			}, { 
+				$unwind: "$spendings" 
+			}, {     
+				$group : {         
+					_id : { 
+						month: "$spendings.month", 
+						year: "$spendings.year"  
+					},         
+					money: { $sum: "$spendings.money" }     
+				} 
+			}]);
+			return await rs.toArray();
+		}, dboType);
+		return rs;
+	},
+
+	async statisticByTypeSpending(where, auth, dboReuse) {
+		const dbo = dboReuse || await db.open(exports.COLLECTION);
+		const dboType = dboReuse ? db.FAIL : db.DONE;
+		const rs = await dbo.manual(async(collection, dbo) => {
+			const rs = await collection.aggregate([
+			{ 
+				$match: {
+					user_id: auth.accountId
+				}
+			}, { 
+				$project: { _id: 0, spendings: 1 } 
+			}, { 
+				$unwind: "$spendings" 
+			}, {
+				$match: where
+			},{     
+				$group : {         
+					_id : "$spendings.type_spending_id",         
+					money: { $sum: "$spendings.money" }     
+				} 
+			}]);
+			return await rs.toArray();
+		}, dboType);
+		return rs;
 	},
 
 	async find(fil = {}, auth, dboReuse) {
