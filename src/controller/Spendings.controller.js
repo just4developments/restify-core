@@ -12,7 +12,10 @@ const SpendingsService = require('../service/Spendings.service');
 
 server.get('/StatisticByMonth', utils.jsonHandler(), utils.auth('Spending', 'ADD'), async(req, res, next) => {
 	try {
-		const rs = await SpendingsService.statisticByMonth(req.auth);
+		let where = {};
+		if(utils.has(req.query.startDate)===true) where["spendings.input_date"] = { "$gte" : new Date(req.query.startDate) };
+		if(utils.has(req.query.endDate)===true) where["spendings.input_date"] = { "$lte" : new Date(req.query.endDate) };
+		const rs = await SpendingsService.statisticByMonth(where, req.auth);
 		res.send(rs);
 	} catch (err) {
 		next(err);
@@ -23,8 +26,8 @@ server.get('/StatisticByTypeSpending', utils.jsonHandler(), utils.auth('Spending
 	try {
 		let where = {};
 		if(utils.has(req.query.type)) where['spendings.type'] = +req.query.type;
-		if(utils.has(req.query.month)) where['spendings.month'] = +req.query.month;
-		if(utils.has(req.query.year)) where['spendings.year'] = +req.query.year;
+		if(utils.has(req.query.startDate)===true) where["spendings.input_date"] = { "$gte" : new Date(req.query.startDate) };
+		if(utils.has(req.query.endDate)===true) where["spendings.input_date"] = { "$lte" : new Date(req.query.endDate) };
 		const rs = await SpendingsService.statisticByTypeSpending(where, req.auth);
 		res.send(rs);
 	} catch (err) {
@@ -35,13 +38,10 @@ server.get('/StatisticByTypeSpending', utils.jsonHandler(), utils.auth('Spending
 server.get('/Spendings', utils.jsonHandler(), utils.auth('Spending', 'ADD'), async(req, res, next) => {
 	try {
 		let where = {};
-		if(req.query.walletId){
-			where['spendings.wallet_id'] = req.query.walletId;
-		}
-		if(req.query.month && req.query.year){
-			where['spendings.month'] = +req.query.month;
-			where['spendings.year'] = +req.query.year;
-		}
+		if(req.query.walletId) where['spendings.wallet_id'] = req.query.walletId;
+		if(req.query.type_spending_id) where['spendings.type_spending_id'] = req.query.type_spending_id;
+		if(utils.has(req.query.startDate)===true) where["spendings.input_date"] = { "$gte" : new Date(req.query.startDate) };
+		if(utils.has(req.query.endDate)===true) where["spendings.input_date"] = { "$lte" : new Date(req.query.endDate) };
 		const rs = await SpendingsService.find({
 			where: where,
 			sort: {

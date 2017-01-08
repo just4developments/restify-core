@@ -13,7 +13,7 @@ const WalletService = require('../service/Wallet.service');
 server.get('/Wallet', utils.jsonHandler(), utils.auth('Wallet', 'FIND'),async(req, res, next) => {
 	try {
 		let where = {};
-
+		if(utils.has(req.query.type) === true) where["wallets.type"] = +req.query.type;
 		const rs = await WalletService.find({
 			where: where
 		}, req.auth);

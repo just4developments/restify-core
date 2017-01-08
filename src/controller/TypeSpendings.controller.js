@@ -13,7 +13,7 @@ const TypeSpendingsService = require('../service/TypeSpendings.service');
 server.get('/TypeSpendings', utils.jsonHandler(), utils.auth('TypeSpending', 'FIND'), async(req, res, next) => {
 	try {
 		let where = {};
-
+		if(utils.has(req.query.type) === true) where["type_spendings.type"] = +req.query.type;
 		const rs = await TypeSpendingsService.find({
 			where: where
 		}, req.auth);

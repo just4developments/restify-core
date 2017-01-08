@@ -73,6 +73,8 @@ exports = module.exports = {
 					"type_spendings": 1
 				}
 			}, {
+				$match: fil.where
+			},{
 				$sort: {
 					"type_spendings.parent_id": 1
 				}

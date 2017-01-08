@@ -72,6 +72,8 @@ exports = module.exports = {
 					_id: 0,
 					"wallets": 1
 				}
+			}, {
+				$match: fil.where
 			}]).map((e) => {
 				return e.wallets;
 			});
