@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node --expose-gc --harmony-async-await index.js",
+    "test": "node --expose-gc --harmony-async-await test.js",
     "gen": "node ./lib/generate/gen.js",
     "pm2": "pm2 start --node-args=\"--expose-gc --harmony-async-await\" --name restify-core"
   },

@@ -1,4 +1,4 @@
-var a = ({a}|b) => {
-    console.log(b);
-};
-a(1);
+global.appconfig = require('./src/appconfig');
+
+let m = require('./src/service/Merge.service');
+m();

@@ -28,6 +28,7 @@ exports = module.exports = {
 				item.money = utils.valid('money', item.money, Number, 0);
 				item.input_date = utils.valid('input_date', item.input_date, Date);
 				item.des = utils.valid('des', item.des, String, '');
+				item.udes = utils.toUnsign(item.des);
 				item.type_spending_id = db.uuid(utils.valid('type_spending_id', item.type_spending_id, [String, db.Uuid]));
 				item.wallet_id = db.uuid(utils.valid('wallet_id', item.wallet_id, [String, db.Uuid]));
 				item.is_monitor = utils.valid('is_monitor', item.is_monitor, Boolean, false);
@@ -42,6 +43,7 @@ exports = module.exports = {
 				item.money = utils.valid('money', item.money, Number, 0);
 				item.input_date = utils.valid('input_date', item.input_date, Date);
 				item.des = utils.valid('des', item.des, String, '');
+				item.udes = utils.toUnsign(item.des);
 				item.type_spending_id = db.uuid(utils.valid('type_spending_id', item.type_spending_id, [String, db.Uuid]));
 				item.wallet_id = db.uuid(utils.valid('wallet_id', item.wallet_id, [String, db.Uuid]));
 				item.is_monitor = utils.valid('is_monitor', item.is_monitor, Boolean, false);

@@ -26,6 +26,7 @@ exports = module.exports = {
 			case exports.VALIDATE.INSERT:
 				item._id = db.uuid();
 				item.name = utils.valid('name', item.name, String);
+				item.uname = utils.toUnsign(item.name);
 				item.icon = utils.valid('icon', item.icon, String);
 				item.type = utils.valid('type', item.type, Number);
 				if(item.parent_id) item.parent_id = db.uuid(item.parent_id);
@@ -34,6 +35,7 @@ exports = module.exports = {
 			case exports.VALIDATE.UPDATE:
 				item._id = db.uuid(utils.valid('_id', item._id, [String, db.Uuid]));
 				item.name = utils.valid('name', item.name, String);
+				item.uname = utils.toUnsign(item.name);
 				item.icon = utils.valid('icon', item.icon, String);
 				item.type = utils.valid('type', item.type, Number);
 				if(item.parent_id) item.parent_id = db.uuid(item.parent_id);
@@ -75,9 +77,7 @@ exports = module.exports = {
 			}, {
 				$match: fil.where
 			},{
-				$sort: {
-					"type_spendings.parent_id": 1
-				}
+				$sort: fil.sort
 			}]).map((e) => {
 				return e.type_spendings;
 			});

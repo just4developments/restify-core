@@ -14,8 +14,14 @@ server.get('/TypeSpendings', utils.jsonHandler(), utils.auth('TypeSpending', 'FI
 	try {
 		let where = {};
 		if(utils.has(req.query.type) === true) where["type_spendings.type"] = +req.query.type;
+		// else where["type_spendings.type"] = {$ne: 0};
 		const rs = await TypeSpendingsService.find({
-			where: where
+			where: where,
+			sort: {
+				"type_spendings.parent_id": 1,
+				'type_spendings.oder': 1,
+				'type_spendings.uname': 1
+			}
 		}, req.auth);
 		res.send(rs);
 	} catch (err) {

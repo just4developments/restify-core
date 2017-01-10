@@ -74,6 +74,8 @@ exports = module.exports = {
 				}
 			}, {
 				$match: fil.where
+			}, {
+				$sort: fil.sort
 			}]).map((e) => {
 				return e.wallets;
 			});

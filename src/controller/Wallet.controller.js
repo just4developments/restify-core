@@ -15,7 +15,11 @@ server.get('/Wallet', utils.jsonHandler(), utils.auth('Wallet', 'FIND'),async(re
 		let where = {};
 		if(utils.has(req.query.type) === true) where["wallets.type"] = +req.query.type;
 		const rs = await WalletService.find({
-			where: where
+			where: where,
+			sort: {
+				'wallets.oder': 1,
+				'wallets.name': 1
+			}
 		}, req.auth);
 		res.send(rs);
 	} catch (err) {
