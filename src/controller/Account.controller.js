@@ -83,7 +83,7 @@ server.post('/Login', utils.jsonHandler(), async(req, res, next) => {
 			res.header('token', token);
 			res.end();
 		}catch(e){
-			if(e.body.message !== 'NOT_EXISTED') throw e;
+			if(e && e.body && e.body.message !== 'NOT_EXISTED') throw e;
 			let body = {};
 			if (utils.has(req.body.username) === true) body.username = req.body.username;
 			if (utils.has(req.body.password) === true) body.password = req.body.password;

@@ -238,7 +238,7 @@ exports = module.exports = {
 		if(users.length === 1 && users[0].accounts.length === 1) {
 			const user = users[0].accounts[0];
 			if(user.app) {
-				if(user.app === app) return user;
+				if(new RegExp(user.app, 'g').test(app)) return user;
 				throw new restify.BadRequestError("WRONG_APP");	
 			}else {
 				if(user.password === password) return user;	
