@@ -62,8 +62,10 @@ exports = module.exports = {
 
 				break;
 			case exports.VALIDATE.FIND:
-				if(item.where && item.where['spendings.wallet_id'])
-					item.where['spendings.wallet_id'] = db.uuid(utils.valid('wallet_id', item.where['spendings.wallet_id'], [String, db.Uuid]));
+				if(item.where){
+					if(item.where['spendings.wallet_id']) item.where['spendings.wallet_id'] = db.uuid(utils.valid('wallet_id', item.where['spendings.wallet_id'], [String, db.Uuid]));
+					if(item.where['spendings.type_spending_id']) item.where['spendings.type_spending_id'] = db.uuid(utils.valid('type_spending_id', item.where['spendings.type_spending_id'], [String, db.Uuid]));
+				}
 
 				break;
 		}
@@ -154,6 +156,10 @@ exports = module.exports = {
 				$unwind: '$spendings'
 			}, {
 				$match: fil.where
+			}, {
+				$sort: {
+					"spendings.input_date": -1
+				}
 			}, {
 				$project: {
 					_id: 0,

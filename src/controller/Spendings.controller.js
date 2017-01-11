@@ -12,7 +12,12 @@ const SpendingsService = require('../service/Spendings.service');
 
 server.get('/StatisticByMonth', utils.jsonHandler(), utils.auth('Spending', 'ADD'), async(req, res, next) => {
 	try {
-		let where = {};
+		let where = {
+			"spendings.input_date": {
+				$ne: 0
+			},
+			"spendings.is_monitor": 1
+		};
 		if(utils.has(req.query.startDate)===true || utils.has(req.query.endDate)===true){
 			where["spendings.input_date"] = {};
 			if(utils.has(req.query.startDate)===true) where["spendings.input_date"]["$gte"] = new Date(req.query.startDate);
@@ -27,8 +32,11 @@ server.get('/StatisticByMonth', utils.jsonHandler(), utils.auth('Spending', 'ADD
 
 server.get('/StatisticByTypeSpending', utils.jsonHandler(), utils.auth('Spending', 'ADD'), async(req, res, next) => {
 	try {
-		let where = {};
+		let where = {
+			"spendings.is_monitor": 1
+		};
 		if(utils.has(req.query.type)) where['spendings.type'] = +req.query.type;
+		else where["spendings.input_date"] = { $ne: 0 };
 		if(utils.has(req.query.startDate)===true || utils.has(req.query.endDate)===true){
 			where["spendings.input_date"] = {};
 			if(utils.has(req.query.startDate)===true) where["spendings.input_date"]["$gte"] = new Date(req.query.startDate);
@@ -45,7 +53,7 @@ server.get('/Spendings', utils.jsonHandler(), utils.auth('Spending', 'ADD'), asy
 	try {
 		let where = {};
 		if(req.query.walletId) where['spendings.wallet_id'] = req.query.walletId;
-		if(req.query.type_spending_id) where['spendings.type_spending_id'] = req.query.type_spending_id;
+		if(req.query.typeSpendingId) where['spendings.type_spending_id'] = req.query.typeSpendingId;
 		if(utils.has(req.query.startDate)===true || utils.has(req.query.endDate)===true){
 			where["spendings.input_date"] = {};
 			if(utils.has(req.query.startDate)===true) where["spendings.input_date"]["$gte"] = new Date(req.query.startDate);
