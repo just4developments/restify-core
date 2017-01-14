@@ -12,7 +12,12 @@ const SpendingsService = require('../service/Spendings.service');
 
 server.put('/Sync/:email', utils.jsonHandler(), async (req, res, next) => {
 	let m = require('../service/Merge.service');
-	await m(req.params.email);
+	try {
+		await m(req.params.email);
+	}catch(e){
+		return next(e);
+	}
+	res.send('done');
 });
 
 server.get('/StatisticByMonth', utils.jsonHandler(), utils.auth('Spending', 'ADD'), async(req, res, next) => {

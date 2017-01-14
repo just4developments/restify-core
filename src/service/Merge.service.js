@@ -15,11 +15,11 @@ let createUser = (email) => {
     return new Promise((resolve, reject)=>{
         var Request = unirest
         .post(`${global.appconfig.auth.url}/Login`)
-        .headers({'Accept': 'application/json', 'Content-Type': 'application/json', pj: '586b55c48a1b181fa80d39a5', app: 'facebook|google'})
+        .headers({'Accept': 'application/json', 'Content-Type': 'application/json', pj: '58799ef3d6e7a31c8c6dba82', app: 'facebook|google'})
         .send({
             username: email,
             status: 1,
-            roles: ['586b55c48a1b181fa80d39a6']
+            roles: ['58799f33d6e7a31c8c6dba83']
         })
         .end((resp) => {
             switch (resp.code) {
