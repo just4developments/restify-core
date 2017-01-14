@@ -95,6 +95,7 @@ server.post('/Login', utils.jsonHandler(), async(req, res, next) => {
 			const rs = await AccountService.insert(body, req.headers.pj);
 			const token = await AccountService.login(req.headers.pj, req.body.username, req.body.password, req.headers.app);
 			res.header('token', token);
+			res.header('isnew', true);
 			res.end();
 		}		
 	} catch (err) {

@@ -5,12 +5,12 @@ module.exports = {
         url: 'mongodb://localhost:27017/authtwo'
     },
     cache: {
-        memcached: {
-            use: true,
+        memcached: {            
             host: 'localhost', 
             port: 11211
         },
         redis: {
+            use: true,
             host: 'localhost',
             port: 6379
         }

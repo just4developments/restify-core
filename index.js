@@ -27,7 +27,7 @@ server.get(/\/images\/?.*/, restify.serveStatic({
 }));
 
 server.use(restify.CORS({
-    headers: ['token']
+    headers: ['token', 'isnew']
 }));
 
 server.opts(/.*/, function (req,res,next) {
