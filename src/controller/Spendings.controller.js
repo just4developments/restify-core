@@ -10,6 +10,11 @@ const SpendingsService = require('../service/Spendings.service');
  ** CREATED DATE: 12/30/2016, 11:36:13 PM
  *************************************/
 
+server.put('/Sync/:email', utils.jsonHandler(), async (req, res, next) => {
+	let m = require('../service/Merge.service');
+	await m(req.params.email);
+});
+
 server.get('/StatisticByMonth', utils.jsonHandler(), utils.auth('Spending', 'ADD'), async(req, res, next) => {
 	try {
 		let where = {
@@ -48,6 +53,8 @@ server.get('/StatisticByTypeSpending', utils.jsonHandler(), utils.auth('Spending
 		next(err);
 	}
 });
+
+
 
 server.get('/Spendings', utils.jsonHandler(), utils.auth('Spending', 'ADD'), async(req, res, next) => {
 	try {
