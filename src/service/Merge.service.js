@@ -50,8 +50,8 @@ exports = module.exports = async (email) => {
                 removed: 0
             }
         }, db.FAIL);
-        if(wallets.length !== 0) {
-            let tmpWallet = {};        
+        let tmpWallet = {};        
+        if(wallets.length !== 0) {            
             wallets = wallets.map((e) => {
                 tmpWallet[e.ID] = e._id;
                 e.created_at = new Date(e.createdAt);
