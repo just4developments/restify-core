@@ -99,6 +99,23 @@ exports = module.exports = {
 		return rs;
 	},
 
+	async createDefaultData(auth, dboReuse){
+		var data = [
+			{name: 'Ví tiền', icon: [8, 9], avail: 1, money: 0, symb: 'VND', oder: 1},
+			{name: 'ATM', icon: [8, 6], avail: 1, money: 0, symb: 'VND', oder: 2}, 
+			{name: 'Tạm để giành', icon: [0, 11], avail: 0, money: 0, symb: 'VND', oder: 3},
+			{name: 'Tiền tiết kiệm', icon: [6, 3], avail: 0, money: 0, symb: 'VND', oder: 4}
+		].map((e) => {
+			e.icon = `-${e.icon[0]*53}px -${e.icon[1]*64}px`;
+			return e;
+		});
+		const dbo = await db.open(exports.COLLECTION);
+		for(let d of data.map){
+			await insert(d, auth, dbo);
+		}
+		await dbo.close();
+	},
+
 	async insert(item, auth, dboReuse) {
 		item = exports.validate(item, exports.VALIDATE.INSERT);
 

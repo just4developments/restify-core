@@ -11,38 +11,18 @@ const utils = require('../utils');
  ** AUTHOR:       Unknown
  ** CREATED DATE: 12/30/2016, 11:32:25 PM
  *************************************/
-let createUser = (email) => {
-    return new Promise((resolve, reject)=>{
-        var Request = unirest
-        .post(`${global.appconfig.auth.url}/Login`)
-        .headers({'Accept': 'application/json', 'Content-Type': 'application/json', pj: '58799ef3d6e7a31c8c6dba82', app: 'facebook|google'})
-        .send({
-            username: email,
-            status: 1,
-            roles: ['58799f33d6e7a31c8c6dba83']
-        })
-        .end((resp) => {
-            switch (resp.code) {
-                case 200:                    
-                    return resolve(resp.headers.token);
-            }
-            reject(resp);
-        });
-    });    
-}
+
 let addDataForUser = async (data) => {
     db.url = 'mongodb://localhost:27017/sochitieu';
     let dbo = await db.open('ExpensiveNote');
     await dbo.insert(data);
 }
-exports = module.exports = async (email) => {
+exports = module.exports = async (email, auth) => {
     if(!email) return;
     const users = [];
     db.url = 'mongodb://localhost:27017/savemoney';
     let dbo = await db.open('Spending');
     try{                
-        let rawtoken = await createUser(email);
-        let [pj, userId, token] = rawtoken.split('-');
         dbo.collection = 'Wallet';
         let wallets = await dbo.find({
             where: {
@@ -141,17 +121,17 @@ exports = module.exports = async (email) => {
         }
         if(spendings.length !== 0 || wallets.length !== 0 || type_spendings.length !== 0) {
             let User = {
-                user_id: db.uuid(userId),
+                user_id: db.uuid(auth.accountId),
                 spendings,
                 wallets,
                 type_spendings: typeSpendings,            
             };
             users.push(User);
             await addDataForUser(User);
+            return true;
         }
     }finally{
         await dbo.close();
-    }    
-    // require('fs').writeFileSync('./data.json', JSON.stringify(users, null, '\t'), 'utf-8');
-    console.log('done');
+    }
+    return false;
 }

@@ -101,6 +101,56 @@ exports = module.exports = {
 		return rs;
 	},
 
+	async createDefaultData(auth, dboReuse){
+		var data = [
+			// Others
+			{ oder: 1, name: 'Received from wallet', icon: [9, 11], type: 0},
+			{ oder: 1, name: 'Transfer to wallet', icon: [6, 10], type: 0},
+			{ oder: 1, name: 'Add new wallet', icon: [0, 10], type: 0},
+			{ oder: 1, name: 'Update wallet', icon: [0, 10], type: 0},
+			//Earning
+			{ oder: 1, name: 'Lương', icon: [9, 2], type: 1,
+				inner: [
+					{ oder: 2, name: 'Thưởng', icon: [7, 9], type: 1 }
+				] 
+			},
+			{ oder: 3, name: 'Bán hàng', icon: [10, 0], type: 1 },
+			{ oder: 4, name: 'Được cho', icon: [6, 11], type: 1 },
+			{ oder: 5, name: 'Tiền lãi', icon: [7, 11], type: 1 },
+			{ oder: 100, name: 'Khoản thu khác', icon: [1, 4], type: 1 },
+			// Spending
+			{ oder: 1, name: 'Gia đình', icon: [9, 10], type: -1, 
+				childs: [
+					{ oder: 2, name: 'Con cái', icon: [10, 6], type: -1 }
+				] 
+			},
+			{ oder: 3, name: 'Điện & nước & internet', icon: [12, 6], type: -1 },
+			{ oder: 3, name: 'Ăn uống', icon: [1, 0], type: -1 },
+			{ oder: 4, name: 'Bạn bè & người yêu', icon: [0, 0], type: -1 },
+			{ oder: 5, name: 'Du lịch', icon: [11, 0], type: -1 },
+			{ oder: 7, name: 'Giáo dục', icon: [7, 10], type: -1 },
+			{ oder: 8, name: 'Mua sắm', icon: [2, 0], type: -1 },
+			{ oder: 9, name: 'Y tế & Sức khoẻ', icon: [2, 11], type: -1 },
+			{ oder: 10, name: 'Đi lại', icon: [1, 2], type: -1 },
+			{ oder: 10, name: 'Cho vay', icon: [6, 10], type: -1 },
+			{ oder: 100, name: 'Khoản chi phí khác', icon: [1, 4], type: -1 }
+		].map((e) => {
+			e.icon = `-${e.icon[0]*53}px -${e.icon[1]*64}px`;
+			if(e.childs) {
+				e.childs = e.childs.map((e0) => {
+					e0.icon = `-${e0.icon[0]*53}px -${e0.icon[1]*64}px`;
+					return e0;
+				});
+			}
+			return e;
+		});
+		const dbo = await db.open(exports.COLLECTION);
+		for(let d of data.map){
+			await insert(d, auth, dbo);
+		}
+		await dbo.close();
+	},
+
 	async insert(item, auth, dboReuse) {
 		item = exports.validate(item, exports.VALIDATE.INSERT);
 
