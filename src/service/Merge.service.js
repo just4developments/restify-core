@@ -50,24 +50,25 @@ exports = module.exports = async (email) => {
                 removed: 0
             }
         }, db.FAIL);
-        if(wallets.length === 0) continue;
-        let tmpWallet = {};        
-        wallets = wallets.map((e) => {
-            tmpWallet[e.ID] = e._id;
-            e.created_at = new Date(e.createdAt);
-            e.updated_at = new Date(e.updatedAt);
-            e.type = e.avail;
-            delete e.avail;
-            delete e.email;
-            delete e.createdAt;
-            delete e.updatedAt;
-            delete e.is_sync;
-            delete e.removed;
-            delete e.objectId;
-            delete e.ID;
-            delete e.server_id;
-            return e; 
-        });
+        if(wallets.length !== 0) {
+            let tmpWallet = {};        
+            wallets = wallets.map((e) => {
+                tmpWallet[e.ID] = e._id;
+                e.created_at = new Date(e.createdAt);
+                e.updated_at = new Date(e.updatedAt);
+                e.type = e.avail;
+                delete e.avail;
+                delete e.email;
+                delete e.createdAt;
+                delete e.updatedAt;
+                delete e.is_sync;
+                delete e.removed;
+                delete e.objectId;
+                delete e.ID;
+                delete e.server_id;
+                return e; 
+            });
+        }
         dbo.collection = 'TypeSpending';
         let tmpTypeSpending = {};     
         let typeSpendings = await dbo.find({
@@ -79,23 +80,24 @@ exports = module.exports = async (email) => {
                 parent_id: 1
             }
         }, db.FAIL);
-        if(typeSpendings.length === 0) continue;
-        typeSpendings = typeSpendings.map((e) => {
-            tmpTypeSpending[e.ID] = e._id;
-            e.created_at = new Date(e.createdAt);
-            e.updated_at = new Date(e.updatedAt);
-            e.uname = utils.toUnsign(e.name);
-            e.parent_id = (!e.parent_id || e.parent_id.length === 0) ? null : tmpTypeSpending[e.parent_id];
-            delete e.email;
-            delete e.createdAt;
-            delete e.updatedAt;
-            delete e.is_sync;
-            delete e.removed;
-            delete e.objectId;
-            delete e.ID;
-            delete e.server_id;
-            return e; 
-        });
+        if(typeSpendings.length !== 0) {
+            typeSpendings = typeSpendings.map((e) => {
+                tmpTypeSpending[e.ID] = e._id;
+                e.created_at = new Date(e.createdAt);
+                e.updated_at = new Date(e.updatedAt);
+                e.uname = utils.toUnsign(e.name);
+                e.parent_id = (!e.parent_id || e.parent_id.length === 0) ? null : tmpTypeSpending[e.parent_id];
+                delete e.email;
+                delete e.createdAt;
+                delete e.updatedAt;
+                delete e.is_sync;
+                delete e.removed;
+                delete e.objectId;
+                delete e.ID;
+                delete e.server_id;
+                return e; 
+            });
+        }
         dbo.collection = 'Spending';
         let spendings = await dbo.find({
             where: {
@@ -103,47 +105,50 @@ exports = module.exports = async (email) => {
                 removed: 0
             }
         }, db.FAIL);
-        spendings = spendings.map((e) => {
-            e.created_at = new Date(e.createdAt);
-            e.updated_at = new Date(e.updatedAt);
-            e.is_monitor = e.is_report;
-            e.input_date = new Date(e.created_date);
-            e.date = e.input_date.getDate();
-            e.month = e.input_date.getMonth();
-            e.year = e.input_date.getFullYear();
-            e.udes = utils.toUnsign(e.des);
-            let tmp = e.type_spending_id;
-            e.type_spending_id = tmpTypeSpending[e.type_spending_id];
-            e.wallet_id = tmpWallet[e.wallet_id];
-            if(!e.type_spending_id || !e.wallet_id) {
-                return null;
-            }
-            delete e.created_day;
-            delete e.created_date;
-            delete e.created_month;
-            delete e.created_year;
-            delete e.is_report;
-            delete e.email;
-            delete e.createdAt;
-            delete e.updatedAt;
-            delete e.is_sync;
-            delete e.removed;
-            delete e.objectId;
-            delete e.ID;
-            delete e.server_id;
-            return e; 
-        }).filter((e) => {
-            return e !== null;
-        });
-        if(spendings.length === 0) continue;
-        let User = {
-            user_id: db.uuid(userId),
-            spendings,
-            wallets,
-            type_spendings: typeSpendings,            
-        };
-        users.push(User);
-        await addDataForUser(User);
+        if(spendings.length !== 0) {
+            spendings = spendings.map((e) => {
+                e.created_at = new Date(e.createdAt);
+                e.updated_at = new Date(e.updatedAt);
+                e.is_monitor = e.is_report;
+                e.input_date = new Date(e.created_date);
+                e.date = e.input_date.getDate();
+                e.month = e.input_date.getMonth();
+                e.year = e.input_date.getFullYear();
+                e.udes = utils.toUnsign(e.des);
+                let tmp = e.type_spending_id;
+                e.type_spending_id = tmpTypeSpending[e.type_spending_id];
+                e.wallet_id = tmpWallet[e.wallet_id];
+                if(!e.type_spending_id || !e.wallet_id) {
+                    return null;
+                }
+                delete e.created_day;
+                delete e.created_date;
+                delete e.created_month;
+                delete e.created_year;
+                delete e.is_report;
+                delete e.email;
+                delete e.createdAt;
+                delete e.updatedAt;
+                delete e.is_sync;
+                delete e.removed;
+                delete e.objectId;
+                delete e.ID;
+                delete e.server_id;
+                return e; 
+            }).filter((e) => {
+                return e !== null;
+            });
+        }
+        if(spendings.length !== 0 || wallets.length !== 0 || type_spendings.length !== 0) {
+            let User = {
+                user_id: db.uuid(userId),
+                spendings,
+                wallets,
+                type_spendings: typeSpendings,            
+            };
+            users.push(User);
+            await addDataForUser(User);
+        }
     }finally{
         await dbo.close();
     }    
