@@ -10,11 +10,22 @@ const SpendingsService = require('../service/Spendings.service');
  ** CREATED DATE: 12/30/2016, 11:36:13 PM
  *************************************/
 
-server.put('/Sync/:email', utils.jsonHandler(), async (req, res, next) => {
+server.put('/Sync/:email', utils.jsonHandler(), utils.auth('Common', 'SYNC'), async (req, res, next) => {
 	
 	try {
-		let m = require('../service/Merge.service');
-		await m(req.params.email);
+		let wallets = await require('../service/Wallet.service').find({where: {}}, req.auth);
+		if(wallets.length === 0){
+			let typeSpendings = await require('../service/TypeSpendings.service').find({where: {}}, req.auth);
+			if(typeSpendings.length === 0){
+				let spendings = await SpendingsService.find({where: {}}, req.auth);
+				if(spendings.length === 0){
+					let m = require('../service/Merge.service');
+					await m(req.params.email);
+					return res.send('Synced');
+				}
+			}
+		}	
+		res.send('Do nothing');	
 	}catch(e){
 		return next(e);
 	}
