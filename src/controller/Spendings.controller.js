@@ -14,7 +14,8 @@ server.put('/Sync/:email', utils.jsonHandler(), utils.auth('Common', 'SYNC'), as
 	
 	try {
 		let email = req.params.email;
-		if(email && email.includes('@')) {
+		let isnew = req.body.isnew;
+		if(isnew) {
 			let wallets = await require('../service/Wallet.service').find({where: {}, sort: {'wallets.oder': 1, 'wallets.name': 1}}, req.auth);
 			if(wallets.length === 0){
 				let typeSpendings = await require('../service/TypeSpendings.service').find({where: {}, sort: {"type_spendings.parent_id": 1,
