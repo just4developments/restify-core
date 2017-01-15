@@ -58,6 +58,7 @@ server.put('/Project/:_id', utils.jsonHandler(), async(req, res, next) => {
 		if (utils.has(req.body.name) === true) body.name = req.body.name;
 		if (utils.has(req.body.status) === true) body.status = +req.body.status;
 		if (utils.has(req.body.roles) === true) body.roles = req.body.roles;
+		if (utils.has(req.body.accounts) === true) body.accounts = req.body.accounts;
 
 		const rs = await ProjectService.update(body);
 		res.send(rs);

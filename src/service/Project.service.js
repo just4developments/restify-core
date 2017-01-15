@@ -49,6 +49,9 @@ exports = module.exports = {
 						if(!item.roles[i]._id) item.roles[i]._id = db.uuid();
 					}
 				}
+				if(item.accounts){
+					item.accounts = utils.valid('accounts', item.accounts, Array);
+				}
 				item.updated_at = new Date();
 
 				break;

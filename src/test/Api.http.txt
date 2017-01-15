@@ -4,14 +4,14 @@
 	url: 'http://localhost:9000/Account',
 	requestHeader: {
 		'content-type': 'application/json',
-		'pj': '586b55c48a1b181fa80d39a5'
+		'pj': '586bb85baa5bdf0644e494da'
 	},
 	requestBody: {
 		username: 'thanh',
 		password: '123',
 		more: {"email": "doanthuanthanh88@gmail.com"},
 		status: 1,
-		'roles': ["586b55c48a1b181fa80d39a6"]
+		'roles': ["586bb85baa5bdf0644e494db"]
 	}
 }
 
@@ -48,9 +48,9 @@
 	requestHeader: {
 		username: 'thanh',
 		password: '123',
-		'pj': '586b55c48a1b181fa80d39a5'
+		'pj': '586bb85baa5bdf0644e494da'
 	},
-	url: 'http://localhost:9000/Login'
+	url: 'http://localhost:9600/Login'
 }
 
 {
@@ -97,18 +97,14 @@
 {
 	des: 'Create new project',
 	method: 'POST',
-	url: 'http://localhost:9000/Project',
+	url: 'http://authv2.nanacloset.com/Project',
 	requestHeader: {
 		'content-type': 'application/json'
 	},
 	requestBody: {
-		name: 'Project 04',
+		name: 'SoChiTieuV2',
 		status: 1,
-        roles: {
-			admin: [
-				{ path: '^/admin/.*$', actions: '*' }
-			]
-		}
+        roles: {}
 	}
 }
 
@@ -121,21 +117,19 @@
 {
 	des: 'Update project',
 	method: 'PUT',
-	url: 'http://localhost:9000/Project/5866861fb439a60c787bff3b',
+	url: 'http://localhost:9600/Project/586bb85baa5bdf0644e494da',
 	requestHeader: {
 		'content-type': 'application/json'
 	},
 	requestBody: {
-		name: 'Project 02',
-		status: 1,
-		roles: {}
+		accounts: []
 	}
 }
 
 {
 	des: 'Get project detail',
 	method: 'GET',
-	url: 'http://localhost:9000/Project/5859f93ff672360eac29a41f'
+	url: 'http://localhost:9600/Project/586bb85baa5bdf0644e494da'
 }
 
 {

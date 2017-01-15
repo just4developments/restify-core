@@ -57,7 +57,7 @@
 {
 	des: 'Get list',
 	method: 'GET',
-	url: 'http://localhost:9000/Account'
+	url: 'http://localhost:9600/Account'
 }
 
 {
