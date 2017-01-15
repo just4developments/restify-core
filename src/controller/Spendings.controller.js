@@ -28,8 +28,9 @@ server.put('/Sync/:email', utils.jsonHandler(), utils.auth('Common', 'SYNC'), as
 						if(await m(email, req.auth)) {
 							return res.send('Synced');
 						}else {
-							await require('../service/Wallet.service').createDefaultData(auth);
-							await require('../service/TypeSpendings.service').createDefaultData(auth);
+							await SpendingsService.createUser(req.auth);
+							await require('../service/Wallet.service').createDefaultData(req.auth);
+							await require('../service/TypeSpendings.service').createDefaultData(req.auth);
 							return res.send('Created')
 						}
 					}

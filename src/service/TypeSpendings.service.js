@@ -102,7 +102,8 @@ exports = module.exports = {
 	},
 
 	async createDefaultData(auth, dboReuse){
-		var data = [
+		const dbo = await db.open(exports.COLLECTION);
+		for(e of [
 			// Others
 			{ oder: 1, name: 'Received from wallet', icon: [9, 11], type: 0},
 			{ oder: 1, name: 'Transfer to wallet', icon: [6, 10], type: 0},
@@ -134,19 +135,18 @@ exports = module.exports = {
 			{ oder: 10, name: 'Đi lại', icon: [1, 2], type: -1 },
 			{ oder: 10, name: 'Cho vay', icon: [6, 10], type: -1 },
 			{ oder: 100, name: 'Khoản chi phí khác', icon: [1, 4], type: -1 }
-		].map((e) => {
+		]) {
 			e.icon = `-${e.icon[0]*53}px -${e.icon[1]*64}px`;
+			let d = _.cloneDeep(e);
+			delete d.childs;
+			let parent = await exports.insert(d, auth, dbo);
 			if(e.childs) {
-				e.childs = e.childs.map((e0) => {
+				for(e0 of e.childs) { 
 					e0.icon = `-${e0.icon[0]*53}px -${e0.icon[1]*64}px`;
-					return e0;
-				});
+					e0.parent_id = parent._id;
+					await exports.insert(e0, auth, dbo);
+				}
 			}
-			return e;
-		});
-		const dbo = await db.open(exports.COLLECTION);
-		for(let d of data.map){
-			await insert(d, auth, dbo);
 		}
 		await dbo.close();
 	},

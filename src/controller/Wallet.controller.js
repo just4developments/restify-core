@@ -51,6 +51,20 @@ server.post('/Wallet', utils.jsonHandler(), utils.auth('Wallet', 'ADD'), async(r
 	}
 })
 
+server.put('/Wallet/Transfer', utils.jsonHandler(), utils.auth('Wallet', 'TRANSFER'), async(req, res, next) => {
+	try {
+		let body = {};
+		if (utils.has(req.body.from) === true) body.from = req.body.from;
+		if (utils.has(req.body.to) === true) body.to = req.body.to;
+		if (utils.has(req.body.money) === true) body.money = +req.body.money;
+
+		const rs = await WalletService.transfer(body, req.auth);
+		res.send(rs);
+	} catch (err) {
+		next(err);
+	}
+})
+
 server.put('/Wallet/:_id', utils.jsonHandler(), utils.auth('Wallet', 'UPDATE'), async(req, res, next) => {
 	try {
 		let body = {};

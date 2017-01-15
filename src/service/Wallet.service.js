@@ -19,10 +19,17 @@ exports = module.exports = {
 		GET: 2,
 		DELETE: 3,
 		FIND: 4,
+		TRANSFER: 5
 	},
 	validate(item, action) {
 		let msg;
 		switch (action) {
+			case exports.VALIDATE.TRANSFER: 
+				item.from = db.uuid(utils.valid('from wallet id', item.from, [String, db.Uuid]));
+				item.to = db.uuid(utils.valid('to wallet id', item.to, [String, db.Uuid]));
+				item.money = utils.valid('money', item.money, Number);
+
+				break;
 			case exports.VALIDATE.INSERT:
 				item._id = db.uuid();
 				item.icon = utils.valid('icon', item.icon, String);
@@ -94,25 +101,23 @@ exports = module.exports = {
 				user_id: auth.accountId,
 				"wallets._id": _id
 			}, {'wallets.$': 1, _id: 0});
-			return rs.wallets.length === 1 ? rs.wallets[0] : null;
+			return rs && rs.wallets.length === 1 ? rs.wallets[0] : null;
 		}, dboType);
 		return rs;
 	},
 
 	async createDefaultData(auth, dboReuse){
-		var data = [
-			{name: 'Ví tiền', icon: [8, 9], avail: 1, money: 0, symb: 'VND', oder: 1},
-			{name: 'ATM', icon: [8, 6], avail: 1, money: 0, symb: 'VND', oder: 2}, 
-			{name: 'Tạm để giành', icon: [0, 11], avail: 0, money: 0, symb: 'VND', oder: 3},
-			{name: 'Tiền tiết kiệm', icon: [6, 3], avail: 0, money: 0, symb: 'VND', oder: 4}
-		].map((e) => {
+		const dbo = await db.open(exports.COLLECTION);
+		await [
+			{name: 'Ví tiền', icon: [8, 9], type: 1, money: 0, oder: 1},
+			{name: 'ATM', icon: [8, 6], type: 1, money: 0, oder: 2}, 
+			{name: 'Tạm để giành', icon: [0, 11], type: 0, money: 0, oder: 3},
+			{name: 'Tiền tiết kiệm', icon: [6, 3], type: 0, money: 0, oder: 4}
+		].map(async (e) => {
 			e.icon = `-${e.icon[0]*53}px -${e.icon[1]*64}px`;
+			await exports.insert(e, auth, dbo);
 			return e;
 		});
-		const dbo = await db.open(exports.COLLECTION);
-		for(let d of data.map){
-			await insert(d, auth, dbo);
-		}
 		await dbo.close();
 	},
 
@@ -132,6 +137,27 @@ exports = module.exports = {
 			return item;
 		}, dboType);
 		return rs;
+	},
+
+	async transfer(trans, auth, dboReuse) {
+		trans = exports.validate(trans, exports.VALIDATE.TRANSFER);
+
+		const dbo = dboReuse || await db.open(exports.COLLECTION);
+		const dboType = dboReuse ? db.FAIL : db.DONE;
+		try {
+			let fromWallet = await exports.get(trans.from, auth, dbo);		
+			if(!fromWallet) throw 'From wallet not found';
+			let toWallet = await exports.get(trans.to, auth, dbo);
+			if(!toWallet) throw 'To wallet not found';
+			fromWallet.money -= trans.money;
+			if(trans.money <= 0) throw 'Need money > 0';
+			toWallet.money += trans.money;
+			await exports.update(fromWallet, auth, dbo);
+			await exports.update(toWallet, auth, dbo);
+		}finally {
+			await dbo.close();
+		}
+		return true;
 	},
 
 	async update(item, auth, dboReuse) {

@@ -142,6 +142,27 @@ exports = module.exports = {
 		return rs;
 	},
 
+	async createUser(auth, dboReuse){
+		const dbo = dboReuse || await db.open(exports.COLLECTION);
+		const dboType = dboReuse ? db.FAIL : db.DONE;
+		try {
+			const rs = await dbo.find({
+				where: {user_id: auth.accountId }
+			}, db.FAIL);
+			if(rs.length === 0){
+				return await dbo.insert({
+					user_id: auth.accountId,
+					spendings: [],
+					wallets: [],
+					type_spendings: []
+				}, dboType);
+			}
+			return rs[0];
+		}finally{
+			await dbo.close();
+		}
+	},
+
 	async find(fil = {}, auth, dboReuse) {
 		fil = exports.validate(fil, exports.VALIDATE.FIND);
 		fil.where.user_id = auth.accountId;

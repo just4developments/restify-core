@@ -27,12 +27,25 @@
 }
 
 {
+	des: 'Sync',
+	method: 'PUT',
+	url: 'http://localhost:9001/Sync/have.ice@gmail.com',
+	requestHeader: {
+		'content-type': 'application/json',
+		'token': '586bb85baa5bdf0644e494da-586bb875aa5bdf0644e494dd-5879a82ea7bdc7215c9a455f'
+	},
+	requestBody: {
+		
+	}
+}
+
+{
 	des: 'Update',
 	method: 'PUT',
 	url: 'http://localhost:9001/Spendings/5869377cdc355d1f5c49c964',
 	requestHeader: {
 		'content-type': 'application/json',
-		'token': '5866861fb439a60c787bff3b-5866894cd0b26a265843c378-58668956d0b26a265843c379'
+		'token': '586bb85baa5bdf0644e494da-586bb875aa5bdf0644e494dd-5879a82ea7bdc7215c9a455f'
 	},
 	requestBody: {
 		money: 100000,

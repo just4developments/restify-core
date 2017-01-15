@@ -3,7 +3,7 @@ const path = require('path');
 const _ = require('lodash');
 const unirest = require('unirest');
 
-const db = require('../db');
+const db0 = require('../db');
 const utils = require('../utils');
 
 /************************************
@@ -12,14 +12,16 @@ const utils = require('../utils');
  ** CREATED DATE: 12/30/2016, 11:32:25 PM
  *************************************/
 
-let addDataForUser = async (data) => {
-    db.url = 'mongodb://localhost:27017/sochitieu';
+let addDataForUser = async (db, data) => {
     let dbo = await db.open('ExpensiveNote');
     await dbo.insert(data);
 }
 exports = module.exports = async (email, auth) => {
     if(!email) return;
     const users = [];
+    const dbSochitieu = _.cloneDeep(db0);
+    dbSochitieu.url = 'mongodb://localhost:27017/sochitieu';
+    const db = _.cloneDeep(db0);
     db.url = 'mongodb://localhost:27017/savemoney';
     let dbo = await db.open('Spending');
     try{                
@@ -119,7 +121,7 @@ exports = module.exports = async (email, auth) => {
                 return e !== null;
             });
         }
-        if(spendings.length !== 0 || wallets.length !== 0 || type_spendings.length !== 0) {
+        if(spendings.length !== 0 || wallets.length !== 0 || typeSpendings.length !== 0) {
             let User = {
                 user_id: db.uuid(auth.accountId),
                 spendings,
@@ -127,7 +129,7 @@ exports = module.exports = async (email, auth) => {
                 type_spendings: typeSpendings,            
             };
             users.push(User);
-            await addDataForUser(User);
+            await addDataForUser(dbSochitieu, User);
             return true;
         }
     }finally{

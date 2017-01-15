@@ -1,5 +1,5 @@
 module.exports = {
-    listen: 9001,
+    listen: 9601,
     staticUrl: 'http://localhost:9601',
     db: {
         url: 'mongodb://localhost:27017/sochitieu'
