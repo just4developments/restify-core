@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
 BASEDIR=$(dirname "$0")
 cd "$BASEDIR"
-npm run pm2
+mongorestore --host 127.0.0.1
