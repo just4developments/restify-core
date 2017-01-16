@@ -50,7 +50,7 @@ server.get('/StatisticByMonth', utils.jsonHandler(), utils.auth('Spending', 'ADD
 			"spendings.input_date": {
 				$ne: 0
 			},
-			"spendings.is_monitor": 1
+			"spendings.is_bookmark": 1
 		};
 		if(utils.has(req.query.startDate)===true || utils.has(req.query.endDate)===true){
 			where["spendings.input_date"] = {};
@@ -67,7 +67,7 @@ server.get('/StatisticByMonth', utils.jsonHandler(), utils.auth('Spending', 'ADD
 server.get('/StatisticByTypeSpending', utils.jsonHandler(), utils.auth('Spending', 'ADD'), async(req, res, next) => {
 	try {
 		let where = {
-			"spendings.is_monitor": 1
+			"spendings.is_bookmark": 1
 		};
 		if(utils.has(req.query.type)) where['spendings.type'] = +req.query.type;
 		else where["spendings.input_date"] = { $ne: 0 };
@@ -83,7 +83,22 @@ server.get('/StatisticByTypeSpending', utils.jsonHandler(), utils.auth('Spending
 	}
 });
 
-
+server.get('/Spendings/Bookmark', utils.jsonHandler(), utils.auth('Spending', 'BOOKMARK'), async(req, res, next) => {
+	try {
+		let where = {
+			'spendings.is_bookmark': true
+		};
+		const rs = await SpendingsService.find({
+			where: where,
+			sort: {
+				input_date: 1
+			}
+		}, req.auth);
+		res.send(rs);
+	} catch (err) {
+		next(err);
+	}
+});
 
 server.get('/Spendings', utils.jsonHandler(), utils.auth('Spending', 'ADD'), async(req, res, next) => {
 	try {
@@ -125,7 +140,7 @@ server.post('/Spendings', utils.jsonHandler(), utils.auth('Spending', 'ADD'), as
 		if (utils.has(req.body.type_spending_id) === true) body.type_spending_id = req.body.type_spending_id;
 		if (utils.has(req.body.type) === true) body.type = req.body.type;
 		if (utils.has(req.body.wallet_id) === true) body.wallet_id = req.body.wallet_id;
-		if (utils.has(req.body.is_monitor) === true) body.is_monitor = utils.boolean(req.body.is_monitor);
+		if (utils.has(req.body.is_bookmark) === true) body.is_bookmark = utils.boolean(req.body.is_bookmark);
 
 		const rs = await SpendingsService.insert(body, req.auth);
 		res.send(rs);
@@ -144,9 +159,18 @@ server.put('/Spendings/:_id', utils.jsonHandler(), utils.auth('Spending', 'UPDAT
 		if (utils.has(req.body.type_spending_id) === true) body.type_spending_id = req.body.type_spending_id;
 		if (utils.has(req.body.type) === true) body.type = req.body.type;
 		if (utils.has(req.body.wallet_id) === true) body.wallet_id = req.body.wallet_id;
-		if (utils.has(req.body.is_monitor) === true) body.is_monitor = utils.boolean(req.body.is_monitor);
+		if (utils.has(req.body.is_bookmark) === true) body.is_bookmark = utils.boolean(req.body.is_bookmark);
 
 		const rs = await SpendingsService.update(body, req.auth);
+		res.send(rs);
+	} catch (err) {
+		next(err);
+	}
+})
+
+server.del('/Spendings/Bookmark/:_id', utils.jsonHandler(), utils.auth('Spending', 'UNBOOKMARK'), async(req, res, next) => {
+	try {
+		const rs = await SpendingsService.unbookmark(req.params._id, req.auth);
 		res.send(rs);
 	} catch (err) {
 		next(err);

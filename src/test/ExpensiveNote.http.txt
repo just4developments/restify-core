@@ -42,7 +42,7 @@ db.categories.createIndex( { children: 1 } )
 			// 	des: '',
 			// 	type_spending_id:,
 			// 	wallet_id:,
-			// 	is_monitor: 0
+			// 	is_bookmark: 0
 			// }
 		]
 	}
@@ -81,7 +81,7 @@ db.categories.createIndex( { children: 1 } )
 			des: ''
 			type_spending_id:
 			wallet_id:
-			is_monitor: 0
+			is_bookmark: 0
 		]
 	}
 }
@@ -114,7 +114,7 @@ db.categories.createIndex( { children: 1 } )
 		 	des: 'des',
 		 	type_spending_id: '58668c22e955e61a00c2bb76',
 		 	wallet_id: '58668c22e955e61a00c2bb75',
-		 	is_monitor: 0
+		 	is_bookmark: 0
 		}
 	}
 }

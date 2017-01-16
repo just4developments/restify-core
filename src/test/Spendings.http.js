@@ -12,7 +12,7 @@
 		des: 'sinh nhat',
 		type_spending_id: '58673106d4b88d2550c8e9a0',
 		wallet_id: '586730f5d4b88d2550c8e99e',
-		is_monitor: false
+		is_bookmark: false
 	}
 }
 
@@ -53,7 +53,7 @@
 		des: 'mua toi',
 		type_spending_id: '586730e9d4b88d2550c8e99d',
 		wallet_id: '586730e9d4b88d2550c8e99c',
-		is_monitor: true
+		is_bookmark: true
 	}
 }
 

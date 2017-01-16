@@ -124,6 +124,7 @@ exports = module.exports = {
 
 	async transfer(trans, auth, dboReuse) {
 		trans = exports.validate(trans, exports.VALIDATE.TRANSFER);
+		if(trans.money <= 0) return true;
 
 		const dbo = dboReuse || await db.open(exports.COLLECTION);
 		const dboType = dboReuse ? db.FAIL : db.DONE;
@@ -158,7 +159,6 @@ exports = module.exports = {
 				wallet_money0: fromWallet.money + trans.money,
 				wallet_money1: fromWallet.money,
 				wallet_id: fromWallet._id,
-				is_monitor: false,
 				type: 0,
 				input_date: trans.input_date,
 				date: trans.input_date.getDate(),
@@ -175,7 +175,6 @@ exports = module.exports = {
 				wallet_money0: toWallet.money - trans.money,
 				wallet_money1: toWallet.money,
 				wallet_id: fromWallet._id,
-				is_monitor: false,
 				type: 0,
 				input_date: trans.input_date,
 				date: trans.input_date.getDate(),
@@ -223,7 +222,6 @@ exports = module.exports = {
 					wallet_money0: 0,
 					wallet_money1: item.money,
 					wallet_id: item._id,
-					is_monitor: false,
 					type: 0,
 					input_date: timeUpdate,
 					date: timeUpdate.getDate(),
@@ -255,7 +253,7 @@ exports = module.exports = {
 					'wallets.$': item
 				}
 			});
-			if(timeUpdate) {
+			if(timeUpdate && item.money !== old.money) {
 				const TypeSpendingService = require('./TypeSpendings.service');
 				const typeSpendings = await TypeSpendingService.find({where: {
 					'type_spendings.name': 'Update wallet',
@@ -273,7 +271,6 @@ exports = module.exports = {
 					wallet_money0: old.money,
 					wallet_money1: item.money,
 					wallet_id: item._id,
-					is_monitor: false,
 					type: 0,
 					input_date: timeUpdate,
 					date: timeUpdate.getDate(),

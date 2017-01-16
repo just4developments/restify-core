@@ -25,7 +25,7 @@
 			des: ''
 			type_spending_id:
 			wallet_id:
-			is_monitor: false
+			is_bookmark: false
 		]
 	}
 }
@@ -63,7 +63,7 @@
 			des: ''
 			type_spending_id:
 			wallet_id:
-			is_monitor: false
+			is_bookmark: false
 		]
 	}
 }

@@ -49,7 +49,7 @@ exports = module.exports = {
 					item.spendings[i].des = utils.valid('des', item.spendings[i].des, String);
 					item.spendings[i].type_spending_id = db.uuid(utils.valid('type_spending_id', item.spendings[i].type_spending_id, [String, db.Uuid]));
 					item.spendings[i].wallet_id = db.uuid(utils.valid('wallet_id', item.spendings[i].wallet_id, [String, db.Uuid]));
-					item.spendings[i].is_monitor = utils.valid('is_monitor', item.spendings[i].is_monitor, Boolean, false);
+					item.spendings[i].is_bookmark = utils.valid('is_bookmark', item.spendings[i].is_bookmark, Boolean, false);
 				});
 
 				break;
@@ -79,7 +79,7 @@ exports = module.exports = {
 					item.spendings[i].des = utils.valid('des', item.spendings[i].des, String);
 					item.spendings[i].type_spending_id = db.uuid(utils.valid('type_spending_id', item.spendings[i].type_spending_id, [String, db.Uuid]));
 					item.spendings[i].wallet_id = db.uuid(utils.valid('wallet_id', item.spendings[i].wallet_id, [String, db.Uuid]));
-					item.spendings[i].is_monitor = utils.valid('is_monitor', item.spendings[i].is_monitor, Boolean, false);
+					item.spendings[i].is_bookmark = utils.valid('is_bookmark', item.spendings[i].is_bookmark, Boolean, false);
 				});
 
 				break;

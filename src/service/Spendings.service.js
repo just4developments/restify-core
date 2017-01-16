@@ -19,6 +19,7 @@ exports = module.exports = {
 		GET: 2,
 		DELETE: 3,
 		FIND: 4,
+		UNBOOKMARK: 5
 	},
 	validate(item, action) {
 		let msg;
@@ -31,7 +32,7 @@ exports = module.exports = {
 				item.udes = utils.toUnsign(item.des);
 				item.type_spending_id = db.uuid(utils.valid('type_spending_id', item.type_spending_id, [String, db.Uuid]));
 				item.wallet_id = db.uuid(utils.valid('wallet_id', item.wallet_id, [String, db.Uuid]));
-				item.is_monitor = utils.valid('is_monitor', item.is_monitor, Boolean, false);
+				item.is_bookmark = utils.valid('is_bookmark', item.is_bookmark, Boolean, false);
 				item.type = utils.valid('type', item.type, Number);
 				item.date = item.input_date.getDate();
 				item.month = item.input_date.getMonth();
@@ -46,7 +47,7 @@ exports = module.exports = {
 				item.udes = utils.toUnsign(item.des);
 				item.type_spending_id = db.uuid(utils.valid('type_spending_id', item.type_spending_id, [String, db.Uuid]));
 				item.wallet_id = db.uuid(utils.valid('wallet_id', item.wallet_id, [String, db.Uuid]));
-				item.is_monitor = utils.valid('is_monitor', item.is_monitor, Boolean, false);
+				item.is_bookmark = utils.valid('is_bookmark', item.is_bookmark, Boolean, false);
 				item.date = item.input_date.getDate();
 				item.month = item.input_date.getMonth();
 				item.year = item.input_date.getFullYear();
@@ -58,6 +59,10 @@ exports = module.exports = {
 
 				break;
 			case exports.VALIDATE.DELETE:
+				item = db.uuid(utils.valid('_id', item, [String, db.Uuid]));
+
+				break;
+			case exports.VALIDATE.UNBOOKMARK:
 				item = db.uuid(utils.valid('_id', item, [String, db.Uuid]));
 
 				break;
@@ -229,6 +234,27 @@ exports = module.exports = {
 				await WalletService.update(wallet, auth, dboReuse);
 			}
 			return item;
+		}, dboType);
+		return rs;
+	},
+	
+	async unbookmark(_id, auth, dboReuse) {
+		_id = exports.validate(_id, exports.VALIDATE.UNBOOKMARK);
+
+		const dbo = dboReuse || await db.open(exports.COLLECTION);
+		const dboType = dboReuse ? db.FAIL : db.DONE;
+		const rs = await dbo.manual(async(collection, dbo) => {
+			const rs = await collection.update({
+				user_id: auth.accountId,
+				"spendings._id": _id
+			}, {
+				$set: {
+					'spendings.$': {
+						is_bookmark: false
+					}
+				}
+			});
+			return rs;
 		}, dboType);
 		return rs;
 	},

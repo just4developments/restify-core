@@ -91,7 +91,6 @@ exports = module.exports = async (email, auth) => {
             spendings = spendings.map((e) => {
                 e.created_at = new Date(e.createdAt);
                 e.updated_at = new Date(e.updatedAt);
-                e.is_monitor = e.is_report;
                 e.input_date = new Date(e.created_date);
                 e.date = e.input_date.getDate();
                 e.month = e.input_date.getMonth();
@@ -107,7 +106,6 @@ exports = module.exports = async (email, auth) => {
                 delete e.created_date;
                 delete e.created_month;
                 delete e.created_year;
-                delete e.is_report;
                 delete e.email;
                 delete e.createdAt;
                 delete e.updatedAt;
