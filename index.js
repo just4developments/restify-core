@@ -7,48 +7,52 @@ let path = require('path');
  ** 
  *************************************/
 
-global.appconfig = require('./src/appconfig');
+let loadConfig = async () => {
+    global.appconfig = await require('./src/appconfig').loadConfig();
 
-global.server = restify.createServer();
+    global.server = restify.createServer();
 
-server.use(restify.queryParser());
-// server.use(restify.acceptParser(server.acceptable));
-// server.use(restify.dateParser());
-// server.use(restify.jsonp());
-// server.use(restify.gzipResponse());
-// server.use(restify.bodyParser());
-// server.use(restify.requestExpiry());
-// server.use(restify.conditionalRequest());
-// server.use(restify.CORS());
-// server.use(restify.fullResponse());
+    server.use(restify.queryParser());
+    // server.use(restify.acceptParser(server.acceptable));
+    // server.use(restify.dateParser());
+    // server.use(restify.jsonp());
+    // server.use(restify.gzipResponse());
+    // server.use(restify.bodyParser());
+    // server.use(restify.requestExpiry());
+    // server.use(restify.conditionalRequest());
+    // server.use(restify.CORS());
+    // server.use(restify.fullResponse());
 
-server.get(/\/images\/?.*/, restify.serveStatic({
-  directory: './assets'
-}));
+    server.get(/\/images\/?.*/, restify.serveStatic({
+    directory: './assets'
+    }));
 
-server.use(restify.CORS({
-    headers: ['token', 'isnew']
-}));
+    server.use(restify.CORS({
+        headers: ['token', 'isnew']
+    }));
 
-server.opts(/.*/, function (req,res,next) {
-    res.header("Access-Control-Allow-Origin", "*");
-    res.header("Access-Control-Allow-Methods", req.header("Access-Control-Request-Method"));
-    res.header("Access-Control-Allow-Headers", req.header("Access-Control-Request-Headers"));
-    res.send(200);
-    return next();
-});
-
-fs.readdir(path.join(__dirname, 'src', 'controller'), function (err, files) {
-    if (err) return console.error(err);
-    files.forEach((file) => {
-        if(file.indexOf('.js') != -1){
-            require(`./src/controller/${file}`);
-        } 
+    server.opts(/.*/, function (req,res,next) {
+        res.header("Access-Control-Allow-Origin", "*");
+        res.header("Access-Control-Allow-Methods", req.header("Access-Control-Request-Method"));
+        res.header("Access-Control-Allow-Headers", req.header("Access-Control-Request-Headers"));
+        res.send(200);
+        return next();
     });
-});
 
-require('./src/ui/index');
+    fs.readdir(path.join(__dirname, 'src', 'controller'), function (err, files) {
+        if (err) return console.error(err);
+        files.forEach((file) => {
+            if(file.indexOf('.js') != -1){
+                require(`./src/controller/${file}`);
+            } 
+        });
+    });
 
-server.listen(appconfig.listen, () => {
-    console.info("Server is running at %d", appconfig.listen);
-});
+    require('./src/ui/index');
+
+    server.listen(appconfig.listen, () => {
+        console.info("Server is running at %d", appconfig.listen);
+    });
+}
+
+loadConfig();
