@@ -17,6 +17,7 @@ server.get('/Wallet', utils.jsonHandler(), utils.auth('Wallet', 'FIND'),async(re
 		const rs = await WalletService.find({
 			where: where,
 			sort: {
+				'wallets.type': -1,
 				'wallets.oder': 1,
 				'wallets.name': 1
 			}
