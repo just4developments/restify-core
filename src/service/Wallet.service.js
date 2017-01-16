@@ -28,6 +28,7 @@ exports = module.exports = {
 				item.from = db.uuid(utils.valid('from wallet id', item.from, [String, db.Uuid]));
 				item.to = db.uuid(utils.valid('to wallet id', item.to, [String, db.Uuid]));
 				item.money = utils.valid('money', item.money, Number);
+				item.input_date = utils.valid('input_date', item.input_date, Date);
 
 				break;
 			case exports.VALIDATE.INSERT:
@@ -121,24 +122,6 @@ exports = module.exports = {
 		await dbo.close();
 	},
 
-	async insert(item, auth, dboReuse) {
-		item = exports.validate(item, exports.VALIDATE.INSERT);
-
-		const dbo = dboReuse || await db.open(exports.COLLECTION);
-		const dboType = dboReuse ? db.FAIL : db.DONE;
-		const rs = await dbo.manual(async(collection, dbo) => {
-			const rs = await collection.update({
-				user_id: auth.accountId
-			}, {
-				$push: {
-					'wallets': item
-				}
-			});
-			return item;
-		}, dboType);
-		return rs;
-	},
-
 	async transfer(trans, auth, dboReuse) {
 		trans = exports.validate(trans, exports.VALIDATE.TRANSFER);
 
@@ -151,21 +134,119 @@ exports = module.exports = {
 			if(!toWallet) throw 'To wallet not found';
 			fromWallet.money -= trans.money;
 			if(trans.money <= 0) throw 'Need money > 0';
-			toWallet.money += trans.money;
+			toWallet.money += trans.money;			
+			const TypeSpendingService = require('./TypeSpendings.service');
+			const SpendingService = require('./Spendings.service');
+			const typeSpendings = await TypeSpendingService.find({where: {
+				'type_spendings.name': {
+					$in: ['Transfer to wallet', 'Received from wallet']
+				},
+				'type_spendings.type': 0
+			}, sort: {
+				_id: 1
+			}}, auth, dbo);
+			if(typeSpendings.length !== 2) throw `Not found typeSpending in ['Transfer to wallet', 'Received from wallet']`;
 			await exports.update(fromWallet, auth, dbo);
 			await exports.update(toWallet, auth, dbo);
+			await SpendingService.insert({
+				_id: db.uuid(),
+				money: trans.money,
+				des: ``, //`Before ${fromWallet.money + trans.money}. After ${fromWallet.money}`,
+				type_spending_id: typeSpendings.find((e) => {
+					return e.name === 'Transfer to wallet'
+				})._id,
+				wallet_money0: fromWallet.money + trans.money,
+				wallet_money1: fromWallet.money,
+				wallet_id: fromWallet._id,
+				is_monitor: false,
+				type: 0,
+				input_date: trans.input_date,
+				date: trans.input_date.getDate(),
+				month: trans.input_date.getMonth(),
+				year: trans.input_date.getFullYear()
+			}, auth, dbo);
+			await SpendingService.insert({
+				_id: db.uuid(),
+				money: trans.money,
+				des: ``, // `Before ${toWallet.money - trans.money}. After ${toWallet.money}`,
+				type_spending_id: typeSpendings.find((e) => {
+					return e.name === 'Received from wallet'
+				})._id,
+				wallet_money0: toWallet.money - trans.money,
+				wallet_money1: toWallet.money,
+				wallet_id: fromWallet._id,
+				is_monitor: false,
+				type: 0,
+				input_date: trans.input_date,
+				date: trans.input_date.getDate(),
+				month: trans.input_date.getMonth(),
+				year: trans.input_date.getFullYear()
+			}, auth, dbo);
 		}finally {
 			await dbo.close();
 		}
 		return true;
 	},
 
-	async update(item, auth, dboReuse) {
-		item = exports.validate(item, exports.VALIDATE.UPDATE);
-
+	async insert(item, auth, dboReuse) {
+		item = exports.validate(item, exports.VALIDATE.INSERT);
+		let timeUpdate;
+		if(item.input_date) {
+			timeUpdate = _.clone(item.input_date);
+			delete item.input_date;
+		}
 		const dbo = dboReuse || await db.open(exports.COLLECTION);
 		const dboType = dboReuse ? db.FAIL : db.DONE;
 		const rs = await dbo.manual(async(collection, dbo) => {
+			const rs = await collection.update({
+				user_id: auth.accountId
+			}, {
+				$push: {
+					'wallets': item
+				}
+			});
+			if(timeUpdate) {
+				const TypeSpendingService = require('./TypeSpendings.service');
+				const typeSpendings = await TypeSpendingService.find({where: {
+					'type_spendings.name': 'Add new wallet',
+					'type_spendings.type': 0
+				}, sort: {
+					_id: 1
+				}}, auth, dbo);
+				if(typeSpendings.length !== 1) throw `Not found typeSpending in ['Add new wallet']`;
+				const SpendingService = require('./Spendings.service');
+				await SpendingService.insert({
+					_id: db.uuid(),
+					money: item.money,
+					des: ``, // `Before ${toWallet.money - trans.money}. After ${toWallet.money}`,
+					type_spending_id: typeSpendings[0]._id,
+					wallet_money0: 0,
+					wallet_money1: item.money,
+					wallet_id: item._id,
+					is_monitor: false,
+					type: 0,
+					input_date: timeUpdate,
+					date: timeUpdate.getDate(),
+					month: timeUpdate.getMonth(),
+					year: timeUpdate.getFullYear()
+				}, auth, dbo);
+			}
+			return item;
+		}, dboType);
+		return rs;
+	},
+
+	async update(item, auth, dboReuse) {
+		item = exports.validate(item, exports.VALIDATE.UPDATE);
+		let timeUpdate;
+		if(item.input_date) {
+			timeUpdate = _.clone(item.input_date);
+			delete item.input_date;
+		}
+		const dbo = dboReuse || await db.open(exports.COLLECTION);
+		const dboType = dboReuse ? db.FAIL : db.DONE;
+		const rs = await dbo.manual(async(collection, dbo) => {
+			const old = await exports.get(item._id, auth, dbo);
 			const rs = await collection.update({
 				user_id: auth.accountId,
 				"wallets._id": item._id
@@ -174,6 +255,32 @@ exports = module.exports = {
 					'wallets.$': item
 				}
 			});
+			if(timeUpdate) {
+				const TypeSpendingService = require('./TypeSpendings.service');
+				const typeSpendings = await TypeSpendingService.find({where: {
+					'type_spendings.name': 'Update wallet',
+					'type_spendings.type': 0
+				}, sort: {
+					_id: 1
+				}}, auth, dbo);
+				if(typeSpendings.length !== 1) throw `Not found typeSpending in ['Update wallet']`;
+				const SpendingService = require('./Spendings.service');
+				await SpendingService.insert({
+					_id: db.uuid(),
+					money: item.money - old.money,
+					des: ``, // `Before ${toWallet.money - trans.money}. After ${toWallet.money}`,
+					type_spending_id: typeSpendings[0]._id,
+					wallet_money0: old.money,
+					wallet_money1: item.money,
+					wallet_id: item._id,
+					is_monitor: false,
+					type: 0,
+					input_date: timeUpdate,
+					date: timeUpdate.getDate(),
+					month: timeUpdate.getMonth(),
+					year: timeUpdate.getFullYear()
+				}, auth, dbo);
+			}
 			return item;
 		}, dboType);
 		return rs;

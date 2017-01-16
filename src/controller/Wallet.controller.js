@@ -44,6 +44,7 @@ server.post('/Wallet', utils.jsonHandler(), utils.auth('Wallet', 'ADD'), async(r
 		if (utils.has(req.body.name) === true) body.name = req.body.name;
 		if (utils.has(req.body.money) === true) body.money = +req.body.money;
 		if (utils.has(req.body.type) === true) body.type = +req.body.type;
+		if (utils.has(req.body.input_date) === true) body.input_date = utils.date(req.body.input_date);
 
 		const rs = await WalletService.insert(body, req.auth);
 		res.send(rs);
@@ -58,6 +59,7 @@ server.put('/Wallet/Transfer', utils.jsonHandler(), utils.auth('Wallet', 'TRANSF
 		if (utils.has(req.body.from) === true) body.from = req.body.from;
 		if (utils.has(req.body.to) === true) body.to = req.body.to;
 		if (utils.has(req.body.money) === true) body.money = +req.body.money;
+		if (utils.has(req.body.input_date) === true) body.input_date = utils.date(req.body.input_date);
 
 		const rs = await WalletService.transfer(body, req.auth);
 		res.send(rs);
@@ -74,6 +76,7 @@ server.put('/Wallet/:_id', utils.jsonHandler(), utils.auth('Wallet', 'UPDATE'), 
 		if (utils.has(req.body.name) === true) body.name = req.body.name;
 		if (utils.has(req.body.money) === true) body.money = +req.body.money;
 		if (utils.has(req.body.type) === true) body.type = +req.body.type;
+		if (utils.has(req.body.input_date) === true) body.input_date = utils.date(req.body.input_date);
 
 		const rs = await WalletService.update(body, req.auth);
 		res.send(rs);
