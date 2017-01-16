@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node --expose-gc --harmony-async-await index.js",
     "gen": "node ./lib/generate/gen.js",
-    "pm2": "pm2 start --node-args=\"--expose-gc --harmony-async-await\""
+    "pm2": "pm2 start index.js --node-args=\"--expose-gc --harmony-async-await\" --name \"validium-auth\""
   },
   "repository": {
     "type": "git",

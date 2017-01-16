@@ -1,7 +1,7 @@
 exports = module.exports = {
     // configFile: 'D:\\sources\\validium-api\\validium.cfg',
     configFile: '/etc/validium/validium.cfg',
-    listen: 9600,
+    // listen: 9600,
     db: {
         // url: 'mongodb://localhost:27017/authtwo'
     },
