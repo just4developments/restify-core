@@ -43,6 +43,22 @@ server.get('/Me', utils.jsonHandler(), utils.auth, async(req, res, next) => {
 	}
 });
 
+// Update my information
+server.put('/Me', utils.jsonHandler(), utils.auth, async(req, res, next) => {
+	try {
+		let body = {};
+		if (utils.has(req.body.recover_by) === true) body.recover_by = req.body.recover_by;
+		if (utils.has(req.body.password) === true) body.password = req.body.password;
+		if (utils.has(req.body.old_password) === true) body.old_password = req.body.old_password;
+		if (utils.has(req.body.more) === true) body.more = utils.object(req.body.more);		
+
+		const rs = await AccountService.update(body, req.auth);
+		res.send(rs);
+	} catch (err) {
+		next(err);
+	}
+})
+
 // Check author
 server.head('/Authoriz', utils.jsonHandler(), utils.auth, async(req, res, next) => {
 	try {
@@ -89,6 +105,7 @@ server.post('/Login', utils.jsonHandler(), async(req, res, next) => {
 			if (utils.has(req.body.password) === true) body.password = req.body.password;
 			if (utils.has(req.headers.app) === true) body.app = req.headers.app;
 			if (utils.has(req.body.status) === true) body.status = +req.body.status;
+			if (utils.has(req.body.recover_by) === true) body.recover_by = req.body.recover_by;
 			if (utils.has(req.body.more) === true) body.more = utils.object(req.body.more);
 			if (utils.has(req.body.roles) === true) body.roles = utils.object(req.body.roles);
 
@@ -109,7 +126,9 @@ server.post('/Account', utils.jsonHandler(), async(req, res, next) => {
 		let body = {};
 		if (utils.has(req.body.username) === true) body.username = req.body.username;
 		if (utils.has(req.body.password) === true) body.password = req.body.password;
+		if (utils.has(req.headers.app) === true) body.app = req.headers.app;
 		if (utils.has(req.body.status) === true) body.status = +req.body.status;
+		if (utils.has(req.body.recover_by) === true) body.recover_by = req.body.recover_by;
 		if (utils.has(req.body.more) === true) body.more = utils.object(req.body.more);
 		if (utils.has(req.body.roles) === true) body.roles = utils.object(req.body.roles);
 

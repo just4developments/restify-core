@@ -37,6 +37,7 @@ exports = module.exports = {
 				else if(item.password) item.password = utils.valid('password', item.password, String);
 				else item.app = utils.valid('app', item.app, String);
 				item.status = utils.valid('status', item.status, Number, 0);
+				// item.recover_by = utils.valid('recover_by', item.recover_by, String);
 				if(item.more) item.more = utils.valid('more', item.more, Object);
 				item.roles = utils.valid('roles', item.roles, Array);
 				if(item.roles.length === 0) throw new restify.BadRequestError(`roles is required`);
@@ -45,9 +46,16 @@ exports = module.exports = {
 
 				break;
 			case exports.VALIDATE.UPDATE:
-				item._id = db.uuid(utils.valid('_id', item._id, String));
-				item.status = utils.valid('status', item.status, Number, 0);
+				item._id = db.uuid(utils.valid('_id', item._id, [String, db.Uuid]));
+				// item.recover_by = utils.valid('recover_by', item.recover_by, String);
+				if(item.status) item.status = utils.valid('status', item.status, Number);
 				if(item.more) item.more = utils.valid('more', item.more, Object);
+				if(item.old_password || item.password){
+					if(item.old_password === item.password) {
+						delete item.old_password;
+						delete item.password;
+					}
+				}
 				item.updated_at = new Date();
 
 				break;
@@ -75,7 +83,8 @@ exports = module.exports = {
 		const dboType = dboReuse ? db.FAIL : db.DONE;
 		const rs = await dbo.manual(async(collection, dbo) => {
 			return await collection.findOne({
-				'accounts.token': db.uuid(auth.token)
+				_id: auth.projectId,
+				'accounts._id': auth.accountId
 			}, {
 				'accounts.$': 1,
 			});
@@ -143,10 +152,10 @@ exports = module.exports = {
 		return account;
 	},
 
-	async getAccountCached(token, isReload){
-		let account = await CachedService.get(`account.${token}`);
+	async getAccountCached(auth, isReload){
+		let account = await CachedService.get(`account.${auth.token}`);
 		if(!account) throw new restify.RequestTimeoutError('Not found account in cache');
-		await CachedService.touch(`account.${token}`, 1800);
+		await CachedService.touch(`account.${auth.token}`, 1800);
 		return account;
 	},
 
@@ -155,7 +164,7 @@ exports = module.exports = {
 		const projectService = require('./Project.service');
 		const roles = await projectService.getRolesCached(auth.projectId);
 		if(!roles) throw new restify.InternalServerError('Could not found the project');
-		const acc = await exports.getAccountCached(auth.token);
+		const acc = await exports.getAccountCached(auth);
 		for(let accRole of acc.roles){
 			const role = roles[accRole].api;
 			if(!role) throw new restify.InternalServerError(`Not found ${accRole} in global roles`);
@@ -180,7 +189,7 @@ exports = module.exports = {
 		const projectService = require('./Project.service');
 		const roles = await projectService.getRolesCached(auth.projectId);
 		if(!roles) throw new restify.InternalServerError('Could not found the project');
-		const acc = await exports.getAccountCached(auth.token);
+		const acc = await exports.getAccountCached(auth);
 		let accRoles = [];
 		for(let accRole of acc.roles){
 			const role = roles[accRole][mode];
@@ -223,7 +232,7 @@ exports = module.exports = {
 			}, {
 				'accounts.$.roles': 1
 			}, dboType);
-		});
+		}, dboType);
 		return rs.accounts.length === 1 ? rs.accounts[0] : null;
 	},
 
@@ -285,35 +294,31 @@ exports = module.exports = {
 		return item;
 	},
 
-	
+	async update(item, auth, dboReuse) {
+		item._id = auth.accountId;
 
-	async update(projectId, accountId, infor, dboReuse) {
-		try {
-			item = exports.validate(item, exports.VALIDATE.UPDATE);
+		const dbo = dboReuse || await db.open(exports.COLLECTION);
+		const dboType = dboReuse ? db.FAIL : db.DONE;
+		const old = await exports.get(auth.projectId, auth.accountId, dbo);
+		item = _.merge({}, old, item);
+		exports.validate(item, exports.VALIDATE.UPDATE);
 
-			const dbo = dboReuse || await db.open(exports.COLLECTION);
-			const dboType = dboReuse ? db.FAIL : db.DONE;
-			roles = await dbo.manual(async (collection, dbo) => {
-				await collection.update({
-					_id: db.uuid(projectId),
-					'accounts._id': db.uuid(item._id)
-				}, {
-					$set: {
-						'accounts.$.status': roles
-					}
-				}, false, true);
-				return roles;
-			});
-			return roles;
-
-			// utils.deleteFile(utils.getAbsoluteUpload(oldItem.avatar, path.join(__dirname, '..', '..', 'assets', 'avatar', '')), global.appconfig.app.imageResize.avatar);
-
-			return rs;
-		} catch (err) {
-			// utils.deleteFile(utils.getAbsoluteUpload(item.avatar, path.join(__dirname, '..', '..', 'assets', 'avatar', '')), global.appconfig.app.imageResize.avatar);
-
-			throw err;
+		if(item.password || item.old_password){
+			if(item.old_password !== old.password && !old.app) throw new restify.BadRequestError('Old password is not matched');
+			delete item.old_password;
 		}
+
+		const rs = await dbo.manual(async (collection, dbo) => {			
+			return await collection.update({
+				_id: auth.projectId,
+				'accounts._id': auth.accountId
+			}, {
+				$set: {
+					'accounts.$': item
+				}
+			});
+		}, dboType);
+		return rs;
 	},
 
 	async delete(projectId0, _id0, dboReuse) {

@@ -117,7 +117,7 @@
 {
 	des: 'Update project',
 	method: 'PUT',
-	url: 'http://localhost:9600/Project/586bb85baa5bdf0644e494da',
+	url: 'http://localhost:9600/Project/586b55c48a1b181fa80d39a5',
 	requestHeader: {
 		'content-type': 'application/json'
 	},
