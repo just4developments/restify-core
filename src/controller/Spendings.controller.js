@@ -16,13 +16,11 @@ server.put('/Sync/:email', utils.jsonHandler(), utils.auth('Common', 'SYNC'), as
 		let email = req.params.email;
 		let isnew = req.body.isnew;
 		if(isnew) {
-			let wallets = await require('../service/Wallet.service').find({where: {}, sort: {'wallets.oder': 1, 'wallets.name': 1}}, req.auth);
+			let wallets = await require('../service/Wallet.service').find({where: {}, sort: {'wallets._id': 1}}, req.auth);
 			if(wallets.length === 0){
-				let typeSpendings = await require('../service/TypeSpendings.service').find({where: {}, sort: {"type_spendings.parent_id": 1,
-					'type_spendings.oder': 1,
-					'type_spendings.uname': 1}}, req.auth);
+				let typeSpendings = await require('../service/TypeSpendings.service').find({where: {}, sort: {"type_spendings._id": 1}}, req.auth);
 				if(typeSpendings.length === 0){
-					let spendings = await SpendingsService.find({where: {}, sort: {input_date: -1}}, req.auth);
+					let spendings = await SpendingsService.find({where: {}, sort: {"spendings._id": 1}}, req.auth);
 					if(spendings.length === 0){
 						let m = require('../service/Merge.service');
 						if(await m(email, req.auth)) {
