@@ -196,6 +196,10 @@ exports = module.exports = {
 		}
 		const dbo = dboReuse || await db.open(exports.COLLECTION);
 		const dboType = dboReuse ? db.FAIL : db.DONE;
+		const isApplyToSpending = _.clone(item.isApplyToSpending);
+		const des = _.clone(item.des);
+		delete item.isApplyToSpending;
+		delete item.des;
 		const rs = await dbo.manual(async(collection, dbo) => {
 			const rs = await collection.update({
 				user_id: auth.accountId
@@ -217,12 +221,12 @@ exports = module.exports = {
 				await SpendingService.insert({
 					_id: db.uuid(),
 					money: item.money,
-					des: ``, // `Before ${toWallet.money - trans.money}. After ${toWallet.money}`,
+					des: des,
 					type_spending_id: typeSpendings[0]._id,
 					wallet_money0: 0,
 					wallet_money1: item.money,
 					wallet_id: item._id,
-					type: 0,
+					type: isApplyToSpending ? (item.money/Math.abs(item.money)) : 0,
 					input_date: timeUpdate,
 					date: timeUpdate.getDate(),
 					month: timeUpdate.getMonth(),
@@ -241,6 +245,10 @@ exports = module.exports = {
 			timeUpdate = _.clone(item.input_date);
 			delete item.input_date;
 		}
+		const isApplyToSpending = _.clone(item.isApplyToSpending);
+		const des = _.clone(item.des);
+		delete item.isApplyToSpending;
+		delete item.des;
 		const dbo = dboReuse || await db.open(exports.COLLECTION);
 		const dboType = dboReuse ? db.FAIL : db.DONE;
 		const rs = await dbo.manual(async(collection, dbo) => {
@@ -266,12 +274,12 @@ exports = module.exports = {
 				await SpendingService.insert({
 					_id: db.uuid(),
 					money: item.money - old.money,
-					des: ``, // `Before ${toWallet.money - trans.money}. After ${toWallet.money}`,
+					des: des,
 					type_spending_id: typeSpendings[0]._id,
 					wallet_money0: old.money,
 					wallet_money1: item.money,
 					wallet_id: item._id,
-					type: 0,
+					type: isApplyToSpending ? (item.money - old.money)/Math.abs(item.money - old.money) : 0,
 					input_date: timeUpdate,
 					date: timeUpdate.getDate(),
 					month: timeUpdate.getMonth(),

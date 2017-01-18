@@ -47,11 +47,9 @@ server.put('/Sync/:email', utils.jsonHandler(), utils.auth('Common', 'SYNC'), as
 server.get('/StatisticByMonth', utils.jsonHandler(), utils.auth('Spending', 'ADD'), async(req, res, next) => {
 	try {
 		let where = {
-			"spendings.input_date": {
-				$ne: 0
-			},
-			"spendings.is_bookmark": 1
+			"spendings.is_bookmark": false
 		};
+		where["spendings.type"] = { $ne: 0 };
 		if(utils.has(req.query.startDate)===true || utils.has(req.query.endDate)===true){
 			where["spendings.input_date"] = {};
 			if(utils.has(req.query.startDate)===true) where["spendings.input_date"]["$gte"] = new Date(req.query.startDate);
@@ -67,10 +65,10 @@ server.get('/StatisticByMonth', utils.jsonHandler(), utils.auth('Spending', 'ADD
 server.get('/StatisticByTypeSpending', utils.jsonHandler(), utils.auth('Spending', 'ADD'), async(req, res, next) => {
 	try {
 		let where = {
-			"spendings.is_bookmark": 1
+			"spendings.is_bookmark": false
 		};
 		if(utils.has(req.query.type)) where['spendings.type'] = +req.query.type;
-		else where["spendings.input_date"] = { $ne: 0 };
+		else where["spendings.type"] = { $ne: 0 };
 		if(utils.has(req.query.startDate)===true || utils.has(req.query.endDate)===true){
 			where["spendings.input_date"] = {};
 			if(utils.has(req.query.startDate)===true) where["spendings.input_date"]["$gte"] = new Date(req.query.startDate);

@@ -244,14 +244,14 @@ exports = module.exports = {
 		const dbo = dboReuse || await db.open(exports.COLLECTION);
 		const dboType = dboReuse ? db.FAIL : db.DONE;
 		const rs = await dbo.manual(async(collection, dbo) => {
+			let item = await exports.get(_id, auth, dbo);
+			item.is_bookmark = false;
 			const rs = await collection.update({
 				user_id: auth.accountId,
 				"spendings._id": _id
 			}, {
 				$set: {
-					'spendings.$': {
-						is_bookmark: false
-					}
+					'spendings.$': item
 				}
 			});
 			return rs;
