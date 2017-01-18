@@ -246,11 +246,11 @@ exports = module.exports = {
 		const users = await dbo.find({where: where, fields: { 'accounts.$': 1} });
 		if(users.length === 1 && users[0].accounts.length === 1) {
 			const user = users[0].accounts[0];
+			if(user.password && user.password === password) return user;	
 			if(user.app) {
 				if(new RegExp(user.app, 'g').test(app)) return user;
 				throw new restify.BadRequestError("WRONG_APP");	
-			}else {
-				if(user.password === password) return user;	
+			}else {				
 				throw new restify.BadRequestError("WRONG_PASS");					
 			}
 		}
