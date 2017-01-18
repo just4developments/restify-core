@@ -300,13 +300,14 @@ exports = module.exports = {
 		const dbo = dboReuse || await db.open(exports.COLLECTION);
 		const dboType = dboReuse ? db.FAIL : db.DONE;
 		const old = await exports.get(auth.projectId, auth.accountId, dbo);
-		item = _.merge({}, old, item);
-		exports.validate(item, exports.VALIDATE.UPDATE);
 
 		if(item.password || item.old_password){
-			if(item.old_password !== old.password && !old.app) throw new restify.BadRequestError('Old password is not matched');
-			delete item.old_password;
+			if(old.password && item.old_password !== old.password) throw new restify.BadRequestError('Old password is not matched');
+			delete item.old_password;					
 		}
+
+		item = _.merge({}, old, item);
+		exports.validate(item, exports.VALIDATE.UPDATE);		
 
 		const rs = await dbo.manual(async (collection, dbo) => {			
 			return await collection.update({
@@ -318,7 +319,7 @@ exports = module.exports = {
 				}
 			});
 		}, dboType);
-		return rs;
+		return item;
 	},
 
 	async delete(projectId0, _id0, dboReuse) {
