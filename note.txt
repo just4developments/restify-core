@@ -1,0 +1,2 @@
+1. CHuot lai code auth
+2. Merge lai mongodb.js, gen code tu auth
