@@ -111,7 +111,7 @@ exports = module.exports = {
 			{ oder: 1, name: 'Update wallet', icon: [0, 10], type: 0},
 			//Earning
 			{ oder: 1, name: 'Lương', icon: [9, 2], type: 1,
-				inner: [
+				childs: [
 					{ oder: 2, name: 'Thưởng', icon: [7, 9], type: 1 }
 				] 
 			},

@@ -13,25 +13,22 @@ const utils = require('../utils');
  *************************************/
 
 let addDataForUser = async (db, data) => {
-    let dbo = await db.open('ExpensiveNote');
+    let dbo = await db.open('ExpensiveNote', 'mongodb://localhost:27017/sochitieu');
     await dbo.insert(data);
 }
 exports = module.exports = async (email, auth) => {
     if(!email) return;
     const users = [];
     const dbSochitieu = _.cloneDeep(db0);
-    dbSochitieu.url = 'mongodb://localhost:27017/sochitieu';
     const db = _.cloneDeep(db0);
-    db.url = 'mongodb://localhost:27017/savemoney';
-    let dbo = await db.open('Spending');
-    try{                
-        dbo.collection = 'Wallet';
+    let dbo = await db.open('Spending', 'mongodb://localhost:27017/savemoney');
+    try{
         let wallets = await dbo.find({
             where: {
                 email: email,
                 removed: 0
             }
-        }, db.FAIL);
+        }, {collection: 'Wallet', close: db.FAIL});
         let tmpWallet = {};        
         if(wallets.length !== 0) {            
             wallets = wallets.map((e) => {
@@ -51,7 +48,6 @@ exports = module.exports = async (email, auth) => {
                 return e; 
             });
         }
-        dbo.collection = 'TypeSpending';
         let tmpTypeSpending = {};     
         let typeSpendings = await dbo.find({
             where: {
@@ -61,7 +57,7 @@ exports = module.exports = async (email, auth) => {
             sort: {
                 parent_id: 1
             }
-        }, db.FAIL);
+        }, {collection: 'TypeSpending', close: db.FAIL});
         if(typeSpendings.length !== 0) {
             typeSpendings = typeSpendings.map((e) => {
                 tmpTypeSpending[e.ID] = e._id;
@@ -80,13 +76,12 @@ exports = module.exports = async (email, auth) => {
                 return e; 
             });
         }
-        dbo.collection = 'Spending';
         let spendings = await dbo.find({
             where: {
                 email: email,
                 removed: 0
             }
-        }, db.FAIL);
+        }, {collection: 'Spending', close: db.FAIL});
         if(spendings.length !== 0) {
             spendings = spendings.map((e) => {
                 e.created_at = new Date(e.createdAt);
