@@ -45,7 +45,9 @@ server.put('/Sync/:email', utils.jsonHandler(), utils.auth('Common', 'SYNC'), as
 server.get('/StatisticByMonth', utils.jsonHandler(), utils.auth('Spending', 'ADD'), async(req, res, next) => {
 	try {
 		let where = {
-			"spendings.is_bookmark": false
+			"spendings.sign_money": {
+				$ne: 0
+			}
 		};
 		where["spendings.type"] = { $ne: 0 };
 		if(utils.has(req.query.startDate)===true || utils.has(req.query.endDate)===true){
@@ -63,7 +65,9 @@ server.get('/StatisticByMonth', utils.jsonHandler(), utils.auth('Spending', 'ADD
 server.get('/StatisticByTypeSpending', utils.jsonHandler(), utils.auth('Spending', 'ADD'), async(req, res, next) => {
 	try {
 		let where = {
-			"spendings.is_bookmark": false
+			"spendings.sign_money": {
+				$ne: 0
+			}
 		};
 		if(utils.has(req.query.type)) where['spendings.type'] = +req.query.type;
 		else where["spendings.type"] = { $ne: 0 };

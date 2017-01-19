@@ -37,6 +37,7 @@ exports = module.exports = {
 				item.name = utils.valid('name', item.name, String);
 				item.money = utils.valid('money', item.money, Number, 0);
 				item.type = utils.valid('type', item.type, Number, 0);
+				// item.input_date = utils.valid('input_date', item.input_date, Date);
 
 				break;
 			case exports.VALIDATE.UPDATE:
@@ -45,6 +46,7 @@ exports = module.exports = {
 				item.name = utils.valid('name', item.name, String);
 				item.money = utils.valid('money', item.money, Number, 0);
 				item.type = utils.valid('type', item.type, Number, 0);
+				// item.input_date = utils.valid('input_date', item.input_date, Date);
 
 				break;
 			case exports.VALIDATE.GET:
@@ -116,7 +118,7 @@ exports = module.exports = {
 			{name: 'Tiền tiết kiệm', icon: [6, 3], type: 0, money: 0, oder: 4}
 		].map(async (e) => {
 			e.icon = `-${e.icon[0]*53}px -${e.icon[1]*64}px`;
-			await exports.insert(e, auth, dbo);
+			await exports.insert(e, auth, dbo, false);
 			return e;
 		});
 		await dbo.close();
@@ -156,44 +158,42 @@ exports = module.exports = {
 				type_spending_id: typeSpendings.find((e) => {
 					return e.name === 'Transfer to wallet'
 				})._id,
+				sign_money: 0,
 				wallet_money0: fromWallet.money + trans.money,
 				wallet_money1: fromWallet.money,
 				wallet_id: fromWallet._id,
-				type: 0,
+				type: -1,
 				input_date: trans.input_date,
 				date: trans.input_date.getDate(),
 				month: trans.input_date.getMonth(),
 				year: trans.input_date.getFullYear()
-			}, auth, dbo);
+			}, auth, dbo, false);
 			await SpendingService.insert({
 				_id: db.uuid(),
 				money: trans.money,
+				sign_money: 0,
 				des: ``, // `Before ${toWallet.money - trans.money}. After ${toWallet.money}`,
 				type_spending_id: typeSpendings.find((e) => {
 					return e.name === 'Received from wallet'
 				})._id,
 				wallet_money0: toWallet.money - trans.money,
 				wallet_money1: toWallet.money,
-				wallet_id: fromWallet._id,
-				type: 0,
+				wallet_id: toWallet._id,
+				type: 1,
 				input_date: trans.input_date,
 				date: trans.input_date.getDate(),
 				month: trans.input_date.getMonth(),
 				year: trans.input_date.getFullYear()
-			}, auth, dbo);
+			}, auth, dbo, false);
 		}finally {
 			await dbo.close();
 		}
-		return true;
+		return {};
 	},
 
-	async insert(item, auth, dboReuse) {
+	async insert(item, auth, dboReuse, isAddSpending=true) {
 		item = exports.validate(item, exports.VALIDATE.INSERT);
-		let timeUpdate;
-		if(item.input_date) {
-			timeUpdate = _.clone(item.input_date);
-			delete item.input_date;
-		}
+		let timeUpdate = isAddSpending ? _.clone(item.input_date) : null;
 		const dbo = dboReuse || await db.open(exports.COLLECTION);
 		const dboType = dboReuse ? db.FAIL : db.DONE;
 		const isApplyToSpending = _.clone(item.isApplyToSpending);
@@ -221,17 +221,18 @@ exports = module.exports = {
 				await SpendingService.insert({
 					_id: db.uuid(),
 					money: item.money,
+					sign_money: isApplyToSpending ? item.money : 0,
 					des: des,
 					type_spending_id: typeSpendings[0]._id,
 					wallet_money0: 0,
 					wallet_money1: item.money,
 					wallet_id: item._id,
-					type: isApplyToSpending ? (item.money/Math.abs(item.money)) : 0,
+					type: isApplyToSpending ? (item.money >= 0 ? 1 : -1) : 0,
 					input_date: timeUpdate,
 					date: timeUpdate.getDate(),
 					month: timeUpdate.getMonth(),
 					year: timeUpdate.getFullYear()
-				}, auth, dbo);
+				}, auth, dbo, false);
 			}
 			return item;
 		}, dboType);
@@ -273,18 +274,19 @@ exports = module.exports = {
 				const SpendingService = require('./Spendings.service');
 				await SpendingService.insert({
 					_id: db.uuid(),
-					money: item.money - old.money,
+					money: Math.abs(item.money - old.money),
+					sign_money: isApplyToSpending ? (item.money - old.money) : 0,
 					des: des,
 					type_spending_id: typeSpendings[0]._id,
 					wallet_money0: old.money,
 					wallet_money1: item.money,
 					wallet_id: item._id,
-					type: isApplyToSpending ? (item.money - old.money)/Math.abs(item.money - old.money) : 0,
+					type: isApplyToSpending ? (item.money - old.money >= 0 ? 1 : -1) : 0,
 					input_date: timeUpdate,
 					date: timeUpdate.getDate(),
 					month: timeUpdate.getMonth(),
 					year: timeUpdate.getFullYear()
-				}, auth, dbo);
+				}, auth, dbo, false);
 			}
 			return item;
 		}, dboType);

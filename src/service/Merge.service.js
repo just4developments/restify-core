@@ -32,7 +32,7 @@ exports = module.exports = async (email, auth) => {
         let tmpWallet = {};        
         if(wallets.length !== 0) {            
             wallets = wallets.map((e) => {
-                tmpWallet[e.ID] = e._id;
+                tmpWallet[e.ID] = e;
                 e.created_at = new Date(e.createdAt);
                 e.updated_at = new Date(e.updatedAt);
                 e.type = e.avail;
@@ -60,7 +60,7 @@ exports = module.exports = async (email, auth) => {
         }, {collection: 'TypeSpending', close: db.FAIL});
         if(typeSpendings.length !== 0) {
             typeSpendings = typeSpendings.map((e) => {
-                tmpTypeSpending[e.ID] = e._id;
+                tmpTypeSpending[e.ID] = e;
                 e.created_at = new Date(e.createdAt);
                 e.updated_at = new Date(e.updatedAt);
                 e.uname = utils.toUnsign(e.name);
@@ -84,19 +84,20 @@ exports = module.exports = async (email, auth) => {
         }, {collection: 'Spending', close: db.FAIL});
         if(spendings.length !== 0) {
             spendings = spendings.map((e) => {
+                let typeSpending = tmpTypeSpending[e.type_spending_id];
+                let wallet = tmpWallet[e.wallet_id];
+                if(!typeSpending || !wallet) return null;
                 e.created_at = new Date(e.createdAt);
                 e.updated_at = new Date(e.updatedAt);
                 e.input_date = new Date(e.created_date);
                 e.date = e.input_date.getDate();
                 e.month = e.input_date.getMonth();
                 e.year = e.input_date.getFullYear();
-                e.udes = utils.toUnsign(e.des);
-                let tmp = e.type_spending_id;
-                e.type_spending_id = tmpTypeSpending[e.type_spending_id];
-                e.wallet_id = tmpWallet[e.wallet_id];
-                if(!e.type_spending_id || !e.wallet_id) {
-                    return null;
-                }
+                e.udes = e.des ? utils.toUnsign(e.des) : null;
+                e.type_spending_id = typeSpending._id;
+                e.wallet_id = wallet._id;
+                e.sign_money = e.is_report ? (e.money * e.type) : 0;
+                delete e.is_report;
                 delete e.created_day;
                 delete e.created_date;
                 delete e.created_month;

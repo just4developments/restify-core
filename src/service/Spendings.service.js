@@ -26,7 +26,7 @@ exports = module.exports = {
 		switch (action) {
 			case exports.VALIDATE.INSERT:
 				item._id = db.uuid();
-				item.money = utils.valid('money', item.money, Number, 0);
+				item.money = utils.valid('money', item.money, Number, 0);				
 				item.input_date = utils.valid('input_date', item.input_date, Date);
 				item.des = utils.valid('des', item.des, String, '');
 				item.udes = utils.toUnsign(item.des);
@@ -34,6 +34,7 @@ exports = module.exports = {
 				item.wallet_id = db.uuid(utils.valid('wallet_id', item.wallet_id, [String, db.Uuid]));
 				item.is_bookmark = utils.valid('is_bookmark', item.is_bookmark, Boolean, false);
 				item.type = utils.valid('type', item.type, Number);
+				if(utils.has(item.sign_money) !== true) item.sign_money = item.money * item.type;
 				item.date = item.input_date.getDate();
 				item.month = item.input_date.getMonth();
 				item.year = item.input_date.getFullYear();
@@ -52,6 +53,7 @@ exports = module.exports = {
 				item.month = item.input_date.getMonth();
 				item.year = item.input_date.getFullYear();
 				item.type = utils.valid('type', item.type, Number);
+				if(utils.has(item.sign_money) !== true) item.sign_money = item.money * item.type;
 
 				break;
 			case exports.VALIDATE.GET:
@@ -214,7 +216,7 @@ exports = module.exports = {
 		return rs;
 	},
 
-	async insert(item, auth, dboReuse) {
+	async insert(item, auth, dboReuse, isUpdateWallet = true) {
 		item = exports.validate(item, exports.VALIDATE.INSERT);
 
 		const dbo = dboReuse || await db.open(exports.COLLECTION);
@@ -227,10 +229,10 @@ exports = module.exports = {
 					'spendings': item
 				}
 			});
-			if(item.money > 0){ // check them type ko thong ke
+			if(isUpdateWallet && item.money > 0){ // check them type ko thong ke
 				const WalletService = require('./Wallet.service');
 				const wallet = await WalletService.get(item.wallet_id, auth, dboReuse);
-				wallet.money += item.money * item.type;
+				wallet.money += item.sign_money;
 				await WalletService.update(wallet, auth, dboReuse);
 			}
 			return item;
@@ -266,11 +268,7 @@ exports = module.exports = {
 		const dboType = dboReuse ? db.FAIL : db.DONE;
 		const rs = await dbo.manual(async(collection, dbo) => {
 			const oldItem = await exports.get(item._id, auth, dboReuse);
-			if(!oldItem) throw new restify.NotFoundError('Not found');
-			let moneyChangedWallet = 0;
-			if(oldItem.money !== item.money){
-				moneyChangedWallet = (item.money*item.type) - (oldItem.money*oldItem.type);
-			}
+			if(!oldItem) throw new restify.NotFoundError('Not found');			
 			const rs = await collection.update({
 				user_id: auth.accountId,
 				"spendings._id": item._id
@@ -279,10 +277,10 @@ exports = module.exports = {
 					'spendings.$': item
 				}
 			});
-			if(moneyChangedWallet !== 0){
+			if(oldItem.money !== item.money){
 				const WalletService = require('./Wallet.service');
 				const wallet = await WalletService.get(item.wallet_id, auth, dboReuse);
-				wallet.money += moneyChangedWallet;
+				wallet.money += item.sign_money - oldItem.sign_money;
 				await WalletService.update(wallet, auth, dboReuse);
 			}
 			return item;
