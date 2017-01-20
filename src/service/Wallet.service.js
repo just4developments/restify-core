@@ -154,7 +154,7 @@ exports = module.exports = {
 			await SpendingService.insert({
 				_id: db.uuid(),
 				money: trans.money,
-				des: ``, //`Before ${fromWallet.money + trans.money}. After ${fromWallet.money}`,
+				des: trans.des, //`Before ${fromWallet.money + trans.money}. After ${fromWallet.money}`,
 				type_spending_id: typeSpendings.find((e) => {
 					return e.name === 'Transfer to wallet'
 				})._id,
@@ -227,7 +227,7 @@ exports = module.exports = {
 					wallet_money0: 0,
 					wallet_money1: item.money,
 					wallet_id: item._id,
-					type: isApplyToSpending ? (item.money >= 0 ? 1 : -1) : 0,
+					type: item.money >= 0 ? 1 : -1,
 					input_date: timeUpdate,
 					date: timeUpdate.getDate(),
 					month: timeUpdate.getMonth(),
@@ -281,7 +281,7 @@ exports = module.exports = {
 					wallet_money0: old.money,
 					wallet_money1: item.money,
 					wallet_id: item._id,
-					type: isApplyToSpending ? (item.money - old.money >= 0 ? 1 : -1) : 0,
+					type: item.money - old.money >= 0 ? 1 : -1,
 					input_date: timeUpdate,
 					date: timeUpdate.getDate(),
 					month: timeUpdate.getMonth(),

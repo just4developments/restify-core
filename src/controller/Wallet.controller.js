@@ -61,6 +61,7 @@ server.put('/Wallet/Transfer', utils.jsonHandler(), utils.auth('Wallet', 'TRANSF
 		if (utils.has(req.body.to) === true) body.to = req.body.to;
 		if (utils.has(req.body.money) === true) body.money = +req.body.money;
 		if (utils.has(req.body.input_date) === true) body.input_date = utils.date(req.body.input_date);
+		if (utils.has(req.body.des) === true) body.des = req.body.des;
 
 		const rs = await WalletService.transfer(body, req.auth);
 		res.send(rs);
