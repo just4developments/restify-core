@@ -36,6 +36,7 @@ exports = module.exports = {
 				item.icon = utils.valid('icon', item.icon, String);
 				item.name = utils.valid('name', item.name, String);
 				item.money = utils.valid('money', item.money, Number, 0);
+				item.oder = utils.valid('oder', item.oder, Number, 1);
 				item.type = utils.valid('type', item.type, Number, 0);
 				// item.input_date = utils.valid('input_date', item.input_date, Date);
 
@@ -45,6 +46,7 @@ exports = module.exports = {
 				item.icon = utils.valid('icon', item.icon, String);
 				item.name = utils.valid('name', item.name, String);
 				item.money = utils.valid('money', item.money, Number, 0);
+				item.oder = utils.valid('oder', item.oder, Number, 1);
 				item.type = utils.valid('type', item.type, Number, 0);
 				// item.input_date = utils.valid('input_date', item.input_date, Date);
 

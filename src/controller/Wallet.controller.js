@@ -44,6 +44,7 @@ server.post('/Wallet', utils.jsonHandler(), utils.auth('Wallet', 'ADD'), async(r
 		if (utils.has(req.body.name) === true) body.name = req.body.name;
 		if (utils.has(req.body.money) === true) body.money = +req.body.money;
 		if (utils.has(req.body.type) === true) body.type = +req.body.type;
+		if (utils.has(req.body.oder) === true) body.oder = +req.body.oder;
 		if (utils.has(req.body.input_date) === true) body.input_date = utils.date(req.body.input_date);
 		if (utils.has(req.body.isApplyToSpending) === true) body.isApplyToSpending = !!req.body.isApplyToSpending;
 		if (utils.has(req.body.des) === true) body.des = req.body.des;
@@ -78,6 +79,7 @@ server.put('/Wallet/:_id', utils.jsonHandler(), utils.auth('Wallet', 'UPDATE'), 
 		if (utils.has(req.body.name) === true) body.name = req.body.name;
 		if (utils.has(req.body.money) === true) body.money = +req.body.money;
 		if (utils.has(req.body.type) === true) body.type = +req.body.type;
+		if (utils.has(req.body.oder) === true) body.oder = +req.body.oder;
 		if (utils.has(req.body.isApplyToSpending) === true) body.isApplyToSpending = !!req.body.isApplyToSpending;
 		if (utils.has(req.body.des) === true) body.des = req.body.des;
 		if (utils.has(req.body.input_date) === true) body.input_date = utils.date(req.body.input_date);
