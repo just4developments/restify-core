@@ -32,7 +32,7 @@ exports = module.exports = async (email, auth) => {
         let tmpWallet = {};        
         if(wallets.length !== 0) {            
             wallets = wallets.map((e) => {
-                tmpWallet[e.ID] = e;
+                tmpWallet[e.ID] = _.clone(e);
                 e.created_at = new Date(e.createdAt);
                 e.updated_at = new Date(e.updatedAt);
                 e.type = e.avail;
@@ -60,11 +60,11 @@ exports = module.exports = async (email, auth) => {
         }, {collection: 'TypeSpending', close: db.FAIL});
         if(typeSpendings.length !== 0) {
             typeSpendings = typeSpendings.map((e) => {
-                tmpTypeSpending[e.ID] = e;
+                tmpTypeSpending[e.ID] = _.clone(e);
                 e.created_at = new Date(e.createdAt);
                 e.updated_at = new Date(e.updatedAt);
                 e.uname = utils.toUnsign(e.name);
-                e.parent_id = (!e.parent_id || e.parent_id.length === 0) ? null : tmpTypeSpending[e.parent_id];
+                e.parent_id = (!e.parent_id || e.parent_id.length === 0 || !tmpTypeSpending[e.parent_id]) ? null : tmpTypeSpending[e.parent_id]._id;
                 delete e.email;
                 delete e.createdAt;
                 delete e.updatedAt;
@@ -80,16 +80,20 @@ exports = module.exports = async (email, auth) => {
             where: {
                 email: email,
                 removed: 0
+            },
+            sort: {
+                input_date: -1
             }
         }, {collection: 'Spending', close: db.FAIL});
+        let tmp = [];
         if(spendings.length !== 0) {
-            spendings = spendings.map((e) => {
+            spendings = spendings.map((e) => {                
                 let typeSpending = tmpTypeSpending[e.type_spending_id];
-                let wallet = tmpWallet[e.wallet_id];
+                let wallet = tmpWallet[e.wallet_id];                
                 if(!typeSpending || !wallet) return null;
                 e.created_at = new Date(e.createdAt);
                 e.updated_at = new Date(e.updatedAt);
-                e.input_date = new Date(e.created_date);
+                e.input_date = new Date(e.created_date);                                
                 e.date = e.input_date.getDate();
                 e.month = e.input_date.getMonth();
                 e.year = e.input_date.getFullYear();
@@ -115,6 +119,7 @@ exports = module.exports = async (email, auth) => {
                 return e !== null;
             });
         }
+        require('fs').writeFileSync(__dirname + '/null.json', JSON.stringify(tmp, null, '\t'));
         if(spendings.length !== 0 || wallets.length !== 0 || typeSpendings.length !== 0) {
             let User = {
                 user_id: db.uuid(auth.accountId),
