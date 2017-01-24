@@ -215,9 +215,7 @@ exports = module.exports = {
 					"spendings.real_money": {
 						$ne: 0
 					},
-					"spendings.udes": { 
-						$ne: ''
-					}
+					"spendings.udes": { $exists: true, $not: {$size: 0} }
 				}        
 			}, 
 			{
