@@ -30,6 +30,8 @@ exports = module.exports = {
 				item.icon = utils.valid('icon', item.icon, String);
 				item.type = utils.valid('type', item.type, Number);
 				if(item.parent_id) item.parent_id = db.uuid(item.parent_id);
+				item.created_date = new Date();
+				item.updated_date = new Date();
 
 				break;
 			case exports.VALIDATE.UPDATE:
@@ -39,6 +41,7 @@ exports = module.exports = {
 				item.icon = utils.valid('icon', item.icon, String);
 				item.type = utils.valid('type', item.type, Number);
 				if(item.parent_id) item.parent_id = db.uuid(item.parent_id);
+				item.updated_date = new Date();
 
 				break;
 			case exports.VALIDATE.GET:

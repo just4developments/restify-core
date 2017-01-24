@@ -38,6 +38,8 @@ exports = module.exports = {
 				item.date = item.input_date.getDate();
 				item.month = item.input_date.getMonth();
 				item.year = item.input_date.getFullYear();
+				item.created_date = new Date();
+				item.updated_date = new Date();
 
 				break;
 			case exports.VALIDATE.UPDATE:
@@ -54,6 +56,7 @@ exports = module.exports = {
 				item.year = item.input_date.getFullYear();
 				item.type = utils.valid('type', item.type, Number);
 				if(utils.has(item.sign_money) !== true) item.sign_money = item.money * item.type;
+				item.updated_date = new Date();
 
 				break;
 			case exports.VALIDATE.GET:
@@ -197,6 +200,48 @@ exports = module.exports = {
 				return e.spendings;
 			});
 			return await rs.toArray()
+		}, dboType);
+		return rs;
+	},
+
+	async getSuggestion(auth, dboReuse){
+		const dbo = dboReuse || await db.open(exports.COLLECTION);
+		const dboType = dboReuse ? db.FAIL : db.DONE;
+		const rs = await dbo.manual(async(collection, dbo) => {
+			const rs = await collection.aggregate([
+			{
+				$match: {
+					"user_id": auth.accountId,
+					"spendings.real_money": {
+						$ne: 0
+					},
+					"spendings.udes": { 
+						$ne: ''
+					}
+				}        
+			}, 
+			{
+				$sort: {
+					"spendings.updated_date": -1
+				}
+			},
+			{
+				$unwind: '$spendings' 
+			},
+			{
+				$group: {
+					_id: '$spendings.udes',
+					spendings: { $first: '$spendings' }
+				}
+			}, 
+			{
+				$unwind: '$_id' 
+			},    
+			{
+				$limit: 50
+			}
+		]);
+			return await rs.toArray();
 		}, dboType);
 		return rs;
 	},

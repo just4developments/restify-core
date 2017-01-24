@@ -83,6 +83,15 @@ server.get('/StatisticByTypeSpending', utils.jsonHandler(), utils.auth('Spending
 	}
 });
 
+server.get('/Spendings/Suggestion', utils.jsonHandler(), utils.auth('Spending', 'SUGGESTION'), async(req, res, next) => {
+	try {
+		const rs = await SpendingsService.getSuggestion(req.auth);
+		res.send(rs);
+	} catch (err) {
+		next(err);
+	}
+});
+
 server.get('/Spendings/Bookmark', utils.jsonHandler(), utils.auth('Spending', 'BOOKMARK'), async(req, res, next) => {
 	try {
 		let where = {

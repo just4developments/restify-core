@@ -29,6 +29,7 @@ exports = module.exports = {
 				item.to = db.uuid(utils.valid('to wallet id', item.to, [String, db.Uuid]));
 				item.money = utils.valid('money', item.money, Number);
 				item.input_date = utils.valid('input_date', item.input_date, Date);
+				item.updated_date = new Date();
 
 				break;
 			case exports.VALIDATE.INSERT:
@@ -39,6 +40,8 @@ exports = module.exports = {
 				item.oder = utils.valid('oder', item.oder, Number, 1);
 				item.type = utils.valid('type', item.type, Number, 0);
 				// item.input_date = utils.valid('input_date', item.input_date, Date);
+				item.created_date = new Date();
+				item.updated_date = new Date();
 
 				break;
 			case exports.VALIDATE.UPDATE:
@@ -49,6 +52,7 @@ exports = module.exports = {
 				item.oder = utils.valid('oder', item.oder, Number, 1);
 				item.type = utils.valid('type', item.type, Number, 0);
 				// item.input_date = utils.valid('input_date', item.input_date, Date);
+				item.updated_date = new Date();
 
 				break;
 			case exports.VALIDATE.GET:
