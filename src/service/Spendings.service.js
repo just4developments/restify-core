@@ -234,9 +234,9 @@ exports = module.exports = {
 					spendings: { $first: '$spendings' }
 				}
 			}, 
-			{
-				$unwind: '$_id' 
-			},    
+			// {
+			// 	$unwind: '$_id' 
+			// },    
 			{
 				$limit: 50
 			}
