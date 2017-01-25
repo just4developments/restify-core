@@ -212,7 +212,7 @@ exports = module.exports = {
 			{
 				$match: {
 					"user_id": auth.accountId,
-					"spendings.real_money": {
+					"spendings.sign_money": {
 						$ne: 0
 					},
 					"spendings.udes": { $exists: true, $not: {$size: 0} }
@@ -320,11 +320,19 @@ exports = module.exports = {
 					'spendings.$': item
 				}
 			});
-			if(oldItem.money !== item.money){
-				const WalletService = require('./Wallet.service');
-				const wallet = await WalletService.get(item.wallet_id, auth, dboReuse);
+			const WalletService = require('./Wallet.service');
+			if(oldItem.wallet_id !== item.wallet_id) {
+				const oldWallet = await WalletService.get(oldItem.wallet_id, auth, dbo);
+				oldWallet.money += oldItem.sign_money*-1;
+				await WalletService.update(oldWallet, auth, dbo);
+
+				const newWallet = await WalletService.get(item.wallet_id, auth, dbo);
+				newWallet.money += item.sign_money;
+				await WalletService.update(newWallet, auth, dbo);
+			}else if(oldItem.money !== item.money){				
+				const wallet = await WalletService.get(item.wallet_id, auth, dbo);
 				wallet.money += item.sign_money - oldItem.sign_money;
-				await WalletService.update(wallet, auth, dboReuse);
+				await WalletService.update(wallet, auth, dbo);
 			}
 			return item;
 		}, dboType);
