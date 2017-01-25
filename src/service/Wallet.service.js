@@ -178,7 +178,7 @@ exports = module.exports = {
 				_id: db.uuid(),
 				money: trans.money,
 				sign_money: 0,
-				des: ``, // `Before ${toWallet.money - trans.money}. After ${toWallet.money}`,
+				des: trans.des, // `Before ${toWallet.money - trans.money}. After ${toWallet.money}`,
 				type_spending_id: typeSpendings.find((e) => {
 					return e.name === 'Received from wallet'
 				})._id,
