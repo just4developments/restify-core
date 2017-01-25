@@ -29,6 +29,7 @@ exports = module.exports = {
 				item.uname = utils.toUnsign(item.name);
 				item.icon = utils.valid('icon', item.icon, String);
 				item.type = utils.valid('type', item.type, Number);
+				item.oder = utils.valid('oder', item.oder, Number, 1);
 				if(item.parent_id) item.parent_id = db.uuid(item.parent_id);
 				item.created_date = new Date();
 				item.updated_date = new Date();
@@ -40,6 +41,7 @@ exports = module.exports = {
 				item.uname = utils.toUnsign(item.name);
 				item.icon = utils.valid('icon', item.icon, String);
 				item.type = utils.valid('type', item.type, Number);
+				item.oder = utils.valid('oder', item.oder, Number, 1);
 				if(item.parent_id) item.parent_id = db.uuid(item.parent_id);
 				item.updated_date = new Date();
 

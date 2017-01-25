@@ -45,6 +45,7 @@ server.post('/TypeSpendings', utils.jsonHandler(), utils.auth('TypeSpending', 'A
 		if (utils.has(req.body.icon) === true) body.icon = req.body.icon;
 		if (utils.has(req.body.type) === true) body.type = +req.body.type;
 		if (utils.has(req.body.parent_id) === true) body.parent_id = req.body.parent_id;
+		if (utils.has(req.body.oder) === true) body.oder = +req.body.oder;
 
 		const rs = await TypeSpendingsService.insert(body, req.auth);
 		res.send(rs);
@@ -61,6 +62,7 @@ server.put('/TypeSpendings/:_id', utils.jsonHandler(), utils.auth('TypeSpending'
 		if (utils.has(req.body.icon) === true) body.icon = req.body.icon;
 		if (utils.has(req.body.type) === true) body.type = +req.body.type;
 		if (utils.has(req.body.parent_id) === true) body.parent_id = req.body.parent_id;
+		if (utils.has(req.body.oder) === true) body.pos = +req.body.oder;
 
 		const rs = await TypeSpendingsService.update(body, req.auth);
 		res.send(rs);
