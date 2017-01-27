@@ -99,6 +99,33 @@
                 <i class="material-icons">done</i>
             </button>
         <hr/>
+        <div class="demo-card-wide mdl-card mdl-shadow--2dp">
+            <div class="mdl-card__title">
+                <h2 class="mdl-card__title-text">Project configuration</h2>
+            </div>
+            <div class="mdl-card__supporting-text">
+                <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                    <input class="mdl-textfield__input" type="text" pattern="-?[0-9]*(\.[0-9]+)?" id="sessionTimeout" ng-model="currentProject.config.sessionTimeout">
+                    <label class="mdl-textfield__label" for="sessionTimeout">Session timeout (ms)</label>
+                    <span class="mdl-textfield__error">Session timeout is not a number!</span>
+                </div>
+                <label class="mdl-switch mdl-js-switch mdl-js-ripple-effect" for="switch-1">
+                    <input type="checkbox" id="switch-1" class="mdl-switch__input" ng-model="currentProject.config.loginSameSession">
+                    <span class="mdl-switch__label">Allow many users can login 1 account</span>
+                </label>
+            </div>
+            <div class="mdl-card__actions mdl-card--border" align="right">
+                <a class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect" ng-click="saveConfig()">
+                    Save
+                </a>
+            </div>
+            <div class="mdl-card__menu">
+                <button class="mdl-button mdl-button--icon mdl-js-button mdl-js-ripple-effect">
+                <i class="material-icons">share</i>
+                </button>
+            </div>
+        </div>
+        <hr/>
         <div ng-if="currentProject">
             <h5 align="center">
                 <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" ng-click="addRole()"><i class="material-icons">person_add</i> Add Role</button>
@@ -177,6 +204,9 @@
         $scope.changeProject = () => {
             $http.get('/Project/' + $scope.currentProjectId).then((resp) => {
                 $scope.currentProject = resp.data;
+                setTimeout(function () {
+                    componentHandler.upgradeDom();
+                }, 500);
             });
         }
         $scope.addRole = () => {
@@ -218,6 +248,15 @@
             // else
             //     $scope.currentProject.roles[name] = vl;
         }
+        $scope.saveConfig = () => {
+            $http.put('/Project/' + $scope.currentProject._id, {
+                config: $scope.currentProject.config
+            }).then((resp) => {
+                console.log(resp);
+            }).catch((err) => {
+                alert(err);
+            });
+        }
         $scope.save = () => {
             $http.put('/Project/' + $scope.currentProject._id, {
                 roles: $scope.currentProject.roles
@@ -226,7 +265,6 @@
             }).catch((err) => {
                 alert(err);
             });
-            console.log($scope.currentProject.roles);
         }
         setTimeout(function () {
             componentHandler.upgradeDom();

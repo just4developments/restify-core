@@ -114,7 +114,9 @@ exports = module.exports = {
 				}
 			});
 			if(rs.result.n > 0) {
-				await exports.setAccountCached(token, user, user.token);
+				const projectService = require('./Project.service');
+				const project = await projectService.get(db.uuid(projectId));
+				await exports.setAccountCached(token, user, project.config);
 				return token;
 			}
 			throw new restify.BadRequestError("Something is wrong");
@@ -144,11 +146,15 @@ exports = module.exports = {
 		}
 	},
 
-	async setAccountCached(token, account, oldToken){
-		if(oldToken) await CachedService.del(`account.${oldToken}`);
+	async setAccountCached(token, account, projectConfig){
+		if(!projectConfig) projectConfig = {
+			loginSameSession: false,
+			sessionTimeout: 1800	
+		};
+		if(!projectConfig.loginSameSession && account.token) await CachedService.del(`account.${account.token}`);
 		if(!account) account = await exports.getByToken(token);
 		if(!account) throw new restify.BadRequestError('Token was changed');
-		await CachedService.set(`account.${token}`, account, 1800);
+		await CachedService.set(`account.${token}`, account, projectConfig.sessionTimeout > 0 ? projectConfig.sessionTimeout : (1000*60*60*24*30));
 		return account;
 	},
 

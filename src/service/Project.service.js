@@ -31,6 +31,7 @@ exports = module.exports = {
 				item.name = utils.valid('name', item.name, String);
 				item.status = utils.valid('status', item.status, Number);
 				item.roles = utils.valid('roles', item.roles, Object);
+				item.config = utils.valid('config', item.config, Object);
 				for(let i in item.roles){
 					if(!item.roles[i]._id) item.roles[i]._id = db.uuid();
 				}
@@ -49,6 +50,7 @@ exports = module.exports = {
 						if(!item.roles[i]._id) item.roles[i]._id = db.uuid();
 					}
 				}
+				if(item.config) item.config = utils.valid('config', item.config, Object);
 				if(item.accounts){
 					item.accounts = utils.valid('accounts', item.accounts, Array);
 				}

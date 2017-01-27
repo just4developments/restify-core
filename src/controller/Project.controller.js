@@ -42,6 +42,7 @@ server.post('/Project', utils.jsonHandler(), async(req, res, next) => {
 		if (utils.has(req.body.name) === true) body.name = req.body.name;
 		if (utils.has(req.body.status) === true) body.status = +req.body.status;
 		if (utils.has(req.body.roles) === true) body.roles = req.body.roles;
+		if (utils.has(req.body.config) === true) body.config = req.body.config;
 		body.is_expire = utils.boolean(req.body.is_expire);
 		body.is_verified = utils.boolean(req.body.is_verified);
 
@@ -60,6 +61,7 @@ server.put('/Project/:_id', utils.jsonHandler(), async(req, res, next) => {
 		if (utils.has(req.body.name) === true) body.name = req.body.name;
 		if (utils.has(req.body.status) === true) body.status = +req.body.status;
 		if (utils.has(req.body.roles) === true) body.roles = req.body.roles;
+		if (utils.has(req.body.config) === true) body.config = req.body.config;
 		if (utils.has(req.body.accounts) === true) body.accounts = req.body.accounts;
 		body.is_expire = utils.boolean(req.body.is_expire);
 		body.is_verified = utils.boolean(req.body.is_verified);

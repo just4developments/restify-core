@@ -10,29 +10,6 @@ const AccountService = require('../service/Account.service');
  ** CREATED DATE: 12/16/2016, 4:04:45 PM
  *************************************/
 
-// server.get('/Account', utils.jsonHandler(), async(req, res, next) => {
-// 	try {
-// 		let where = {};
-
-// 		const rs = await AccountService.find({
-// 			where: where
-// 		});
-// 		res.send(rs);
-// 	} catch (err) {
-// 		next(err);
-// 	}
-// });
-
-// Get account details
-// server.get('/Account/:_id', utils.jsonHandler(), async(req, res, next) => {
-// 	try {
-// 		const rs = await AccountService.get(req.params._id);
-// 		res.send(rs);
-// 	} catch (err) {
-// 		next(err);
-// 	}
-// });
-
 // My information
 server.get('/Me', utils.jsonHandler(), utils.auth, async(req, res, next) => {
 	try {		
@@ -70,7 +47,7 @@ server.head('/Authoriz', utils.jsonHandler(), utils.auth, async(req, res, next) 
 	}
 });
 
-// Get author
+// Get author for client (web)
 server.get('/Authoriz', utils.jsonHandler(), utils.auth, async(req, res, next) => {
 	try {
 		const rs = await AccountService.getAuthoriz(req.auth);
