@@ -120,6 +120,11 @@ exports = module.exports = {
 						}
 					},   
 				} 
+			}, {
+				$sort: {
+					smoney: -1,
+					emoney: -1
+				}
 			}]);
 			return await rs.toArray();
 		}, dboType);
@@ -146,6 +151,10 @@ exports = module.exports = {
 					_id : "$spendings.type_spending_id",         
 					money: { $sum: "$spendings.money" }     
 				} 
+			}, {
+				$sort: {
+					money: -1
+				}
 			}]);
 			return await rs.toArray();
 		}, dboType);
