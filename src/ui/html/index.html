@@ -249,6 +249,8 @@
             //     $scope.currentProject.roles[name] = vl;
         }
         $scope.saveConfig = () => {
+            $scope.currentProject.config.loginSameSession = $scope.currentProject.config.loginSameSession === true || $scope.currentProject.config.loginSameSession.toString().toLowerCase() === 'true';
+            $scope.currentProject.config.sessionTimeout = +$scope.currentProject.config.sessionTimeout;
             $http.put('/Project/' + $scope.currentProject._id, {
                 config: $scope.currentProject.config
             }).then((resp) => {

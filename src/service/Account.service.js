@@ -147,10 +147,6 @@ exports = module.exports = {
 	},
 
 	async setAccountCached(token, account, projectConfig){
-		if(!projectConfig) projectConfig = {
-			loginSameSession: false,
-			sessionTimeout: 1800	
-		};
 		if(!projectConfig.loginSameSession && account.token) await CachedService.del(`account.${account.token}`);
 		if(!account) account = await exports.getByToken(token);
 		if(!account) throw new restify.BadRequestError('Token was changed');
