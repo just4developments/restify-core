@@ -10,6 +10,17 @@ const AccountService = require('../service/Account.service');
  ** CREATED DATE: 12/16/2016, 4:04:45 PM
  *************************************/
 
+// Check login
+server.head('/Login', utils.jsonHandler(), async(req, res, next) => {
+	try {
+		const token = await AccountService.login(req.headers.pj, req.headers.username, req.headers.password, req.headers.app);
+		res.header('token', token);
+		res.end();
+	} catch (err) {
+		next(err);
+	}
+});
+
 // My information
 server.get('/Me', utils.jsonHandler(), utils.auth, async(req, res, next) => {
 	try {		
@@ -50,18 +61,17 @@ server.head('/Authoriz', utils.jsonHandler(), utils.auth, async(req, res, next) 
 // Get author for client (web)
 server.get('/Authoriz', utils.jsonHandler(), utils.auth, async(req, res, next) => {
 	try {
-		const rs = await AccountService.getAuthoriz(req.auth);
+		const rs = await AccountService.getAuthoriz(req.auth, 'web');
 		res.send(rs);
 	} catch (err) {
 		next(err);
 	}
 });
 
-// Check login
-server.head('/Login', utils.jsonHandler(), async(req, res, next) => {
+// Reset timeout login
+server.head('/Ping', utils.jsonHandler(), utils.auth, async(req, res, next) => {
 	try {
-		const token = await AccountService.login(req.headers.pj, req.headers.username, req.headers.password, req.headers.app);
-		res.header('token', token);
+		const token = await AccountService.ping(req.auth);
 		res.end();
 	} catch (err) {
 		next(err);

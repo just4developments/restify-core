@@ -1,6 +1,7 @@
-let _ = require('lodash');
+const restify = require('restify');
+const _ = require('lodash');
 
-let db = require('./db');
+const db = require('./db');
 /************************************
  ** CLASS HELPER
  ** 

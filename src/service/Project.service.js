@@ -80,27 +80,39 @@ exports = module.exports = {
 		return item;
 	},
 
-	async getRolesCached(_id, isReload) {
-		let roles = await CachedService.get(`project.${_id}`);
-		if(!roles || isReload){
-			roles = {};
-			const dbo = await db.open(exports.COLLECTION);
-			const rs = await dbo.find({
-				where: {
-					_id: db.uuid(_id),
-					status: 1
-				},
-				fields: {
-					_id: 1,
-					roles: 1
-				}
-			});
-			if(rs.length !== 1) throw 'Not found';
-			roles = rs[0].roles;
-		}else {
-			await CachedService.touch(`project.${_id}`, 300);
+	async getProjectCached(_id, isReload) {
+		let cachedService = CachedService.open();
+		try {
+			let projectMeta = await cachedService.get(`project.${_id}`);
+			if(!projectMeta || isReload){
+				projectMeta = {};
+				const dbo = await db.open(exports.COLLECTION);
+				let rs = await dbo.find({
+					where: {
+						_id: db.uuid(_id),
+						status: 1
+					},
+					fields: {
+						_id: 1,
+						roles: 1,
+						config: 1
+					}
+				});
+				if(rs.length !== 1) throw 'Not found';
+				rs = rs[0];
+				projectMeta = {
+					roles: rs.roles,
+					config: rs.config 
+				};
+				cachedService.set(`project.${_id}`, projectMeta);
+			}
+			// else {
+			// 	await cachedService.touch(`project.${_id}`, 7*24*60);
+			// }
+			return projectMeta;
+		} finally {
+			cachedService.close();
 		}
-		return roles;
 	},
 
 	async find(fil = {}, dboReuse) {

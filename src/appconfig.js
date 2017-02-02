@@ -7,7 +7,10 @@ module.exports = {
     cache: {
         memcached: {            
             host: 'localhost', 
-            port: 11211
+            port: 11211,
+            opts: {
+                prefix: 'sochitieuv2'
+            }
         },
         redis: {
             use: true,

@@ -97,6 +97,12 @@ exports = module.exports = {
 		return me;
 	},
 
+	async ping(auth){
+		const projectService = require('./Project.service');
+		const projectMeta = await projectService.getProjectCached(auth.projectId);
+		await exports.getAccountCached(auth, false, projectMeta.config);		
+	},
+
 	async login(projectId, username, password, app){
 		// TODO: exports.validate(item, exports.VALIDATE.UPDATE_ROLE);
 		const dbo = await db.open(exports.COLLECTION);
@@ -115,7 +121,7 @@ exports = module.exports = {
 			});
 			if(rs.result.n > 0) {
 				const projectService = require('./Project.service');
-				const project = await projectService.get(db.uuid(projectId));
+				const project = await projectService.getProjectCached(projectId);
 				await exports.setAccountCached(token, user, project.config);
 				return token;
 			}
@@ -126,7 +132,6 @@ exports = module.exports = {
 	async updateRole(projectId, accountId, roles, dboReuse) {
 		try {
 			// TODO: exports.validate(item, exports.VALIDATE.UPDATE_ROLE);
-
 			const dbo = dboReuse || await db.open(exports.COLLECTION);
 			const dboType = dboReuse ? db.FAIL : db.DONE;
 			roles = await dbo.manual(async (collection, dbo) => {
@@ -147,26 +152,37 @@ exports = module.exports = {
 	},
 
 	async setAccountCached(token, account, projectConfig){
-		if(!projectConfig.loginSameSession && account.token) await CachedService.del(`account.${account.token}`);
-		if(!account) account = await exports.getByToken(token);
-		if(!account) throw new restify.BadRequestError('Token was changed');
-		await CachedService.set(`account.${token}`, account, projectConfig.sessionTimeout > 0 ? projectConfig.sessionTimeout : (1000*60*60*24*30));
-		return account;
+		let cachedService = CachedService.open();
+		try {
+			if(!projectConfig.loginSameSession && account.token) await cachedService.del(`account.${account.token}`);
+			if(!account) account = await exports.getByToken(token);
+			if(!account) throw new restify.BadRequestError('Token was changed');
+			await cachedService.set(`account.${token}`, account, projectConfig.sessionTimeout);
+			return account;
+		} finally{
+			cachedService.close();
+		}
 	},
 
-	async getAccountCached(auth, isReload){
-		let account = await CachedService.get(`account.${auth.token}`);
-		if(!account) throw new restify.RequestTimeoutError('Not found account in cache');
-		await CachedService.touch(`account.${auth.token}`, 1800);
-		return account;
+	async getAccountCached(auth, isReload, projectConfig){
+		let cachedService = CachedService.open();
+		try {
+			let account = await cachedService.get(`account.${auth.token}`);
+			if(!account) throw new restify.RequestTimeoutError('Not found account in cache');
+			await cachedService.touch(`account.${auth.token}`, projectConfig.sessionTimeout);
+			return account;
+		} finally {
+			cachedService.close();
+		}
 	},
 
 	async authoriz(auth, path, actions){
 		if(!auth) throw new restify.NotAuthorizedError();
 		const projectService = require('./Project.service');
-		const roles = await projectService.getRolesCached(auth.projectId);
+		const projectMeta = await projectService.getProjectCached(auth.projectId);
+		const roles = projectMeta.roles;
 		if(!roles) throw new restify.InternalServerError('Could not found the project');
-		const acc = await exports.getAccountCached(auth);
+		const acc = await exports.getAccountCached(auth, false, projectMeta.config);
 		for(let accRole of acc.roles){
 			const role = roles[accRole].api;
 			if(!role) throw new restify.InternalServerError(`Not found ${accRole} in global roles`);
@@ -186,12 +202,13 @@ exports = module.exports = {
 		throw new restify.ForbiddenError('Not allow');
 	},
 
-	async getAuthoriz(auth, mode='web'){
+	async getAuthoriz(auth, mode){
 		if(!auth) throw new restify.NotAuthorizedError();
 		const projectService = require('./Project.service');
-		const roles = await projectService.getRolesCached(auth.projectId);
+		const projectMeta = await projectService.getProjectCached(auth.projectId);
+		const roles = projectMeta.roles;
 		if(!roles) throw new restify.InternalServerError('Could not found the project');
-		const acc = await exports.getAccountCached(auth);
+		const acc = await exports.getAccountCached(auth, false, projectMeta.config);
 		let accRoles = [];
 		for(let accRole of acc.roles){
 			const role = roles[accRole][mode];
