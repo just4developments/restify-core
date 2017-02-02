@@ -238,7 +238,7 @@ exports = module.exports = {
 				$sort: {
 					"spendings.updated_date": 1
 				}
-			},			
+			},						
 			{
 				$group: {
 					_id: '$spendings.udes',
@@ -246,7 +246,16 @@ exports = module.exports = {
 				}
 			}, 
 			{
-				$limit: 50
+				$project: {
+					_id: 1,
+					spendings: {
+						type_spending_id: 1,
+						wallet_id: 1,
+					}
+				}
+			},
+			{
+				$limit: 100
 			}
 		]);
 			return await rs.toArray();
