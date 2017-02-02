@@ -220,30 +220,31 @@ exports = module.exports = {
 			const rs = await collection.aggregate([
 			{
 				$match: {
-					"user_id": auth.accountId,
+					"user_id": auth.accountId					
+				}        
+			}, 
+			{
+				$unwind: '$spendings' 
+			},
+			{
+				$match: {
 					"spendings.sign_money": {
 						$ne: 0
 					},
 					"spendings.udes": { $exists: true, $not: {$size: 0} }
-				}        
-			}, 
+				}
+			},
 			{
 				$sort: {
 					"spendings.updated_date": -1
 				}
-			},
-			{
-				$unwind: '$spendings' 
-			},
+			},			
 			{
 				$group: {
 					_id: '$spendings.udes',
 					spendings: { $first: '$spendings' }
 				}
 			}, 
-			// {
-			// 	$unwind: '$_id' 
-			// },    
 			{
 				$limit: 50
 			}
