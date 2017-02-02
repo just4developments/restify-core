@@ -236,7 +236,7 @@ exports = module.exports = {
 			},
 			{
 				$sort: {
-					"spendings.updated_date": -1
+					"spendings.updated_date": 1
 				}
 			},			
 			{
