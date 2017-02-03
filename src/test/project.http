@@ -8,8 +8,10 @@
 	requestBody: {
 		name: 'test1',
 		status: 1,
-		created_at: new Date(),
-		updated_at: new Date()
+		config: {
+			single_mode: true,
+			session_expired: 1
+		}
 	}
 }
 
@@ -31,7 +33,7 @@
 		status: 1,
 		config: {
 			single_mode: true,
-			session_expired: 1
+			session_expired: 60
 		}
 	}
 }

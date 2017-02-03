@@ -13,12 +13,22 @@
 }
 
 {
+	des: 'Ping to renew session expired',
+	method: 'HEAD',
+	url: 'http://localhost:9000/ping',
+	requestHeader: {
+		'content-type': 'application/json',
+		'token': '58940acfec50fe166c9835c3-58940ae5ec50fe166c9835c5-5894639e711dbd2644f547f2'
+	}
+}
+
+{
 	des: 'Check authoriz',
 	method: 'HEAD',
 	url: 'http://localhost:9000/authoriz',
 	requestHeader: {
 		'content-type': 'application/json',
-		'token': '58940acfec50fe166c9835c3-58940ae5ec50fe166c9835c5-589450026c86fe27a88f1f1b',
+		'token': '58940acfec50fe166c9835c3-58940ae5ec50fe166c9835c5-5894631138e8c43a7cc2f7d0',
 		'path': '/Login',
 		'actions': 'ADD',
 	}

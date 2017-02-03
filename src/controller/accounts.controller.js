@@ -12,21 +12,25 @@ const accountsService = require('../service/accounts.service');
 
 server.post('/login', utils.jsonHandler(), async(req, res, next) => {
 	try {		
-		if(!req.headers.token) {
-			let body = {
-				username: req.body.username,
-				password: req.body.password,
-				project_id: req.headers.pj,
-				app: req.headers.app
-			};
-			const token = await accountsService.login(body);
-			res.header('token', token.toString());
-			res.end();
-		}else {
-			const token = await accountsService.ping(req.headers.token);
-			res.header('token', token.toString());
-			res.end();
-		}		
+		let body = {
+			username: req.body.username,
+			password: req.body.password,
+			project_id: req.headers.pj,
+			app: req.headers.app
+		};
+		const token = await accountsService.login(body);
+		res.header('token', token.toString());
+		res.end();		
+	} catch (err) {
+		next(err);
+	}
+});
+
+server.head('/ping', utils.jsonHandler(), utils.authHandler(), async(req, res, next) => {
+	try {				
+		const token = await accountsService.ping(req.auth.token);
+		res.header('token', req.headers.token);
+		res.end();
 	} catch (err) {
 		next(err);
 	}

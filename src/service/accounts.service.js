@@ -92,8 +92,14 @@ exports = module.exports = {
 	async ping(token) {
 		const cached = cachedService.open(true);
 		const user = await cached.get(`login.${token}`);
-		if(user) await cached.set(`login.${user.token}`, user, project.config.session_expired);
-		return token;
+		if(!user) {
+			cached.close();
+			throw restify.BadRequestError('Session was expired');
+		}
+		const projectService = require('./project.service');
+		const project = await projectService.getInCached(user.project_id);			
+		await cached.set(`login.${user.token}`, user, project.config.session_expired);
+		cached.close();
 	},
 
 	async login(item = {}) {
