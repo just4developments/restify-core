@@ -8,6 +8,7 @@ let path = require('path');
  *************************************/
 
 global.appconfig = require('./src/appconfig');
+require('./src/service/_startup');
 
 global.server = restify.createServer();
 
@@ -26,7 +27,9 @@ server.get(/\/images\/?.*/, restify.serveStatic({
   directory: './assets'
 }));
 
-server.use(restify.CORS());
+server.use(restify.CORS({
+    headers: ['token', 'isnew']
+}));
 
 server.opts(/.*/, function (req,res,next) {
     res.header("Access-Control-Allow-Origin", "*");

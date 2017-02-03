@@ -1,0 +1,49 @@
+{
+	des: 'Add',
+	method: 'POST',
+	url: 'http://localhost:9000/project',
+	requestHeader: {
+		'content-type': 'application/json'
+	},
+	requestBody: {
+		name: 'test1',
+		status: 1,
+		created_at: new Date(),
+		updated_at: new Date()
+	}
+}
+
+{
+	des: 'Get list',
+	method: 'GET',
+	url: 'http://localhost:9000/project'
+}
+
+{
+	des: 'Update',
+	method: 'PUT',
+	url: 'http://localhost:9000/project/58940acfec50fe166c9835c3',
+	requestHeader: {
+		'content-type': 'application/json'
+	},
+	requestBody: {
+		name: 'test1',
+		status: 1,
+		config: {
+			single_mode: true,
+			session_expired: 1
+		}
+	}
+}
+
+{
+	des: 'Get detail',
+	method: 'GET',
+	url: 'http://localhost:9000/project/ITEM_ID'
+}
+
+{
+	des: 'Delete',
+	method: 'DELETE',
+	url: 'http://localhost:9000/project/ITEM_ID'
+}

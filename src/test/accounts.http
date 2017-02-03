@@ -1,0 +1,110 @@
+{
+	des: 'Login',
+	method: 'POST',
+	url: 'http://localhost:9000/login',
+	requestHeader: {
+		'content-type': 'application/json',
+		'pj': '58940acfec50fe166c9835c3'
+	},
+	requestBody: {
+		username: 'thanh',
+		password: '123'
+	}
+}
+
+{
+	des: 'Check authoriz',
+	method: 'HEAD',
+	url: 'http://localhost:9000/authoriz',
+	requestHeader: {
+		'content-type': 'application/json',
+		'token': '58940acfec50fe166c9835c3-58940ae5ec50fe166c9835c5-589450026c86fe27a88f1f1b',
+		'path': '/Login',
+		'actions': 'ADD',
+	}
+}
+
+{
+	des: 'Add',
+	method: 'POST',
+	url: 'http://localhost:9000/accounts?auto_login=1',
+	requestHeader: {
+		'content-type': 'application/json',
+		pj: '58940acfec50fe166c9835c3'
+	},
+	requestBody: {
+		role_ids: ['58940ad8ec50fe166c9835c4'],
+		username: 'thanh7',
+		password: '123',
+		status: 1,
+		recover_by: 'doanthuanthanh88@gmail.com',
+		more: {
+			fullname: null
+		},
+		created_at: new Date(),
+		updated_at: new Date()
+	}
+}
+
+{
+	des: 'Get list',
+	method: 'GET',
+	url: 'http://localhost:9000/accounts?project_id=58940acfec50fe166c9835c3'
+}
+
+{
+	des: 'Update',
+	method: 'PUT',
+	url: 'http://localhost:9000/accounts/58940ae5ec50fe166c9835c5',
+	requestHeader: {
+		'content-type': 'application/json'
+	},
+	requestBody: {
+		project_id: '58940acfec50fe166c9835c3',
+		role_ids: ['58940ad8ec50fe166c9835c4'],
+		username: 'thanh',
+		password: '123',
+		status: 1,
+		recover_by: 'doanthuanthanh88@gmail.com',
+		more: {
+			fullname: null
+		}
+	}
+}
+
+{
+	des: 'Get detail me',
+	method: 'GET',
+	url: 'http://localhost:9000/me',
+	requestHeader: {
+		token: '58940acfec50fe166c9835c3-58940ae5ec50fe166c9835c5-5894450c645b733fa4e9f546'
+	}
+}
+
+{
+	des: 'Update me',
+	method: 'PUT',
+	url: 'http://localhost:9000/me',
+	requestHeader: {
+		'content-type': 'application/json',
+		token: '58940acfec50fe166c9835c3-58940ae5ec50fe166c9835c5-5894450c645b733fa4e9f546'
+	},
+	requestBody: {
+		recover_by: 'doanthuanthanh88@gmail.com',
+		more: {
+			fullname: 'thanh pro'
+		}
+	}
+}
+
+{
+	des: 'Get detail',
+	method: 'GET',
+	url: 'http://localhost:9000/accounts/ITEM_ID'
+}
+
+{
+	des: 'Delete',
+	method: 'DELETE',
+	url: 'http://localhost:9000/accounts/ITEM_ID'
+}

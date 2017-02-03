@@ -4,6 +4,12 @@ module.exports = {
     db: {
         url: 'mongodb://localhost:27017/restify-core'
     },
+    cache: {
+        redis: {
+            host: 'localhost',
+            port: 6379
+        }
+    },
     app: {
         imageResize: {
 			product: [

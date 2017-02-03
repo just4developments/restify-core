@@ -1,0 +1,51 @@
+{
+	des: 'Add',
+	method: 'POST',
+	url: 'http://localhost:9000/roles',
+	requestHeader: {
+		'content-type': 'application/json'
+	},
+	requestBody: {
+		project_id: '58940acfec50fe166c9835c3',
+		name: 'Admin',
+		api: [{
+			path: '*',
+			actions: ['GET', 'FIND', 'ADD', 'UPDATE', 'DELETE']
+		}]
+	}
+}
+
+{
+	des: 'Get list',
+	method: 'GET',
+	url: 'http://localhost:9000/roles'
+}
+
+{
+	des: 'Update',
+	method: 'PUT',
+	url: 'http://localhost:9000/roles/58940ad8ec50fe166c9835c4',
+	requestHeader: {
+		'content-type': 'application/json'
+	},
+	requestBody: {
+		project_id: '58940acfec50fe166c9835c3',
+		name: 'Admin',
+		api: [{
+			path: '.*',
+			actions: ['GET', 'FIND', 'ADD', 'UPDATE', 'DELETE']
+		}]
+	}
+}
+
+{
+	des: 'Get detail',
+	method: 'GET',
+	url: 'http://localhost:9000/roles/ITEM_ID'
+}
+
+{
+	des: 'Delete',
+	method: 'DELETE',
+	url: 'http://localhost:9000/roles/ITEM_ID'
+}
