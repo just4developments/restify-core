@@ -68,13 +68,11 @@ exports = module.exports = {
 
 				break;
 			case exports.VALIDATE.GET:
-				item.project_id = db.uuid(utils.valid('project_id', item, [String, db.Uuid]));
-				item.token = db.uuid(utils.valid('token', item, [String, db.Uuid]));
+				item = db.uuid(utils.valid('_id', item, [String, db.Uuid]));
 
 				break;
 			case exports.VALIDATE.DELETE:
-				item.project_id = db.uuid(utils.valid('project_id', item, [String, db.Uuid]));
-				item.token = db.uuid(utils.valid('token', item, [String, db.Uuid]));
+				item = db.uuid(utils.valid('_id', item, [String, db.Uuid]));
 
 				break;
 			case exports.VALIDATE.FIND:
@@ -94,7 +92,7 @@ exports = module.exports = {
 		const user = await cached.get(`login.${token}`);
 		if(!user) {
 			cached.close();
-			throw restify.BadRequestError('Session was expired');
+			throw new restify.BadRequestError('Session was expired');
 		}
 		const projectService = require('./project.service');
 		const project = await projectService.getInCached(user.project_id);			

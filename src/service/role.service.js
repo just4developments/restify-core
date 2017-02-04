@@ -6,13 +6,13 @@ const db = require('../db');
 const utils = require('../utils');
 
 /************************************
- ** SERVICE:      projectController
+ ** SERVICE:      roleController
  ** AUTHOR:       Unknown
  ** CREATED DATE: 2/4/2017, 3:58:02 PM
  *************************************/
 
 exports = module.exports = {
-	COLLECTION: "project",
+	COLLECTION: "role",
 	VALIDATE: {
 		INSERT: 0,
 		UPDATE: 1,
@@ -25,26 +25,46 @@ exports = module.exports = {
 		switch (action) {
 			case exports.VALIDATE.INSERT:
 				item._id = db.uuid(utils.valid('_id', item._id, [String, db.Uuid]));
+				item.project_id = db.uuid(utils.valid('project_id', item.project_id, [String, db.Uuid]));
 				item.name = utils.valid('name', item.name, String);
-				item.status = utils.valid('status', item.status, Number);
-				item.config = utils.valid('config', item.config, Object);
-				if (item.config) {
-					item.config.single_mode = utils.valid('single_mode', item.config.single_mode, Boolean);
-					item.config.session_expired = utils.valid('session_expired', item.config.session_expired, Number);
-				}
+				item.api = utils.valid('api', item.api, Array, []);
+				item.api.forEach((itemi, i) => {
+					item.api[i].path = utils.valid('path', item.api[i].path, String);
+					item.api[i].actions = utils.valid('actions', item.api[i].actions, Array);
+				});
+				item.web = utils.valid('web', item.web, Array, []);
+				item.web.forEach((itemi, i) => {
+					item.web[i].path = utils.valid('path', item.web[i].path, String);
+					item.web[i].actions = utils.valid('actions', item.web[i].actions, Array);
+				});
+				item.mob = utils.valid('mob', item.mob, Array, []);
+				item.mob.forEach((itemi, i) => {
+					item.mob[i].path = utils.valid('path', item.mob[i].path, String);
+					item.mob[i].actions = utils.valid('actions', item.mob[i].actions, Array);
+				});
 				item.created_at = new Date();
 				item.updated_at = new Date();
 
 				break;
 			case exports.VALIDATE.UPDATE:
 				item._id = db.uuid(utils.valid('_id', item._id, [String, db.Uuid]));
+				item.project_id = db.uuid(utils.valid('project_id', item.project_id, [String, db.Uuid]));
 				item.name = utils.valid('name', item.name, String);
-				item.status = utils.valid('status', item.status, Number);
-				item.config = utils.valid('config', item.config, Object);
-				if (item.config) {
-					item.config.single_mode = utils.valid('single_mode', item.config.single_mode, Boolean);
-					item.config.session_expired = utils.valid('session_expired', item.config.session_expired, Number);
-				}
+				item.api = utils.valid('api', item.api, Array, []);
+				item.api.forEach((itemi, i) => {
+					item.api[i].path = utils.valid('path', item.api[i].path, String);
+					item.api[i].actions = utils.valid('actions', item.api[i].actions, Array);
+				});
+				item.web = utils.valid('web', item.web, Array, []);
+				item.web.forEach((itemi, i) => {
+					item.web[i].path = utils.valid('path', item.web[i].path, String);
+					item.web[i].actions = utils.valid('actions', item.web[i].actions, Array);
+				});
+				item.mob = utils.valid('mob', item.mob, Array, []);
+				item.mob.forEach((itemi, i) => {
+					item.mob[i].path = utils.valid('path', item.mob[i].path, String);
+					item.mob[i].actions = utils.valid('actions', item.mob[i].actions, Array);
+				});
 				item.updated_at = new Date();
 
 				break;

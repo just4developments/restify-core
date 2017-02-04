@@ -12,7 +12,9 @@ const rolesService = require('../service/roles.service');
 
 server.get('/roles', utils.jsonHandler(), async(req, res, next) => {
 	try {
-		let where = {};
+		let where = {
+			project_id: req.query.project_id
+		};
 
 		const rs = await rolesService.find({
 			where: where
@@ -38,7 +40,8 @@ server.post('/roles', utils.jsonHandler(), async(req, res, next) => {
 		body.project_id = req.body.project_id;
 		if (utils.has(req.body.name) === true) body.name = req.body.name;
 		if (utils.has(req.body.api) === true) body.api = utils.object(req.body.api);
-
+		if (utils.has(req.body.web) === true) body.web = utils.object(req.body.web);
+		
 		const rs = await rolesService.insert(body);
 		res.send(rs);
 	} catch (err) {
@@ -53,6 +56,7 @@ server.put('/roles/:_id', utils.jsonHandler(), async(req, res, next) => {
 		body.project_id = req.body.project_id;
 		if (utils.has(req.body.name) === true) body.name = req.body.name;
 		if (utils.has(req.body.api) === true) body.api = utils.object(req.body.api);
+		if (utils.has(req.body.web) === true) body.web = utils.object(req.body.web);
 
 		const rs = await rolesService.update(body);
 		res.send(rs);

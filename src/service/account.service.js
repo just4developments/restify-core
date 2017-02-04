@@ -4,16 +4,15 @@ const _ = require('lodash');
 
 const db = require('../db');
 const utils = require('../utils');
-const cachedService = require('./cached.service');
 
 /************************************
- ** SERVICE:      rolesController
+ ** SERVICE:      accountController
  ** AUTHOR:       Unknown
- ** CREATED DATE: 2/3/2017, 11:34:16 AM
+ ** CREATED DATE: 2/4/2017, 3:58:02 PM
  *************************************/
 
 exports = module.exports = {
-	COLLECTION: "roles",
+	COLLECTION: "account",
 	VALIDATE: {
 		INSERT: 0,
 		UPDATE: 1,
@@ -25,31 +24,40 @@ exports = module.exports = {
 		let msg;
 		switch (action) {
 			case exports.VALIDATE.INSERT:
+				item._id = db.uuid(utils.valid('_id', item._id, [String, db.Uuid]));
 				item.project_id = db.uuid(utils.valid('project_id', item.project_id, [String, db.Uuid]));
-				item.name = utils.valid('name', item.name, String);
-				item.api = utils.valid('api', item.api, Array);
-				item.api.forEach((itemi, i) => {
-					item.api[i].path = utils.valid('path', item.api[i].path, String);
-					item.api[i].actions = utils.valid('actions', item.api[i].actions, Array);
-				});
+				item.role_ids = db.uuid(utils.valid('role_ids', item.role_ids, Array));
+				item.app = utils.valid('app', item.app, String);
+				item.username = utils.valid('username', item.username, String);
+				item.password = utils.valid('password', item.password, String);
+				item.status = utils.valid('status', item.status, Number, 0);
+				item.recover_by = utils.valid('recover_by', item.recover_by, String);
+				item.more = utils.valid('more', item.more, Object);
+				item.token = db.uuid(utils.valid('token', item.token, [String, db.Uuid]));
+				item.created_at = new Date();
+				item.updated_at = new Date();
 
 				break;
 			case exports.VALIDATE.UPDATE:
+				item._id = db.uuid(utils.valid('_id', item._id, [String, db.Uuid]));
 				item.project_id = db.uuid(utils.valid('project_id', item.project_id, [String, db.Uuid]));
-				item.name = utils.valid('name', item.name, String);
-				item.api = utils.valid('api', item.api, Array);
-				item.api.forEach((itemi, i) => {
-					item.api[i].path = utils.valid('path', item.api[i].path, String);
-					item.api[i].actions = utils.valid('actions', item.api[i].actions, Array);
-				});
+				item.role_ids = utils.valid('role_ids', item.role_ids, Array);
+				item.app = utils.valid('app', item.app, String);
+				item.username = utils.valid('username', item.username, String);
+				item.password = utils.valid('password', item.password, String);
+				item.status = utils.valid('status', item.status, Number, 0);
+				item.recover_by = utils.valid('recover_by', item.recover_by, String);
+				item.more = utils.valid('more', item.more, Object);
+				item.token = db.uuid(utils.valid('token', item.token, [String, db.Uuid]));
+				item.updated_at = new Date();
 
 				break;
 			case exports.VALIDATE.GET:
-				item.project_id = db.uuid(utils.valid('project_id', item, [String, db.Uuid]));
+				item = db.uuid(utils.valid('_id', item, [String, db.Uuid]));
 
 				break;
 			case exports.VALIDATE.DELETE:
-				item.project_id = db.uuid(utils.valid('project_id', item, [String, db.Uuid]));
+				item = db.uuid(utils.valid('_id', item, [String, db.Uuid]));
 
 				break;
 			case exports.VALIDATE.FIND:
@@ -58,19 +66,6 @@ exports = module.exports = {
 				break;
 		}
 		return item;
-	},
-
-	async getInCached(projectId){
-		return await cachedService.open().get(`roles.${projectId}`);
-	},
-
-	async fetchInCached(projectId){
-		const roles = await exports.find({
-			where: {
-				project_id: projectId
-			}
-		});
-		await cachedService.open().set(`roles.${projectId}`, roles);
 	},
 
 	async find(fil = {}, dboReuse) {
@@ -97,7 +92,6 @@ exports = module.exports = {
 		const dbo = dboReuse || await db.open(exports.COLLECTION);
 		const dboType = dboReuse ? db.FAIL : db.DONE;
 		const rs = await dbo.insert(item, dboType);
-		await exports.fetchInCached(item.project_id);
 		return rs;
 	},
 
@@ -106,10 +100,8 @@ exports = module.exports = {
 
 		const dbo = dboReuse || await db.open(exports.COLLECTION);
 		const dboType = dboReuse ? db.FAIL : db.DONE;
-		const oldItem = await dbo.get(item._id);
-		if(!oldItem) throw new restify.BadRequestError('Could not found');
 		const rs = await dbo.update(item, dboType);
-		await exports.fetchInCached(oldItem.project_id);
+
 		return rs;
 	},
 
@@ -118,10 +110,8 @@ exports = module.exports = {
 
 		const dbo = await db.open(exports.COLLECTION);
 		const dboType = dboReuse ? db.FAIL : db.DONE;
-		const oldItem = await dbo.get(_id);
-		if(!oldItem) throw new restify.BadRequestError('Could not found');
 		const rs = await dbo.delete(_id, dboType);
-		await exports.fetchInCached(oldItem.project_id);
+
 		return rs;
 	}
 

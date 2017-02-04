@@ -4,10 +4,10 @@
 	url: 'http://localhost:9000/login',
 	requestHeader: {
 		'content-type': 'application/json',
-		'pj': '58940acfec50fe166c9835c3'
+		'pj': '5895824239575601e851f496'
 	},
 	requestBody: {
-		username: 'thanh',
+		username: 'thanh7',
 		password: '123'
 	}
 }
@@ -18,7 +18,7 @@
 	url: 'http://localhost:9000/ping',
 	requestHeader: {
 		'content-type': 'application/json',
-		'token': '58940acfec50fe166c9835c3-58940ae5ec50fe166c9835c5-5894639e711dbd2644f547f2'
+		'token': '5895824239575601e851f496-58958376d6ebf50434defae4-58958416cbb27e1f789a2a8c'
 	}
 }
 
@@ -28,7 +28,7 @@
 	url: 'http://localhost:9000/authoriz',
 	requestHeader: {
 		'content-type': 'application/json',
-		'token': '58940acfec50fe166c9835c3-58940ae5ec50fe166c9835c5-5894631138e8c43a7cc2f7d0',
+		'token': '5895824239575601e851f496-58958376d6ebf50434defae4-5895848bb4e9c614e8d813c1',
 		'path': '/Login',
 		'actions': 'ADD',
 	}
@@ -40,10 +40,10 @@
 	url: 'http://localhost:9000/accounts?auto_login=1',
 	requestHeader: {
 		'content-type': 'application/json',
-		pj: '58940acfec50fe166c9835c3'
+		pj: '5895824239575601e851f496'
 	},
 	requestBody: {
-		role_ids: ['58940ad8ec50fe166c9835c4'],
+		role_ids: ['5895825239575601e851f497'],
 		username: 'thanh7',
 		password: '123',
 		status: 1,
@@ -59,7 +59,7 @@
 {
 	des: 'Get list',
 	method: 'GET',
-	url: 'http://localhost:9000/accounts?project_id=58940acfec50fe166c9835c3'
+	url: 'http://localhost:9000/accounts?project_id=5895824239575601e851f496'
 }
 
 {

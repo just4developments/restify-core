@@ -7,7 +7,7 @@ const projectService = require('../service/project.service');
 /************************************
  ** CONTROLLER:   projectController
  ** AUTHOR:       Unknown
- ** CREATED DATE: 2/4/2017, 3:58:02 PM
+ ** CREATED DATE: 2/3/2017, 10:00:34 AM
  *************************************/
 
 server.get('/project', utils.jsonHandler(), async(req, res, next) => {
@@ -38,8 +38,6 @@ server.post('/project', utils.jsonHandler(), async(req, res, next) => {
 		if (utils.has(req.body.name) === true) body.name = req.body.name;
 		if (utils.has(req.body.status) === true) body.status = +req.body.status;
 		if (utils.has(req.body.config) === true) body.config = utils.object(req.body.config);
-		if (utils.has(req.body.created_at) === true) body.created_at = utils.date(req.body.created_at);
-		if (utils.has(req.body.updated_at) === true) body.updated_at = utils.date(req.body.updated_at);
 
 		const rs = await projectService.insert(body);
 		res.send(rs);
@@ -55,8 +53,6 @@ server.put('/project/:_id', utils.jsonHandler(), async(req, res, next) => {
 		if (utils.has(req.body.name) === true) body.name = req.body.name;
 		if (utils.has(req.body.status) === true) body.status = +req.body.status;
 		if (utils.has(req.body.config) === true) body.config = utils.object(req.body.config);
-		if (utils.has(req.body.created_at) === true) body.created_at = utils.date(req.body.created_at);
-		if (utils.has(req.body.updated_at) === true) body.updated_at = utils.date(req.body.updated_at);
 
 		const rs = await projectService.update(body);
 		res.send(rs);

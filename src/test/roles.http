@@ -6,30 +6,34 @@
 		'content-type': 'application/json'
 	},
 	requestBody: {
-		project_id: '58940acfec50fe166c9835c3',
+		project_id: '5895824239575601e851f496',
 		name: 'Admin',
 		api: [{
 			path: '*',
 			actions: ['GET', 'FIND', 'ADD', 'UPDATE', 'DELETE']
-		}]
+		}],
+		web: [{
+			path: '*',
+			actions: ['GET', 'FIND', 'ADD', 'UPDATE', 'DELETE']
+		}],
 	}
 }
 
 {
 	des: 'Get list',
 	method: 'GET',
-	url: 'http://localhost:9000/roles'
+	url: 'http://localhost:9000/roles?project_id=5895824239575601e851f496'
 }
 
 {
 	des: 'Update',
 	method: 'PUT',
-	url: 'http://localhost:9000/roles/58940ad8ec50fe166c9835c4',
+	url: 'http://localhost:9000/roles/5895825239575601e851f497',
 	requestHeader: {
 		'content-type': 'application/json'
 	},
 	requestBody: {
-		project_id: '58940acfec50fe166c9835c3',
+		project_id: '5895824239575601e851f496',
 		name: 'Admin',
 		api: [{
 			path: '.*',
