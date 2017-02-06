@@ -8,7 +8,7 @@ const projectService = require('../service/project.service');
 /************************************
  ** CONTROLLER:   projectController
  ** AUTHOR:       Unknown
- ** CREATED DATE: 2/6/2017, 2:35:57 PM
+ ** CREATED DATE: 2/6/2017, 2:46:21 PM
  *************************************/
 
 server.get('/project', utils.jsonHandler(), async(req, res, next) => {

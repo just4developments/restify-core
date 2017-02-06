@@ -8,7 +8,7 @@ const configService = require('../service/config.service');
 /************************************
  ** CONTROLLER:   configController
  ** AUTHOR:       Unknown
- ** CREATED DATE: 2/6/2017, 2:35:57 PM
+ ** CREATED DATE: 2/6/2017, 2:46:21 PM
  *************************************/
 
 server.get('/config', utils.jsonHandler(), async(req, res, next) => {

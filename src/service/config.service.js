@@ -8,7 +8,7 @@ const utils = require('../utils');
 /************************************
  ** SERVICE:      configController
  ** AUTHOR:       Unknown
- ** CREATED DATE: 2/6/2017, 2:35:57 PM
+ ** CREATED DATE: 2/6/2017, 2:46:21 PM
  *************************************/
 
 exports = module.exports = {
@@ -51,6 +51,14 @@ exports = module.exports = {
 				break;
 		}
 		return item;
+	},
+
+	async getCached(projectId, cached){
+		return await cached.get(`config.${projectId}`);
+	},
+
+	async setCached(projectId, config, cached){
+		await cached.set(`config.${projectId}`, config);
 	},
 
 	async find(fil = {}, dboReuse) {

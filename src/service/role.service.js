@@ -8,7 +8,7 @@ const utils = require('../utils');
 /************************************
  ** SERVICE:      roleController
  ** AUTHOR:       Unknown
- ** CREATED DATE: 2/6/2017, 2:35:57 PM
+ ** CREATED DATE: 2/6/2017, 2:46:21 PM
  *************************************/
 
 exports = module.exports = {
@@ -50,17 +50,17 @@ exports = module.exports = {
 				item._id = utils.valid('_id', item._id, db.Uuid);
 				if (utils.has(item.project_id)) item.project_id = utils.valid('project_id', item.project_id, db.Uuid);
 				if (utils.has(item.name)) item.name = utils.valid('name', item.name, String);
-				item.api = utils.valid('api', item.api, Array, []);
+				if (utils.has(item.api)) item.api = utils.valid('api', item.api, Array);
 				if (utils.has(item.api)) item.api.forEach((itemi, i) => {
 					if (utils.has(item.api[i].path)) item.api[i].path = utils.valid('path', item.api[i].path, String);
 					if (utils.has(item.api[i].actions)) item.api[i].actions = utils.valid('actions', item.api[i].actions, Array);
 				});
-				item.web = utils.valid('web', item.web, Array, []);
+				if (utils.has(item.web)) item.web = utils.valid('web', item.web, Array);
 				if (utils.has(item.web)) item.web.forEach((itemi, i) => {
 					if (utils.has(item.web[i].path)) item.web[i].path = utils.valid('path', item.web[i].path, String);
 					if (utils.has(item.web[i].actions)) item.web[i].actions = utils.valid('actions', item.web[i].actions, Array);
 				});
-				item.mob = utils.valid('mob', item.mob, Array, []);
+				if (utils.has(item.mob)) item.mob = utils.valid('mob', item.mob, Array);
 				if (utils.has(item.mob)) item.mob.forEach((itemi, i) => {
 					if (utils.has(item.mob[i].path)) item.mob[i].path = utils.valid('path', item.mob[i].path, String);
 					if (utils.has(item.mob[i].actions)) item.mob[i].actions = utils.valid('actions', item.mob[i].actions, Array);
@@ -77,11 +77,18 @@ exports = module.exports = {
 
 				break;
 			case exports.VALIDATE.FIND:
-
-
+				
 				break;
 		}
 		return item;
+	},
+
+	async getCached(projectId, cached){
+		return await cached.get(`roles.${projectId}`);
+	},
+
+	async setCached(projectId, roles, cached){
+		await cached.set(`roles.${projectId}`, roles);
 	},
 
 	async find(fil = {}, dboReuse) {

@@ -7,7 +7,8 @@ module.exports = {
     cache: {
         redis: {
             host: 'localhost',
-            port: 6379
+            port: 6379,
+            opts: {}
         }
     },
     app: {

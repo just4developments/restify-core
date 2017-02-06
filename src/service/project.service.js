@@ -4,11 +4,12 @@ const _ = require('lodash');
 
 const db = require('../db');
 const utils = require('../utils');
+const cachedService = require('./cached.service');
 
 /************************************
  ** SERVICE:      projectController
  ** AUTHOR:       Unknown
- ** CREATED DATE: 2/6/2017, 2:35:57 PM
+ ** CREATED DATE: 2/6/2017, 2:46:21 PM
  *************************************/
 
 exports = module.exports = {
@@ -34,7 +35,7 @@ exports = module.exports = {
 			case exports.VALIDATE.UPDATE:
 				item._id = utils.valid('_id', item._id, db.Uuid);
 				if (utils.has(item.name)) item.name = utils.valid('name', item.name, String);
-				item.status = utils.valid('status', item.status, Number, 0);
+				if (utils.has(item.status)) item.status = utils.valid('status', item.status, Number);
 				item.updated_at = new Date();
 
 				break;
@@ -48,10 +49,17 @@ exports = module.exports = {
 				break;
 			case exports.VALIDATE.FIND:
 
-
 				break;
 		}
 		return item;
+	},
+
+	async getCached(projectId, cached){
+		return await cached.get(`project.${projectId}`);
+	},
+
+	async setCached(projectId, project, cached){
+		await cached.set(`project.${projectId}`, project);
 	},
 
 	async find(fil = {}, dboReuse) {

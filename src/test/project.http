@@ -7,7 +7,8 @@
 	},
 	requestBody: {
 		name: 'Project 01',
-		status: 1
+		status: 1,
+		
 	}
 }
 

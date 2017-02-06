@@ -1,14 +1,14 @@
 {
 	des: 'Add',
 	method: 'POST',
-	url: 'http://localhost:9000/account',
+	url: 'http://localhost:9000/account?auto_login=1',
 	requestHeader: {
 		'content-type': 'application/json'
 	},
 	requestBody: {
 		project_id: '58981cad5fb8162318d41c37',
 		role_ids: ['58981d254f7f0935948857ee'],
-		username: 'thanh',
+		username: 'thanh3',
 		password: '123',
 		status: 1,
 		recover_by: 'doanthuanthanh88@gmail.com',
@@ -19,28 +19,53 @@
 }
 
 {
+	method: 'POST',
+	url: 'http://localhost:9000/login',
+	requestHeader: {
+		'content-type': 'application/json',
+		pj: '58981cad5fb8162318d41c37'
+	},
+	requestBody: {
+		username: 'thanh',
+		password: '123'
+	}
+}
+
+{
 	des: 'Get list',
 	method: 'GET',
 	url: 'http://localhost:9000/account'
 }
 
 {
+	method: 'HEAD',
+	url: 'http://localhost:9000/authoriz',
+	requestHeader: {
+		'content-type': 'application/json',
+		token: '58981cad5fb8162318d41c37-589847ee491cef29dc41ea2b-589853fdc8bff821a097d713',
+		path: '/Login',
+		actions: 'ADD'
+	}
+}
+
+{
+	method: 'HEAD',
+	url: 'http://localhost:9000/ping',
+	requestHeader: {
+		'content-type': 'application/json',
+		token: '58981cad5fb8162318d41c37-589847ee491cef29dc41ea2b-589853fdc8bff821a097d713'
+	}
+}
+
+{
 	des: 'Update',
 	method: 'PUT',
-	url: 'http://localhost:9000/account/ITEM_ID',
+	url: 'http://localhost:9000/account/589847ee491cef29dc41ea2b',
 	requestHeader: {
 		'content-type': 'application/json'
 	},
 	requestBody: {
-		project_id: ,
-		role_ids: [],
-		app: '',
-		username: '',
-		password: '',
-		status: 0,
-		recover_by: '',
-		more: {},
-		token:
+		password: '123',
 	}
 }
 
