@@ -19,7 +19,9 @@ module.exports = {
             obj: GenType.Object({class: 'test'}),
             arr: GenType.Array([1,2,3])
             images: GenType.File({uploadDir: 'assets/images/', multiples: true, "httpPath": "/images/${filename}", "resize": Native("global.appconfig.app.imageResize.product")}),
-            avatar: GenType.File({uploadDir: 'assets/avatar/', multiples: false, "httpPath": "/avatar/${filename}", "resize": Native("global.appconfig.app.imageResize.avatar")})
+            avatar: GenType.File({uploadDir: 'assets/avatar/', multiples: false, "httpPath": "/avatar/${filename}", "resize": Native("global.appconfig.app.imageResize.avatar")}),
+            created_at: GenType.Date('auto-insert'),
+            updated_at: GenType.Date('auto-insert|auto-update')
         }
     },
     outdir: 'src'
@@ -33,6 +35,9 @@ In that:
     GenType.Number: same GenType.String
     GenType.Date: required
     GenType.Date('now'): Default is today (= new Date())
+    GenType.Date('auto-insert'): Default is today (= new Date()) when inserting
+    GenType.Date('auto-update'): Default is today (= new Date()) when updating
+    GenType.Date('auto-insert|auto-update'): Default is today (= new Date()) when inserting & updating
     GenType.Date(year, month, day, hh, mm, ss): (same new Date() in javascript: Oct = 9)
     GenType.Object: same GenType.String
     GenType.Array: same GenType.String
@@ -47,4 +52,10 @@ In that:
 Generate APIs from lib/generate/initial.js config file
 ```sh
 npm run gen
+```
+
+## Installation
+1. Use resize image
+```sh
+npm install jimp --save
 ```
