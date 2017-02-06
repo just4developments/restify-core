@@ -6,9 +6,14 @@
 		'content-type': 'application/json'
 	},
 	requestBody: {
-		project_id: ,
-		name: '',
-		api: [],
+		project_id: '58981cad5fb8162318d41c37',
+		name: 'User',
+		api: [
+			{
+				path: '/Login',
+				actions: ['ADD', 'UPDATE', 'GET', 'LIST']
+			}
+		],
 		web: [],
 		mob: []
 	}

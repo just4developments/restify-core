@@ -6,13 +6,13 @@ const db = require('../db');
 const utils = require('../utils');
 
 /************************************
- ** SERVICE:      projectController
+ ** SERVICE:      configController
  ** AUTHOR:       Unknown
  ** CREATED DATE: 2/6/2017, 2:35:57 PM
  *************************************/
 
 exports = module.exports = {
-	COLLECTION: "project",
+	COLLECTION: "config",
 	VALIDATE: {
 		INSERT: 0,
 		UPDATE: 1,
@@ -25,17 +25,16 @@ exports = module.exports = {
 		switch (action) {
 			case exports.VALIDATE.INSERT:
 				item._id = db.uuid();
-				item.name = utils.valid('name', item.name, String);
-				item.status = utils.valid('status', item.status, Number, 0);
-				item.created_at = new Date();
-				item.updated_at = new Date();
+				item.project_id = utils.valid('project_id', item.project_id, db.Uuid);
+				item.single_mode = utils.valid('single_mode', item.single_mode, Boolean);
+				item.session_expired = utils.valid('session_expired', item.session_expired, Number);
 
 				break;
 			case exports.VALIDATE.UPDATE:
 				item._id = utils.valid('_id', item._id, db.Uuid);
-				if (utils.has(item.name)) item.name = utils.valid('name', item.name, String);
-				item.status = utils.valid('status', item.status, Number, 0);
-				item.updated_at = new Date();
+				if (utils.has(item.project_id)) item.project_id = utils.valid('project_id', item.project_id, db.Uuid);
+				if (utils.has(item.single_mode)) item.single_mode = utils.valid('single_mode', item.single_mode, Boolean);
+				if (utils.has(item.session_expired)) item.session_expired = utils.valid('session_expired', item.session_expired, Number);
 
 				break;
 			case exports.VALIDATE.GET:

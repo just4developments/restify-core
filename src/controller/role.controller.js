@@ -2,18 +2,18 @@ const restify = require('restify');
 const path = require('path');
 
 const utils = require('../utils');
+const db = require('../db');
 const roleService = require('../service/role.service');
 
 /************************************
  ** CONTROLLER:   roleController
  ** AUTHOR:       Unknown
- ** CREATED DATE: 2/4/2017, 3:58:02 PM
+ ** CREATED DATE: 2/6/2017, 2:35:57 PM
  *************************************/
 
 server.get('/role', utils.jsonHandler(), async(req, res, next) => {
 	try {
 		let where = {};
-
 		const rs = await roleService.find({
 			where: where
 		});
@@ -25,7 +25,7 @@ server.get('/role', utils.jsonHandler(), async(req, res, next) => {
 
 server.get('/role/:_id', utils.jsonHandler(), async(req, res, next) => {
 	try {
-		const rs = await roleService.get(req.params._id);
+		const rs = await roleService.get(db.uuid(req.params._id));
 		res.send(rs);
 	} catch (err) {
 		next(err);
@@ -35,13 +35,11 @@ server.get('/role/:_id', utils.jsonHandler(), async(req, res, next) => {
 server.post('/role', utils.jsonHandler(), async(req, res, next) => {
 	try {
 		let body = {};
-		body.project_id = req.body.project_id;
-		if (utils.has(req.body.name) === true) body.name = req.body.name;
-		if (utils.has(req.body.api) === true) body.api = utils.object(req.body.api);
-		if (utils.has(req.body.web) === true) body.web = utils.object(req.body.web);
-		if (utils.has(req.body.mob) === true) body.mob = utils.object(req.body.mob);
-		if (utils.has(req.body.created_at) === true) body.created_at = utils.date(req.body.created_at);
-		if (utils.has(req.body.updated_at) === true) body.updated_at = utils.date(req.body.updated_at);
+		if (utils.has(req.body.project_id)) body.project_id = db.uuid(req.body.project_id);
+		if (utils.has(req.body.name)) body.name = req.body.name;
+		if (utils.has(req.body.api)) body.api = utils.object(req.body.api);
+		if (utils.has(req.body.web)) body.web = utils.object(req.body.web);
+		if (utils.has(req.body.mob)) body.mob = utils.object(req.body.mob);
 
 		const rs = await roleService.insert(body);
 		res.send(rs);
@@ -53,14 +51,12 @@ server.post('/role', utils.jsonHandler(), async(req, res, next) => {
 server.put('/role/:_id', utils.jsonHandler(), async(req, res, next) => {
 	try {
 		let body = {};
-		body._id = req.params._id;
-		body.project_id = req.body.project_id;
-		if (utils.has(req.body.name) === true) body.name = req.body.name;
-		if (utils.has(req.body.api) === true) body.api = utils.object(req.body.api);
-		if (utils.has(req.body.web) === true) body.web = utils.object(req.body.web);
-		if (utils.has(req.body.mob) === true) body.mob = utils.object(req.body.mob);
-		if (utils.has(req.body.created_at) === true) body.created_at = utils.date(req.body.created_at);
-		if (utils.has(req.body.updated_at) === true) body.updated_at = utils.date(req.body.updated_at);
+		body._id = db.uuid(req.params._id);
+		if (utils.has(req.body.project_id)) body.project_id = db.uuid(req.body.project_id);
+		if (utils.has(req.body.name)) body.name = req.body.name;
+		if (utils.has(req.body.api)) body.api = utils.object(req.body.api);
+		if (utils.has(req.body.web)) body.web = utils.object(req.body.web);
+		if (utils.has(req.body.mob)) body.mob = utils.object(req.body.mob);
 
 		const rs = await roleService.update(body);
 		res.send(rs);
@@ -71,7 +67,7 @@ server.put('/role/:_id', utils.jsonHandler(), async(req, res, next) => {
 
 server.del('/role/:_id', utils.jsonHandler(), async(req, res, next) => {
 	try {
-		const rs = await roleService.delete(req.params._id);
+		const rs = await roleService.delete(db.uuid(req.params._id));
 		res.send(rs);
 	} catch (err) {
 		next(err);

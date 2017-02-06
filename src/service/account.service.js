@@ -8,7 +8,7 @@ const utils = require('../utils');
 /************************************
  ** SERVICE:      accountController
  ** AUTHOR:       Unknown
- ** CREATED DATE: 2/4/2017, 3:58:02 PM
+ ** CREATED DATE: 2/6/2017, 2:35:57 PM
  *************************************/
 
 exports = module.exports = {
@@ -24,23 +24,8 @@ exports = module.exports = {
 		let msg;
 		switch (action) {
 			case exports.VALIDATE.INSERT:
-				item._id = db.uuid(utils.valid('_id', item._id, [String, db.Uuid]));
-				item.project_id = db.uuid(utils.valid('project_id', item.project_id, [String, db.Uuid]));
-				item.role_ids = db.uuid(utils.valid('role_ids', item.role_ids, Array));
-				item.app = utils.valid('app', item.app, String);
-				item.username = utils.valid('username', item.username, String);
-				item.password = utils.valid('password', item.password, String);
-				item.status = utils.valid('status', item.status, Number, 0);
-				item.recover_by = utils.valid('recover_by', item.recover_by, String);
-				item.more = utils.valid('more', item.more, Object);
-				item.token = db.uuid(utils.valid('token', item.token, [String, db.Uuid]));
-				item.created_at = new Date();
-				item.updated_at = new Date();
-
-				break;
-			case exports.VALIDATE.UPDATE:
-				item._id = db.uuid(utils.valid('_id', item._id, [String, db.Uuid]));
-				item.project_id = db.uuid(utils.valid('project_id', item.project_id, [String, db.Uuid]));
+				item._id = db.uuid();
+				item.project_id = utils.valid('project_id', item.project_id, db.Uuid);
 				item.role_ids = utils.valid('role_ids', item.role_ids, Array);
 				item.app = utils.valid('app', item.app, String);
 				item.username = utils.valid('username', item.username, String);
@@ -48,16 +33,31 @@ exports = module.exports = {
 				item.status = utils.valid('status', item.status, Number, 0);
 				item.recover_by = utils.valid('recover_by', item.recover_by, String);
 				item.more = utils.valid('more', item.more, Object);
-				item.token = db.uuid(utils.valid('token', item.token, [String, db.Uuid]));
+				if (utils.has(item.token)) item.token = utils.valid('token', item.token, db.Uuid);
+				item.created_at = new Date();
+				item.updated_at = new Date();
+
+				break;
+			case exports.VALIDATE.UPDATE:
+				item._id = utils.valid('_id', item._id, db.Uuid);
+				if (utils.has(item.project_id)) item.project_id = utils.valid('project_id', item.project_id, db.Uuid);
+				if (utils.has(item.role_ids)) item.role_ids = utils.valid('role_ids', item.role_ids, Array);
+				if (utils.has(item.app)) item.app = utils.valid('app', item.app, String);
+				if (utils.has(item.username)) item.username = utils.valid('username', item.username, String);
+				if (utils.has(item.password)) item.password = utils.valid('password', item.password, String);
+				item.status = utils.valid('status', item.status, Number, 0);
+				if (utils.has(item.recover_by)) item.recover_by = utils.valid('recover_by', item.recover_by, String);
+				if (utils.has(item.more)) item.more = utils.valid('more', item.more, Object);
+				if (utils.has(item.token)) item.token = utils.valid('token', item.token, db.Uuid);
 				item.updated_at = new Date();
 
 				break;
 			case exports.VALIDATE.GET:
-				item = db.uuid(utils.valid('_id', item, [String, db.Uuid]));
+				item = utils.valid('_id', item, db.Uuid);
 
 				break;
 			case exports.VALIDATE.DELETE:
-				item = db.uuid(utils.valid('_id', item, [String, db.Uuid]));
+				item = utils.valid('_id', item, db.Uuid);
 
 				break;
 			case exports.VALIDATE.FIND:

@@ -6,17 +6,15 @@
 		'content-type': 'application/json'
 	},
 	requestBody: {
-		app: '',
-		project_id: ,
-		role_ids: [],
-		username: '',
-		password: '',
-		status: 0,
-		recover_by: '',
-		more: {},
-		token: ,
-		created_at: new Date(),
-		updated_at: new Date()
+		project_id: '58981cad5fb8162318d41c37',
+		role_ids: ['58981d254f7f0935948857ee'],
+		username: 'thanh',
+		password: '123',
+		status: 1,
+		recover_by: 'doanthuanthanh88@gmail.com',
+		more: {
+			fullname: 'thanh'
+		}
 	}
 }
 
@@ -34,17 +32,15 @@
 		'content-type': 'application/json'
 	},
 	requestBody: {
-		app: '',
 		project_id: ,
 		role_ids: [],
+		app: '',
 		username: '',
 		password: '',
 		status: 0,
 		recover_by: '',
 		more: {},
-		token: ,
-		created_at: new Date(),
-		updated_at: new Date()
+		token:
 	}
 }
 

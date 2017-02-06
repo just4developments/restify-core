@@ -1,43 +1,45 @@
 {
 	des: 'Add',
 	method: 'POST',
-	url: 'http://localhost:9000/project',
+	url: 'http://localhost:9000/config',
 	requestHeader: {
 		'content-type': 'application/json'
 	},
 	requestBody: {
-		name: 'Project 01',
-		status: 1
+		project_id: ,
+		single_mode: 0,
+		session_expired: 0
 	}
 }
 
 {
 	des: 'Get list',
 	method: 'GET',
-	url: 'http://localhost:9000/project'
+	url: 'http://localhost:9000/config'
 }
 
 {
 	des: 'Update',
 	method: 'PUT',
-	url: 'http://localhost:9000/project/ITEM_ID',
+	url: 'http://localhost:9000/config/ITEM_ID',
 	requestHeader: {
 		'content-type': 'application/json'
 	},
 	requestBody: {
-		name: '',
-		status: 0
+		project_id: ,
+		single_mode: 0,
+		session_expired: 0
 	}
 }
 
 {
 	des: 'Get detail',
 	method: 'GET',
-	url: 'http://localhost:9000/project/ITEM_ID'
+	url: 'http://localhost:9000/config/ITEM_ID'
 }
 
 {
 	des: 'Delete',
 	method: 'DELETE',
-	url: 'http://localhost:9000/project/ITEM_ID'
+	url: 'http://localhost:9000/config/ITEM_ID'
 }

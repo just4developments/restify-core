@@ -8,7 +8,7 @@ const utils = require('../utils');
 /************************************
  ** SERVICE:      roleController
  ** AUTHOR:       Unknown
- ** CREATED DATE: 2/4/2017, 3:58:02 PM
+ ** CREATED DATE: 2/6/2017, 2:35:57 PM
  *************************************/
 
 exports = module.exports = {
@@ -24,56 +24,56 @@ exports = module.exports = {
 		let msg;
 		switch (action) {
 			case exports.VALIDATE.INSERT:
-				item._id = db.uuid(utils.valid('_id', item._id, [String, db.Uuid]));
-				item.project_id = db.uuid(utils.valid('project_id', item.project_id, [String, db.Uuid]));
+				item._id = db.uuid();
+				item.project_id = utils.valid('project_id', item.project_id, db.Uuid);
 				item.name = utils.valid('name', item.name, String);
 				item.api = utils.valid('api', item.api, Array, []);
-				item.api.forEach((itemi, i) => {
-					item.api[i].path = utils.valid('path', item.api[i].path, String);
-					item.api[i].actions = utils.valid('actions', item.api[i].actions, Array);
+				if (utils.has(item.api)) item.api.forEach((itemi, i) => {
+					if (utils.has(item.api[i].path)) item.api[i].path = utils.valid('path', item.api[i].path, String);
+					if (utils.has(item.api[i].actions)) item.api[i].actions = utils.valid('actions', item.api[i].actions, Array);
 				});
 				item.web = utils.valid('web', item.web, Array, []);
-				item.web.forEach((itemi, i) => {
-					item.web[i].path = utils.valid('path', item.web[i].path, String);
-					item.web[i].actions = utils.valid('actions', item.web[i].actions, Array);
+				if (utils.has(item.web)) item.web.forEach((itemi, i) => {
+					if (utils.has(item.web[i].path)) item.web[i].path = utils.valid('path', item.web[i].path, String);
+					if (utils.has(item.web[i].actions)) item.web[i].actions = utils.valid('actions', item.web[i].actions, Array);
 				});
 				item.mob = utils.valid('mob', item.mob, Array, []);
-				item.mob.forEach((itemi, i) => {
-					item.mob[i].path = utils.valid('path', item.mob[i].path, String);
-					item.mob[i].actions = utils.valid('actions', item.mob[i].actions, Array);
+				if (utils.has(item.mob)) item.mob.forEach((itemi, i) => {
+					if (utils.has(item.mob[i].path)) item.mob[i].path = utils.valid('path', item.mob[i].path, String);
+					if (utils.has(item.mob[i].actions)) item.mob[i].actions = utils.valid('actions', item.mob[i].actions, Array);
 				});
 				item.created_at = new Date();
 				item.updated_at = new Date();
 
 				break;
 			case exports.VALIDATE.UPDATE:
-				item._id = db.uuid(utils.valid('_id', item._id, [String, db.Uuid]));
-				item.project_id = db.uuid(utils.valid('project_id', item.project_id, [String, db.Uuid]));
-				item.name = utils.valid('name', item.name, String);
+				item._id = utils.valid('_id', item._id, db.Uuid);
+				if (utils.has(item.project_id)) item.project_id = utils.valid('project_id', item.project_id, db.Uuid);
+				if (utils.has(item.name)) item.name = utils.valid('name', item.name, String);
 				item.api = utils.valid('api', item.api, Array, []);
-				item.api.forEach((itemi, i) => {
-					item.api[i].path = utils.valid('path', item.api[i].path, String);
-					item.api[i].actions = utils.valid('actions', item.api[i].actions, Array);
+				if (utils.has(item.api)) item.api.forEach((itemi, i) => {
+					if (utils.has(item.api[i].path)) item.api[i].path = utils.valid('path', item.api[i].path, String);
+					if (utils.has(item.api[i].actions)) item.api[i].actions = utils.valid('actions', item.api[i].actions, Array);
 				});
 				item.web = utils.valid('web', item.web, Array, []);
-				item.web.forEach((itemi, i) => {
-					item.web[i].path = utils.valid('path', item.web[i].path, String);
-					item.web[i].actions = utils.valid('actions', item.web[i].actions, Array);
+				if (utils.has(item.web)) item.web.forEach((itemi, i) => {
+					if (utils.has(item.web[i].path)) item.web[i].path = utils.valid('path', item.web[i].path, String);
+					if (utils.has(item.web[i].actions)) item.web[i].actions = utils.valid('actions', item.web[i].actions, Array);
 				});
 				item.mob = utils.valid('mob', item.mob, Array, []);
-				item.mob.forEach((itemi, i) => {
-					item.mob[i].path = utils.valid('path', item.mob[i].path, String);
-					item.mob[i].actions = utils.valid('actions', item.mob[i].actions, Array);
+				if (utils.has(item.mob)) item.mob.forEach((itemi, i) => {
+					if (utils.has(item.mob[i].path)) item.mob[i].path = utils.valid('path', item.mob[i].path, String);
+					if (utils.has(item.mob[i].actions)) item.mob[i].actions = utils.valid('actions', item.mob[i].actions, Array);
 				});
 				item.updated_at = new Date();
 
 				break;
 			case exports.VALIDATE.GET:
-				item = db.uuid(utils.valid('_id', item, [String, db.Uuid]));
+				item = utils.valid('_id', item, db.Uuid);
 
 				break;
 			case exports.VALIDATE.DELETE:
-				item = db.uuid(utils.valid('_id', item, [String, db.Uuid]));
+				item = utils.valid('_id', item, db.Uuid);
 
 				break;
 			case exports.VALIDATE.FIND:
