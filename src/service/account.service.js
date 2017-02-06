@@ -36,6 +36,10 @@ exports = module.exports = {
 				if(item.app) item.app = utils.valid('app', item.app, String);
 				else item.password = utils.valid('password', item.password, String);
 				break;
+			case exports.VALIDATE.AUTHORIZ:
+				item.path = utils.valid('path', item.path, String);	
+				item.actions = utils.valid('actions', item.actions, Array);	
+				break;
 			case exports.VALIDATE.INSERT:
 				item._id = db.uuid();
 				item.project_id = utils.valid('project_id', item.project_id, db.Uuid);
@@ -117,8 +121,8 @@ exports = module.exports = {
 		}
 	},
 
-	async authoriz(auth, path, actions) {
-		if(!(actions instanceof Array)) actions = actions.split(',');
+	async authoriz(auth) {		
+		auth = exports.validate(auth, exports.VALIDATE.AUTHORIZ);
 		const dbo = await db.open(exports.COLLECTION);
 		const cached = cachedService.open();
 		try {
@@ -128,7 +132,7 @@ exports = module.exports = {
 			const roles = await rolesService.getCached(auth.projectId, cached);
 			for(let role of roles){
 				for(let r of role.api) {
-					if(new RegExp(`^${r.path}$`, 'gi').test(path) && _.some(actions, (a) => {
+					if(new RegExp(`^${r.path}$`, 'gi').test(auth.path) && _.some(auth.actions, (a) => {
 						for(var auAction of r.actions){
 							if(new RegExp(`^${auAction}$`, 'gi').test(a)){
 								return true;

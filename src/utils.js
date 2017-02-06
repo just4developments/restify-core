@@ -8,8 +8,8 @@ const db = require('./db');
  *************************************/
 
 exports = module.exports = _.extend(require('../lib/core/utils'), {
-    authHandler() {
-        return (req, res, next) => {
+    authHandler(isAutoCheckInCache=false) {
+        return async (req, res, next) => {
             if(!req.headers.token) return next(new restify.ProxyAuthenticationRequiredError());                    
             const [project_id, account_id, token] = req.headers.token.split('-');        
             req.auth = {
@@ -17,6 +17,14 @@ exports = module.exports = _.extend(require('../lib/core/utils'), {
                 accountId: db.uuid(account_id),
                 token: db.uuid(token)
             };
+            if(isAutoCheckInCache){
+                const accountService = require('./service/account.service');
+                const cacheService = require('./service/cached.service');
+                const cached = cacheService.open();
+                let user = await accountService.getCached(req.auth.token, cached);
+                await cached.close();
+                if(!user) return next(new restify.ProxyAuthenticationRequiredError());     
+            }
             next();
         };
     },
