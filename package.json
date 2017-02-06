@@ -15,11 +15,9 @@
   "author": "just4developments@gmail.com",
   "license": "ISC",
   "dependencies": {
-    "async": "^2.1.4",
-    "jimp": "^0.2.27",
     "lodash": "^4.17.2",
     "node-uuid": "^1.4.7",
-    "restify": "^4.2.0"
+    "restify": "^4.3.0"
   },
   "devDependencies": {
     "js-beautify": "^1.6.4"

@@ -53,3 +53,9 @@ Generate APIs from lib/generate/initial.js config file
 ```sh
 npm run gen
 ```
+
+## Installation
+1. Use resize image
+```sh
+npm install jimp --save
+```
