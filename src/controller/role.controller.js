@@ -13,9 +13,11 @@ const roleService = require('../service/role.service');
 
 server.get('/role', utils.jsonHandler(), async(req, res, next) => {
 	try {
-		let where = {};
+		let where = {
+			project_id: db.uuid(req.query.project_id)
+		};
 		const rs = await roleService.find({
-			where: where
+			where
 		});
 		res.send(rs);
 	} catch (err) {

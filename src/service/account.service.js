@@ -47,7 +47,8 @@ exports = module.exports = {
 				item.username = utils.valid('username', item.username, String);				
 				item.status = utils.valid('status', item.status, Number, 0);
 				item.recover_by = utils.valid('recover_by', item.recover_by, String);
-				item.more = utils.valid('more', item.more, Object);
+				if(!item.more) item.more = {};
+				else item.more = utils.valid('more', item.more, Object);
 				if(item.app) item.app = utils.valid('app', item.app, String);
 				else item.password = utils.valid('password', item.password, String);
 				item.created_at = new Date();
@@ -61,8 +62,8 @@ exports = module.exports = {
 				if (utils.has(item.password)) item.password = utils.valid('password', item.password, String);
 				if (utils.has(item.status)) item.status = utils.valid('status', item.status, Number);
 				if (utils.has(item.recover_by)) item.recover_by = utils.valid('recover_by', item.recover_by, String);
-				if (utils.has(item.more)) item.more = utils.valid('more', item.more, Object);
-				if (utils.has(item.token)) item.token = utils.valid('token', item.token, db.Uuid);
+				if(!item.more) item.more = {};
+				else item.more = utils.valid('more', item.more, Object);
 				item.updated_at = new Date();
 
 				break;
@@ -103,17 +104,17 @@ exports = module.exports = {
 				fields: { token: 1, status: 1, _id: 1, project_id: 1, role_ids: 1 }
 			}, db.FAIL);
 			if(!user) {
-				if(item.password) throw new restify.BadRequestError("Username or password is wrong");
-				else throw new restify.BadRequestError("Username or login via social is wrong");
+				if(item.password) throw new restify.NotFoundError("Username or password is wrong");
+				else throw new restify.NotFoundError("Username or login via social is wrong");
 			}
-			if(user.status !== exports.STATUS.ACTIVE) throw new restify.BadRequestError("You have not been actived yet");			
-			const configService = require('./config.service');
+			if(user.status !== exports.STATUS.ACTIVE) throw new restify.LockedError("You have not been actived yet");			
+			const projectService = require('./project.service');
 			cached = cachedService.open();
-			const config = await configService.getCached(user.project_id, cached);						
-			if(config.single_mode) await cached.del(`login.${user.token}`);
+			const project = await projectService.getCached(user.project_id, cached);						
+			if(project.plugins.oauthv2.single_mode) await cached.del(`login.${user.token}`);
 			user.token = db.uuid();
 			await dbo.update(user, db.FAIL);
-			await cached.set(`login.${user.token}`, user, config.session_expired);
+			await cached.set(`login.${user.token}`, user, project.plugins.oauthv2.session_expired);
 			return `${user.project_id}-${user._id}-${user.token}`;
 		} finally {
 			if(cached) await cached.close();
@@ -127,9 +128,9 @@ exports = module.exports = {
 		const cached = cachedService.open();
 		try {
 			const user = await exports.getCached(auth.token, cached);
-			if(!user) throw new restify.BadRequestError("Could not authentication");
-			const rolesService = require('./role.service');
-			const roles = await rolesService.getCached(auth.projectId, cached);
+			if(!user) throw new restify.UnauthorizedError('Session was expired');
+			const roleService = require('./role.service');
+			const roles = await roleService.getCached(auth.projectId, cached);
 			for(let role of roles){
 				for(let r of role.api) {
 					if(new RegExp(`^${r.path}$`, 'gi').test(auth.path) && _.some(auth.actions, (a) => {
@@ -155,67 +156,68 @@ exports = module.exports = {
 		const cached = cachedService.open();
 		try {
 			const user = await exports.getCached(auth.token, cached);
-			if(!user) throw new restify.BadRequestError('Session was expired');
-			const configService = require('./config.service');
-			const config = await configService.getInCached(user.project_id, cached);			
-			await cached.touch(`login.${user.token}`, config.session_expired);
+			if(!user) throw new restify.UnauthorizedError('Session was expired');
+			const projectService = require('./project.service');
+			const project = await projectService.getCached(user.project_id, cached);
+			await cached.touch(`login.${user.token}`, project.plugins.oauthv2.session_expired);
 		} finally {
 			cached.close();
 		}
 	},
 
-	async find(fil = {}, dboReuse) {
+	async find(fil = {}, dbo) {
 		fil = exports.validate(fil, exports.VALIDATE.FIND);
 
-		const dbo = dboReuse || await db.open(exports.COLLECTION);
-		const dboType = dboReuse ? db.FAIL : db.DONE;
+		const dboType = dbo ? db.FAIL : db.DONE;
+		dbo = dbo ? await dbo.change(exports.COLLECTION) : await db.open(exports.COLLECTION);		
 		const rs = await dbo.find(fil, dboType);
 		return rs;
 	},
 
-	async get(_id, dboReuse) {
+	async get(_id, dbo) {
 		_id = exports.validate(_id, exports.VALIDATE.GET);
 
-		const dbo = dboReuse || await db.open(exports.COLLECTION);
-		const dboType = dboReuse ? db.FAIL : db.DONE;
+		const dboType = dbo ? db.FAIL : db.DONE;
+		dbo = dbo ? await dbo.change(exports.COLLECTION) : await db.open(exports.COLLECTION);		
 		const rs = await dbo.get(_id, dboType);
 		return rs;
 	},
 
-	async insert(item, dboReuse) {
+	async insert(item, dbo) {
 		item = exports.validate(item, exports.VALIDATE.INSERT);
 
-		const dbo = dboReuse || await db.open(exports.COLLECTION);
-		const dboType = dboReuse ? db.FAIL : db.DONE;
-		const existedUser = await dbo.get({
-			where: {
-				username: item.username,
-				project_id: item.project_id
-			}
-		}, db.FAIL);
-		if(existedUser) {
-			await dbo.close();
-			throw new restify.BadRequestError(`User ${item.username} was existed`);			
+		const dboType = dbo ? db.FAIL : db.DONE;
+		dbo = dbo ? await dbo.change(exports.COLLECTION) : await db.open(exports.COLLECTION);		
+		try {
+			const existedUser = await dbo.get({
+				where: {
+					username: item.username,
+					project_id: item.project_id
+				}
+			}, db.FAIL);
+			if(existedUser) throw new restify.BadRequestError(`User ${item.username} was existed`);
+			const rs = await dbo.insert(item, db.FAIL);
+			return rs;
+		} finally {
+			if(dboType === db.DONE) await dbo.close();
 		}
-		const rs = await dbo.insert(item, dboType);
-		return rs;
 	},
 
-	async update(item, dboReuse) {
+	async update(item, dbo) {
 		item = exports.validate(item, exports.VALIDATE.UPDATE);
 
-		const dbo = dboReuse || await db.open(exports.COLLECTION);
-		const dboType = dboReuse ? db.FAIL : db.DONE;
+		const dboType = dbo ? db.FAIL : db.DONE;
+		dbo = dbo ? await dbo.change(exports.COLLECTION) : await db.open(exports.COLLECTION);		
 		const rs = await dbo.update(item, dboType);
 
 		return rs;
 	},
 
-	async delete(_id, dboReuse) {
+	async delete(_id, dbo) {
 		_id = exports.validate(_id, exports.VALIDATE.DELETE);
 
-		const dbo = await db.open(exports.COLLECTION);
-		const dboType = dboReuse ? db.FAIL : db.DONE;
+		const dboType = dbo ? db.FAIL : db.DONE;
+		dbo = dbo ? await dbo.change(exports.COLLECTION) : await db.open(exports.COLLECTION);		
 		const rs = await dbo.delete(_id, dboType);
 
 		return rs;

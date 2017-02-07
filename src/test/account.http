@@ -1,14 +1,14 @@
 {
 	des: 'Add',
 	method: 'POST',
-	url: 'http://localhost:9000/account?auto_login=1',
+	url: 'http://localhost:9600/account?auto_login=1',
 	requestHeader: {
-		'content-type': 'application/json'
+		'content-type': 'application/json',
+		pj: '58997ac77e9a4435508973bf'
 	},
 	requestBody: {
-		project_id: '58981cad5fb8162318d41c37',
-		role_ids: ['58981d254f7f0935948857ee'],
-		username: 'thanh3',
+		role_ids: ['58997b0a7e9a4435508973c1'],
+		username: 'thanh13',
 		password: '123',
 		status: 1,
 		recover_by: 'doanthuanthanh88@gmail.com',
@@ -20,13 +20,13 @@
 
 {
 	method: 'POST',
-	url: 'http://localhost:9000/login',
+	url: 'http://localhost:9600/login',
 	requestHeader: {
 		'content-type': 'application/json',
-		pj: '58981cad5fb8162318d41c37'
+		pj: '58997ac77e9a4435508973bf'
 	},
 	requestBody: {
-		username: 'thanh',
+		username: 'thanh13',
 		password: '123'
 	}
 }
@@ -34,15 +34,15 @@
 {
 	des: 'Get list',
 	method: 'GET',
-	url: 'http://localhost:9000/account'
+	url: 'http://localhost:9600/account'
 }
 
 {
 	method: 'HEAD',
-	url: 'http://localhost:9000/authoriz',
+	url: 'http://localhost:9600/authoriz',
 	requestHeader: {
 		'content-type': 'application/json',
-		token: '58981cad5fb8162318d41c37-589847ee491cef29dc41ea2b-589853fdc8bff821a097d713',
+		token: '58997ac77e9a4435508973bf-589980092d24aa1dbc5f97ea-589981790911a43cd0e30753',
 		path: '/Login',
 		actions: 'ADD'
 	}
@@ -50,17 +50,17 @@
 
 {
 	method: 'HEAD',
-	url: 'http://localhost:9000/ping',
+	url: 'http://localhost:9600/ping',
 	requestHeader: {
 		'content-type': 'application/json',
-		token: '58981cad5fb8162318d41c37-589847ee491cef29dc41ea2b-589853fdc8bff821a097d713'
+		token: '58997ac77e9a4435508973bf-589980092d24aa1dbc5f97ea-589980fa82577e1d985d1813'
 	}
 }
 
 {
 	des: 'Update',
 	method: 'PUT',
-	url: 'http://localhost:9000/account/589847ee491cef29dc41ea2b',
+	url: 'http://localhost:9600/account/589847ee491cef29dc41ea2b',
 	requestHeader: {
 		'content-type': 'application/json'
 	},
@@ -72,11 +72,11 @@
 {
 	des: 'Get detail',
 	method: 'GET',
-	url: 'http://localhost:9000/account/ITEM_ID'
+	url: 'http://localhost:9600/account/ITEM_ID'
 }
 
 {
 	des: 'Delete',
 	method: 'DELETE',
-	url: 'http://localhost:9000/account/ITEM_ID'
+	url: 'http://localhost:9600/account/ITEM_ID'
 }

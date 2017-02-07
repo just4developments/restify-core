@@ -8,7 +8,7 @@ const projectService = require('../service/project.service');
 /************************************
  ** CONTROLLER:   projectController
  ** AUTHOR:       Unknown
- ** CREATED DATE: 2/6/2017, 2:46:21 PM
+ ** CREATED DATE: 2/7/2017, 2:39:22 PM
  *************************************/
 
 server.get('/project', utils.jsonHandler(), async(req, res, next) => {
@@ -37,6 +37,7 @@ server.post('/project', utils.jsonHandler(), async(req, res, next) => {
 		let body = {};
 		if (utils.has(req.body.name)) body.name = req.body.name;
 		if (utils.has(req.body.status)) body.status = +req.body.status;
+		if (utils.has(req.body.plugins)) body.plugins = utils.object(req.body.plugins);
 
 		const rs = await projectService.insert(body);
 		res.send(rs);
@@ -51,6 +52,7 @@ server.put('/project/:_id', utils.jsonHandler(), async(req, res, next) => {
 		body._id = db.uuid(req.params._id);
 		if (utils.has(req.body.name)) body.name = req.body.name;
 		if (utils.has(req.body.status)) body.status = +req.body.status;
+		if (utils.has(req.body.plugins)) body.plugins = utils.object(req.body.plugins);
 
 		const rs = await projectService.update(body);
 		res.send(rs);

@@ -10,7 +10,7 @@ const db = require('./db');
 exports = module.exports = _.extend(require('../lib/core/utils'), {
     authHandler(isAutoCheckInCache=false) {
         return async (req, res, next) => {
-            if(!req.headers.token) return next(new restify.ProxyAuthenticationRequiredError());                    
+            if(!req.headers.token) throw new restify.UnauthorizedError('Authen got problem');             
             const [project_id, account_id, token] = req.headers.token.split('-');        
             req.auth = {
                 projectId: db.uuid(project_id),
@@ -23,7 +23,7 @@ exports = module.exports = _.extend(require('../lib/core/utils'), {
                 const cached = cacheService.open();
                 let user = await accountService.getCached(req.auth.token, cached);
                 await cached.close();
-                if(!user) return next(new restify.ProxyAuthenticationRequiredError());     
+                if(!user) throw new restify.UnauthorizedError('Session was expired');
             }
             next();
         };

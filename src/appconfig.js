@@ -1,6 +1,6 @@
 module.exports = {
-    listen: 9000,
-    staticUrl: 'http://localhost:9000',
+    listen: 9600,
+    staticUrl: 'http://localhost:9600',
     db: {
         url: 'mongodb://localhost:27017/oauthv2'
     },

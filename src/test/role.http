@@ -1,17 +1,17 @@
 {
 	des: 'Add',
 	method: 'POST',
-	url: 'http://localhost:9000/role',
+	url: 'http://localhost:9600/role',
 	requestHeader: {
 		'content-type': 'application/json'
 	},
 	requestBody: {
-		project_id: '58981cad5fb8162318d41c37',
+		project_id: '58997ac77e9a4435508973bf',
 		name: 'User',
 		api: [
 			{
-				path: '/Login',
-				actions: ['ADD', 'UPDATE', 'GET', 'LIST']
+				path: '/login',
+				actions: ['LOGIN']
 			}
 		],
 		web: [],
@@ -22,20 +22,24 @@
 {
 	des: 'Get list',
 	method: 'GET',
-	url: 'http://localhost:9000/role'
+	url: 'http://localhost:9600/role?project_id=58997ac77e9a4435508973bf'
 }
 
 {
 	des: 'Update',
 	method: 'PUT',
-	url: 'http://localhost:9000/role/ITEM_ID',
+	url: 'http://localhost:9600/role/58981d254f7f0935948857ee',
 	requestHeader: {
 		'content-type': 'application/json'
 	},
 	requestBody: {
-		project_id: ,
-		name: '',
-		api: [],
+		name: 'User',
+		api: [{
+			"path": ".*",
+			"actions": [
+				".*"
+			]
+		}],
 		web: [],
 		mob: []
 	}
@@ -44,11 +48,11 @@
 {
 	des: 'Get detail',
 	method: 'GET',
-	url: 'http://localhost:9000/role/ITEM_ID'
+	url: 'http://localhost:9600/role/ITEM_ID'
 }
 
 {
 	des: 'Delete',
 	method: 'DELETE',
-	url: 'http://localhost:9000/role/ITEM_ID'
+	url: 'http://localhost:9600/role/ITEM_ID'
 }
