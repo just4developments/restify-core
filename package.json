@@ -16,7 +16,6 @@
   "author": "just4developments@gmail.com",
   "license": "ISC",
   "dependencies": {
-    "fs-path": "0.0.23",
     "lodash": "^4.17.2",
     "md5": "^2.2.1",
     "mongodb": "^2.2.22",
