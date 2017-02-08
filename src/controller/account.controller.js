@@ -42,8 +42,7 @@ server.post('/account', utils.jsonHandler(), utils.auth('plugin.oauthv2>account'
 		if (utils.has(req.body.app)) body.app = req.body.app;
 		if (utils.has(req.body.username)) body.username = req.body.username;
 		if (utils.has(req.body.password)) {
-			const md5 = require('md5');
-			body.password = md5(req.body.password);
+			body.password = utils.md5(req.body.password);
 		}
 		if (utils.has(req.body.status)) body.status = +req.body.status;
 		if (utils.has(req.body.recover_by)) body.recover_by = req.body.recover_by;
@@ -68,8 +67,7 @@ server.put('/account/:_id', utils.jsonHandler(), utils.auth('plugin.oauthv2>acco
 		if (utils.has(req.body.app)) body.app = req.body.app;
 		if (utils.has(req.body.username)) body.username = req.body.username;
 		if (utils.has(req.body.password)) {
-			const md5 = require('md5');
-			body.password = md5(req.body.password);
+			body.password = utils.md5(req.body.password);
 		}
 		if (utils.has(req.body.secret_key)) body.secret_key = req.body.secret_key;
 		if (utils.has(req.body.status)) body.status = +req.body.status;

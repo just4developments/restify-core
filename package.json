@@ -17,7 +17,6 @@
   "license": "ISC",
   "dependencies": {
     "lodash": "^4.17.2",
-    "md5": "^2.2.1",
     "mongodb": "^2.2.22",
     "node-uuid": "^1.4.7",
     "redis": "^2.6.5",

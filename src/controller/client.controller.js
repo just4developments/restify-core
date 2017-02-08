@@ -32,8 +32,7 @@ server.post('/login', utils.jsonHandler(), async(req, res, next) => {
 		if (utils.has(req.headers.app)) body.app = req.headers.app;
 		if (utils.has(req.body.username)) body.username = req.body.username;
 		if (utils.has(req.body.password)) {
-			const md5 = require('md5');
-			body.password = md5(req.body.password);
+			body.password = utils.md5(req.body.password);
 		}
 
 		const token = await accountService.login(body);
@@ -96,8 +95,7 @@ server.put('/me', utils.jsonHandler(), utils.authHandler(true), async(req, res, 
 		let body = {};
 		body._id = req.auth.accountId;
 		if (utils.has(req.body.password)) {
-			const md5 = require('md5');
-			body.password = md5(req.body.password);
+			body.password = utils.md5(req.body.password);
 		}
 		if (utils.has(req.body.recover_by)) body.recover_by = req.body.recover_by;
 		if (utils.has(req.body.more)) body.more = utils.object(req.body.more);
@@ -117,8 +115,7 @@ server.post('/register', utils.jsonHandler(), async(req, res, next) => {
 		if (utils.has(req.body.app)) body.app = req.body.app;
 		if (utils.has(req.body.username)) body.username = req.body.username;
 		if (utils.has(req.body.password)) {
-			const md5 = require('md5');
-			body.password = md5(req.body.password);
+			body.password = utils.md5(req.body.password);
 		}
 		if (utils.has(req.body.status)) body.status = +req.body.status;
 		if (utils.has(req.body.recover_by)) body.recover_by = req.body.recover_by;
