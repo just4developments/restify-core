@@ -23,6 +23,23 @@ server.get('/project', utils.jsonHandler(), async(req, res, next) => {
 	}
 });
 
+server.get('/project-config', utils.jsonHandler(), utils.authHandler(true), async(req, res, next) => {
+	const cachedService = require('../service/cached.service');
+	let cached;
+	try {
+		cached = cachedService.open();
+		const rs = await projectService.getCached(req.auth.projectId, cached)
+		if(req.query.plugin) {
+			return res.send(rs.plugins[req.query.plugin]);
+		}
+		res.send(rs);
+	} catch (err) {
+		next(err);
+	} finally {
+		if(cached) await cached.close();
+	}
+});
+
 server.get('/project/:_id', utils.jsonHandler(), async(req, res, next) => {
 	try {
 		const rs = await projectService.get(db.uuid(req.params._id));

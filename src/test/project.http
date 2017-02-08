@@ -26,17 +26,30 @@
 {
 	des: 'Update',
 	method: 'PUT',
-	url: 'http://localhost:9600/project/ITEM_ID',
+	url: 'http://localhost:9600/project/58997ac77e9a4435508973bf',
 	requestHeader: {
 		'content-type': 'application/json'
 	},
 	requestBody: {
-		name: '',
-		status: 0,
 		plugins: {
-			oauthv2: {
-				_id: single_mode: 0
-				session_expired: 0
+				"oauthv2": {
+				"single_mode": false,
+				"session_expired": 6000
+			},
+			"mail": {
+				"trying_time": 3,
+				"accounts": {
+					"admin": {
+						service: 'gmail',
+						tls:{
+							rejectUnauthorized: false
+						},
+						auth: {
+							user: 'clipvnet@gmail.com',
+							pass: 'YnVpdGh1aGE5MA=='
+						}
+					}
+				}
 			}
 		}
 	}

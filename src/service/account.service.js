@@ -51,6 +51,7 @@ exports = module.exports = {
 				else item.more = utils.valid('more', item.more, Object);
 				if(item.app) item.app = utils.valid('app', item.app, String);
 				else item.password = utils.valid('password', item.password, String);
+				item.secret_key = db.uuid();
 				item.created_at = new Date();
 				item.updated_at = new Date();
 
@@ -64,6 +65,8 @@ exports = module.exports = {
 				if (utils.has(item.recover_by)) item.recover_by = utils.valid('recover_by', item.recover_by, String);
 				if(!item.more) item.more = {};
 				else item.more = utils.valid('more', item.more, Object);
+				if(item.secret_key === true) item.secret_key = db.uuid();
+				else delete item.secret_key;
 				item.updated_at = new Date();
 
 				break;
@@ -87,11 +90,34 @@ exports = module.exports = {
 		return await cached.get(`login.${token}`);
 	},
 
+	async loginBySecretKey(body){
+		let where = body;
+		const dbo = await db.open(exports.COLLECTION);
+		let cached;
+		try {
+			const user = await dbo.get({
+				where,
+				fields: { token: 1, status: 1, _id: 1, project_id: 1, role_ids: 1 }
+			}, db.FAIL);
+			if(!user) throw new restify.NotFoundError("Secret key is not correct");
+			if(user.status !== exports.STATUS.ACTIVE) throw new restify.LockedError("You have not been actived yet");			
+			const projectService = require('./project.service');
+			cached = cachedService.open();
+			const project = await projectService.getCached(user.project_id, cached);
+			user.token = db.uuid();
+			await dbo.update(user, db.FAIL);
+			await cached.set(`login.${body.secret_key}`, user);
+			return `${user.project_id}-${user._id}-${user.token}`;
+		} finally {
+			if(cached) await cached.close();
+			await dbo.close();
+		}
+	},
+
 	async login(item = {}) {
 		item = exports.validate(item, exports.VALIDATE.LOGIN);
 		let where = {
 			username: item.username,
-			status: exports.STATUS.ACTIVE,
 			project_id: item.project_id
 		};
 		if(item.password) where.password = item.password;
@@ -208,19 +234,46 @@ exports = module.exports = {
 
 		const dboType = dbo ? db.FAIL : db.DONE;
 		dbo = dbo ? await dbo.change(exports.COLLECTION) : await db.open(exports.COLLECTION);		
-		const rs = await dbo.update(item, dboType);
-
-		return rs;
+		let cached;
+		try {
+			let oldItem;
+			if(item.secret_key) {
+				oldItem = await exports.get(item._id);
+			}
+			const rs = await dbo.update(item, db.FAIL);
+			if(oldItem) {
+				cached = cachedService.open();
+				await cached.del(`login.${oldItem.secret_key}`);
+				const user = await exports.get({
+					_id: item._id,
+					fields: { token: 1, status: 1, _id: 1, project_id: 1, role_ids: 1 }
+				}, db.FAIL);
+				await cached.set(`login.${user.secret_key}`, item);
+			}
+			return rs;
+		} finally {
+			if(cached) await cached.close();
+			if(dboType === db.DONE) await db.close();
+		}
 	},
 
 	async delete(_id, dbo) {
 		_id = exports.validate(_id, exports.VALIDATE.DELETE);
 
 		const dboType = dbo ? db.FAIL : db.DONE;
-		dbo = dbo ? await dbo.change(exports.COLLECTION) : await db.open(exports.COLLECTION);		
-		const rs = await dbo.delete(_id, dboType);
-
-		return rs;
+		dbo = dbo ? await dbo.change(exports.COLLECTION) : await db.open(exports.COLLECTION);
+		let cached;
+		try {
+			const oldItem = await exports.get(_id);			
+			const rs = await dbo.delete(_id, db.FAIL);
+			cached = cachedService.open();
+			await cached.del(`login.${oldItem.secret_key}`);
+			await cached.del(`login.${oldItem.token}`);
+			return rs;
+		} finally {
+			if(cached) await cached.close();
+			if(dboType === db.DONE) await db.close();
+		}		
 	}
 
 }

@@ -8,7 +8,7 @@
 	},
 	requestBody: {
 		role_ids: ['58997b0a7e9a4435508973c1'],
-		username: 'thanh13',
+		username: 'thanh15',
 		password: '123',
 		status: 1,
 		recover_by: 'doanthuanthanh88@gmail.com',
@@ -42,7 +42,7 @@
 	url: 'http://localhost:9600/authoriz',
 	requestHeader: {
 		'content-type': 'application/json',
-		token: '58997ac77e9a4435508973bf-589980092d24aa1dbc5f97ea-589981790911a43cd0e30753',
+		token: '58997ac77e9a4435508973bf-589980092d24aa1dbc5f97ea-5899a3658936e82e301a2e71',
 		path: '/Login',
 		actions: 'ADD'
 	}

@@ -1,3 +1,4 @@
+const restify = require('restify');
 const _ = require('lodash');
 
 const db = require('./db');
@@ -23,7 +24,7 @@ exports = module.exports = _.extend(require('../lib/core/utils'), {
                 const cached = cacheService.open();
                 let user = await accountService.getCached(req.auth.token, cached);
                 await cached.close();
-                if(!user) throw new restify.UnauthorizedError('Session was expired');
+                if(!user) return next(new restify.UnauthorizedError('Session was expired'));
             }
             next();
         };

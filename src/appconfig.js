@@ -1,8 +1,10 @@
 module.exports = {
     listen: 9600,
-    staticUrl: 'http://localhost:9600',
     db: {
         url: 'mongodb://localhost:27017/oauthv2'
+    },
+    auth: {
+        url: 'http://localhost:9600'
     },
     cache: {
         redis: {
