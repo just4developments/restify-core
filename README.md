@@ -57,5 +57,6 @@ npm run gen
 ## Installation
 1. Use resize image
 ```sh
+npm install fs-path
 npm install jimp --save
 ```

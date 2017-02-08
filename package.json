@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node --expose-gc --harmony-async-await index.js",
+    "test": "node --expose-gc --harmony-async-await test.js",
     "gen": "node ./lib/generate/gen.js",
     "pm2": "pm2 start --node-args=\"--expose-gc --harmony-async-await\" --name restify-core"
   },
@@ -15,7 +16,6 @@
   "author": "just4developments@gmail.com",
   "license": "ISC",
   "dependencies": {
-    "fs-path": "0.0.23",
     "lodash": "^4.17.2",
     "mongodb": "^2.2.22",
     "node-uuid": "^1.4.7",
