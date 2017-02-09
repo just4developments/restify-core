@@ -22,7 +22,7 @@ server.use(restify.queryParser());
 // server.use(restify.CORS());
 // server.use(restify.fullResponse());
 
-server.get(/\/images\/?.*/, restify.serveStatic({
+server.get(/\/attachments\/?.*/, restify.serveStatic({
   directory: './assets'
 }));
 
@@ -44,6 +44,8 @@ fs.readdir(path.join(__dirname, 'src', 'controller'), function (err, files) {
         } 
     });
 });
+
+require('./src/service/_startup');
 
 server.listen(appconfig.listen, () => {
     console.info("Server is running at %d", appconfig.listen);

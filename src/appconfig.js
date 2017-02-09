@@ -7,6 +7,6 @@ module.exports = {
         url: 'http://localhost:9600'
     },
     app: {
-        
+        timeout_scan_email: 60000
     }
 }

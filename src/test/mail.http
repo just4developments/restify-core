@@ -1,0 +1,111 @@
+{
+	des: 'Add',
+	method: 'POST',
+	url: 'http://localhost:9002/mail',
+	requestHeader: {
+		'content-type': 'application/json',
+		token: '58997ac77e9a4435508973bf-589980092d24aa1dbc5f97ea-589c3070954c8726dc9f048c'
+	},
+	requestBody: {
+		title: 'title',
+		content: 'content',
+		from: {
+			name: 'admin',
+			email: 'admin@clipvnet.com'
+		},
+		html: false,
+		config_name: 'admin',
+		to: ['thanhdt@viosoft.com'],
+		cc: ['clipvnet@gmail.com'],
+		bcc: []
+	}
+}
+
+{
+	des: 'Upload',
+	method: 'POST',
+	url: 'http://localhost:9002/attachments',
+	requestHeader: {
+		'content-type': 'multipart/form-data',
+		token: '58997ac77e9a4435508973bf-589980092d24aa1dbc5f97ea-589acdc00e07472040313d5a'
+	},
+	requestBody: {
+		'file:attachments': 'D:\\config.conf'
+	}
+}
+
+{
+	des: 'Get list',
+	method: 'GET',
+	url: 'http://localhost:9002/mail',
+	requestHeader: {
+		'content-type': 'multipart/form-data',
+		token: '58997ac77e9a4435508973bf-589980092d24aa1dbc5f97ea-589c0da82b971c35bc23def1'
+	}
+}
+
+{
+	des: 'Update',
+	method: 'PUT',
+	url: 'http://localhost:9000/mail/ITEM_ID',
+	requestHeader: {
+		'content-type': 'application/json'
+	},
+	requestBody: {
+		title: '',
+		content: '',
+		to: [],
+		cc: [],
+		attachments: [],
+		trying_time: 0,
+		status: 0
+	}
+}
+
+{
+	des: 'Get detail',
+	method: 'GET',
+	url: 'http://localhost:9000/mail/ITEM_ID'
+}
+
+{
+	des: 'Delete',
+	method: 'DELETE',
+	url: 'http://localhost:9000/mail/ITEM_ID'
+}
+
+{
+	method: 'GET',
+	url: 'http://localhost:9600/project-config?plugin=mail',
+	requestHeader: {
+		'content-type': 'application/json',
+		token: '58997ac77e9a4435508973bf-589980092d24aa1dbc5f97ea-5899a970f16f8a25e46ed04c'
+	}
+}
+
+{
+	des: 'Update',
+	method: 'PUT',
+	url: 'http://localhost:9600/project/58997ac77e9a4435508973bf',
+	requestHeader: {
+		'content-type': 'application/json'
+	},
+	requestBody: {
+		plugins: {
+			oauthv2: {
+				single_mode: false,
+				session_expired: 60
+			},
+			mail: {
+				trying_time: 3,
+				accounts: {
+					'admin': {
+						user: 'clipvnet@gmail.com',
+						pass: 'buithuha90',
+						name: 'echo test'
+					}
+				}
+			}
+		}
+	}
+}
