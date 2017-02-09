@@ -4,7 +4,7 @@ const _ = require('lodash');
 const httpService = require('./http.service');
 
 /************************************
- ** SERVICE:      projectService
+ ** SERVICE:      microService
  ** AUTHOR:       Unknown
  ** CREATED DATE: 2/7/2017, 3:31:14 PM
  *************************************/
@@ -26,7 +26,7 @@ exports = module.exports = {
                 plugin: pluginName
             }
         });
-        if (resp.code === 200) return resolve(resp.body);
-        reject(resp.code);
+        if (resp.code === 200) return resp.body;
+        throw resp;
     }
 }

@@ -12,7 +12,7 @@ const microService = require('./service/micro.service');
 
 exports = module.exports = _.extend(require('../lib/core/utils'), {
     auth(pathCode, ...actions){
-        return (req, res, next) => {
+        return async (req, res, next) => {
             if(!req.headers.token) return next(new restify.ProxyAuthenticationRequiredError());
             const resp = await microService.checkAuthoriz({
                 token: req.headers.token,
