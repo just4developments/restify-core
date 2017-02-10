@@ -22,6 +22,10 @@ server.use(restify.queryParser());
 // server.use(restify.CORS());
 // server.use(restify.fullResponse());
 
+server.get(/\/dist\/?.*/, restify.serveStatic({
+  directory: './web'
+}));
+
 server.get(/\/attachments\/?.*/, restify.serveStatic({
   directory: './assets'
 }));
