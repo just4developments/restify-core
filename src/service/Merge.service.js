@@ -119,7 +119,6 @@ exports = module.exports = async (email, auth) => {
                 return e !== null;
             });
         }
-        require('fs').writeFileSync(__dirname + '/null.json', JSON.stringify(tmp, null, '\t'));
         if(spendings.length !== 0 || wallets.length !== 0 || typeSpendings.length !== 0) {
             let User = {
                 user_id: db.uuid(auth.accountId),

@@ -7,7 +7,10 @@
     "start": "node --expose-gc --harmony-async-await index.js",
     "test": "node --expose-gc --harmony-async-await test.js",
     "gen": "node ./lib/generate/gen.js",
-    "pm2": "pm2 start --node-args=\"--expose-gc --harmony-async-await\" --name restify-core"
+    "pm2": "pm2 start --node-args=\"--expose-gc --harmony-async-await\" --name restify-core",
+    "dev": "cd ./web && npm run dev",
+    "route": "node ./web/webpack.import",
+    "create": "node ./web/tools-create"
   },
   "repository": {
     "type": "git",
@@ -19,7 +22,8 @@
     "lodash": "^4.17.2",
     "mongodb": "^2.2.22",
     "node-uuid": "^1.4.7",
-    "restify": "^4.3.0"
+    "restify": "^4.3.0",
+    "unirest": "^0.5.1"
   },
   "devDependencies": {
     "js-beautify": "^1.6.4"
