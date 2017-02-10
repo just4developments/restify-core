@@ -26,7 +26,9 @@ server.get(/\/images\/?.*/, restify.serveStatic({
   directory: './assets'
 }));
 
-server.use(restify.CORS());
+server.use(restify.CORS({
+    headers: ['token']
+}));
 
 server.opts(/.*/, function (req,res,next) {
     res.header("Access-Control-Allow-Origin", "*");

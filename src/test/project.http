@@ -1,0 +1,71 @@
+{
+	des: 'Add',
+	method: 'POST',
+	url: 'http://localhost:9600/project',
+	requestHeader: {
+		'content-type': 'application/json'
+	},
+	requestBody: {
+		name: 'Root Project',
+		status: 1,
+		plugins: {
+			oauthv2: {
+				single_mode: true,
+				session_expired: 1800
+			}
+		}
+	}
+}
+
+{
+	des: 'Get list',
+	method: 'GET',
+	url: 'http://localhost:9600/project',
+	requestHeader: {
+		secret_key: '589c3d982f2ff310ccf17dcb'
+	}
+}
+
+{
+	des: 'Update',
+	method: 'PUT',
+	url: 'http://localhost:9600/project/58997ac77e9a4435508973bf',
+	requestHeader: {
+		'content-type': 'application/json'
+	},
+	requestBody: {
+		plugins: {
+				"oauthv2": {
+				"single_mode": false,
+				"session_expired": 6000
+			},
+			"mail": {
+				"trying_time": 3,
+				"accounts": {
+					"admin": {
+						service: 'gmail',
+						tls:{
+							rejectUnauthorized: false
+						},
+						auth: {
+							user: 'clipvnet@gmail.com',
+							pass: 'YnVpdGh1aGE5MA=='
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
+{
+	des: 'Get detail',
+	method: 'GET',
+	url: 'http://localhost:9600/project/ITEM_ID'
+}
+
+{
+	des: 'Delete',
+	method: 'DELETE',
+	url: 'http://localhost:9600/project/58997a31e5d39535ec3b61c5'
+}

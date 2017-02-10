@@ -1,0 +1,85 @@
+{
+	des: 'Add',
+	method: 'POST',
+	url: 'http://localhost:9600/register',
+	requestHeader: {
+		'content-type': 'application/json',
+		pj: '589c3cd29971853aa803b264'
+	},
+	requestBody: {
+		role_ids: ['589c3d422f2ff310ccf17dc9'],
+		username: 'admin',
+		password: 'admin@2017',
+		status: 1,
+		recover_by: 'doanthuanthanh88@gmail.com',
+		more: {
+			fullname: 'thanh'
+		}
+	}
+}
+
+{
+	method: 'POST',
+	url: 'http://localhost:9600/login',
+	requestHeader: {
+		'content-type': 'application/json',
+		pj: '58997ac77e9a4435508973bf'
+	},
+	requestBody: {
+		username: 'thanh13',
+		password: '123'
+	}
+}
+
+{
+	des: 'Get list',
+	method: 'GET',
+	url: 'http://localhost:9600/account',
+	requestHeader: {
+		secret_key: '589aa61c8c087b25007378bc',
+	}
+}
+
+{
+	method: 'HEAD',
+	url: 'http://localhost:9600/authoriz',
+	requestHeader: {
+		'content-type': 'application/json',
+		token: '58997ac77e9a4435508973bf-589980092d24aa1dbc5f97ea-589bd9aafb9ca430b415ee7f',
+		path: '/Login',
+		actions: 'ADD'
+	}
+}
+
+{
+	method: 'HEAD',
+	url: 'http://localhost:9600/ping',
+	requestHeader: {
+		'content-type': 'application/json',
+		token: '58997ac77e9a4435508973bf-589980092d24aa1dbc5f97ea-589980fa82577e1d985d1813'
+	}
+}
+
+{
+	des: 'Update',
+	method: 'PUT',
+	url: 'http://localhost:9600/account/589847ee491cef29dc41ea2b',
+	requestHeader: {
+		'content-type': 'application/json'
+	},
+	requestBody: {
+		password: '123',
+	}
+}
+
+{
+	des: 'Get detail',
+	method: 'GET',
+	url: 'http://localhost:9600/account/ITEM_ID'
+}
+
+{
+	des: 'Delete',
+	method: 'DELETE',
+	url: 'http://localhost:9600/account/ITEM_ID'
+}
