@@ -27,7 +27,10 @@ server.get('/account', utils.jsonHandler(), utils.auth('plugin.oauthv2>account',
 
 server.get('/account/:_id', utils.jsonHandler(), utils.auth('plugin.oauthv2>account', 'GET'), async(req, res, next) => {
 	try {
-		const rs = await accountService.get(db.uuid(req.params._id));
+		const rs = await accountService.get({
+			_id: db.uuid(req.params._id),
+			project_id: req.auth.projectId
+		});
 		res.send(rs);
 	} catch (err) {
 		next(err);
@@ -79,7 +82,10 @@ server.put('/account/:_id', utils.jsonHandler(), utils.auth('plugin.oauthv2>acco
 
 server.del('/account/:_id', utils.jsonHandler(), utils.auth('plugin.oauthv2>account', 'DELETE'), async(req, res, next) => {
 	try {
-		const rs = await accountService.delete(db.uuid(req.params._id));
+		const rs = await accountService.delete({
+			_id: db.uuid(req.params._id),
+			project_id: req.auth.projectId
+		});
 		res.send(rs);
 	} catch (err) {
 		next(err);

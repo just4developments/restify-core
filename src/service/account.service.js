@@ -250,7 +250,7 @@ exports = module.exports = {
 			return rs;
 		} finally {
 			if(cached) await cached.close();
-			if(dboType === db.DONE) await db.close();
+			if(dboType === db.DONE) await dbo.close();
 		}
 	},
 
@@ -269,7 +269,7 @@ exports = module.exports = {
 			return rs;
 		} finally {
 			if(cached) await cached.close();
-			if(dboType === db.DONE) await db.close();
+			if(dboType === db.DONE) await dbo.close();
 		}		
 	}
 

@@ -14,6 +14,7 @@ const projectService = require('../service/project.service');
 server.get('/project', utils.jsonHandler(), utils.auth('plugin.oauthv2>project', 'FIND'), async(req, res, next) => {
 	try {
 		let where = {};
+		where._id = req.auth.projectId;
 		const rs = await projectService.find({
 			where: where
 		});

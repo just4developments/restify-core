@@ -74,7 +74,10 @@ server.put('/role/:_id', utils.jsonHandler(), utils.auth('plugin.oauthv2>role', 
 
 server.del('/role/:_id', utils.jsonHandler(), utils.auth('plugin.oauthv2>role', 'DELETE'), async(req, res, next) => {
 	try {
-		const rs = await roleService.delete(db.uuid(req.params._id));
+		const rs = await roleService.delete({
+			_id: db.uuid(req.params._id),
+			project_id: req.auth.projectId
+		});
 		res.send(rs);
 	} catch (err) {
 		next(err);
