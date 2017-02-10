@@ -27,6 +27,6 @@ exports = module.exports = {
             }
         });
         if (resp.code === 200) return resp.body;
-        throw resp;
+        throw resp.body;
     }
 }
