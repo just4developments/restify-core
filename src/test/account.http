@@ -36,7 +36,7 @@
 	method: 'GET',
 	url: 'http://localhost:9600/account',
 	requestHeader: {
-		secret_key: '589aa61c8c087b25007378bc',
+		secret_key: '589aa64c8c087b25007378bc',
 	}
 }
 

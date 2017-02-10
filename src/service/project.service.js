@@ -4,6 +4,7 @@ const _ = require('lodash');
 
 const db = require('../db');
 const utils = require('../utils');
+const cachedService = require('./cached.service');
 
 /************************************
  ** SERVICE:      projectController

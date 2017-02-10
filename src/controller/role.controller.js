@@ -14,7 +14,7 @@ const roleService = require('../service/role.service');
 server.get('/role', utils.jsonHandler(), utils.auth('plugin.oauthv2>role', 'FIND'), async(req, res, next) => {
 	try {
 		let where = {
-			project_id: db.uuid(req.query.project_id)
+			project_id: req.auth.projectId
 		};
 		const rs = await roleService.find({
 			where
@@ -27,7 +27,12 @@ server.get('/role', utils.jsonHandler(), utils.auth('plugin.oauthv2>role', 'FIND
 
 server.get('/role/:_id', utils.jsonHandler(), utils.auth('plugin.oauthv2>role', 'GET'), async(req, res, next) => {
 	try {
-		const rs = await roleService.get(db.uuid(req.params._id));
+		const rs = await roleService.get({
+			where: { 
+				_id: db.uuid(req.params._id),
+				project_id: req.auth.projectId
+			}
+		});
 		res.send(rs);
 	} catch (err) {
 		next(err);
@@ -37,7 +42,7 @@ server.get('/role/:_id', utils.jsonHandler(), utils.auth('plugin.oauthv2>role', 
 server.post('/role', utils.jsonHandler(), utils.auth('plugin.oauthv2>role', 'ADD'), async(req, res, next) => {
 	try {
 		let body = {};
-		if (utils.has(req.body.project_id)) body.project_id = db.uuid(req.body.project_id);
+		body.project_id = req.auth.projectId;
 		if (utils.has(req.body.name)) body.name = req.body.name;
 		if (utils.has(req.body.api)) body.api = utils.object(req.body.api);
 		if (utils.has(req.body.web)) body.web = utils.object(req.body.web);
@@ -54,7 +59,7 @@ server.put('/role/:_id', utils.jsonHandler(), utils.auth('plugin.oauthv2>role', 
 	try {
 		let body = {};
 		body._id = db.uuid(req.params._id);
-		if (utils.has(req.body.project_id)) body.project_id = db.uuid(req.body.project_id);
+		body.project_id = req.auth.projectId;
 		if (utils.has(req.body.name)) body.name = req.body.name;
 		if (utils.has(req.body.api)) body.api = utils.object(req.body.api);
 		if (utils.has(req.body.web)) body.web = utils.object(req.body.web);
