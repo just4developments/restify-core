@@ -14,7 +14,7 @@ exports = module.exports = _.extend(require('../lib/core/utils'), {
         return (req, res, next) => {
             if(!req.headers.token) return next(new restify.ProxyAuthenticationRequiredError());
             var Request = unirest
-                .head(`${global.appconfig.auth.url}/Authoriz`)
+                .head(`${global.appconfig.auth.url}/authoriz`)
                 .headers({
                     token: req.headers.token,
                     path: pathCode,
