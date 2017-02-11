@@ -1,12 +1,13 @@
 {
-  "name": "restify-core",
+  "name": "restify-core-api",
   "version": "1.0.0",
-  "description": "",
+  "description": "It bases on restify nodejs framework. It help us easy to make core project and generate APIs",
   "main": "index.js",
   "scripts": {
     "start": "node --expose-gc --harmony-async-await index.js",
+    "test": "node --expose-gc --harmony-async-await test.js",
     "gen": "node ./lib/generate/gen.js",
-    "pm2": "pm2 start --node-args=\"--expose-gc --harmony-async-await\" --name restify-core"
+    "pm2": "pm2 start index.js --node-args=\"--expose-gc --harmony-async-await\" --name restify-core-api"
   },
   "repository": {
     "type": "git",
@@ -15,11 +16,10 @@
   "author": "just4developments@gmail.com",
   "license": "ISC",
   "dependencies": {
-    "async": "^2.1.4",
-    "jimp": "^0.2.27",
     "lodash": "^4.17.2",
+    "mongodb": "^2.2.22",
     "node-uuid": "^1.4.7",
-    "restify": "^4.2.0"
+    "restify": "^4.3.0"
   },
   "devDependencies": {
     "js-beautify": "^1.6.4"
