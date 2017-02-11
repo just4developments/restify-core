@@ -1,13 +1,13 @@
 {
-  "name": "restify-core",
+  "name": "mcro-core",
   "version": "1.0.0",
-  "description": "",
+  "description": "It extends restify-core. It help us easy to make core micro service and generate APIs",
   "main": "index.js",
   "scripts": {
     "start": "node --expose-gc --harmony-async-await index.js",
     "test": "node --expose-gc --harmony-async-await test.js",
     "gen": "node ./lib/generate/gen.js",
-    "pm2": "pm2 start --node-args=\"--expose-gc --harmony-async-await\" --name restify-core",
+    "pm2": "pm2 start index.js --node-args=\"--expose-gc --harmony-async-await\" --name mcro-core",
     "dev": "cd ./web && npm run dev",
     "route": "node ./web/webpack.import",
     "create": "node ./web/tools-create"
