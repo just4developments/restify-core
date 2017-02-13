@@ -13,10 +13,9 @@ const mailService = require('../service/mail.service');
 
 server.get('/mail', utils.jsonHandler(), utils.auth('plugin.mail>mail', 'FIND'), async(req, res, next) => {
 	try {
-		let where = {
-			project_id: req.auth.projectId
-		};
-		if(utils.has(req.query.status)) where.status = +req.query.status;
+		let where = {};
+		if(req.query.q) where = JSON.parse(req.query.q);
+		where.project_id = req.auth.projectId;
 		const rs = await mailService.find({
 			where: where,
 			sort: {
@@ -78,7 +77,10 @@ server.post('/mail', utils.jsonHandler(), utils.auth('plugin.mail>mail', 'PUSH')
 
 server.del('/mail/:_id', utils.jsonHandler(), utils.auth('plugin.mail>mail', 'DELETE'), async(req, res, next) => {
 	try {
-		const rs = await mailService.delete(db.uuid(req.params._id));
+		const rs = await mailService.delete({
+			_id: db.uuid(req.params._id),
+			project_id: req.auth.projectId
+		});
 		res.send(rs);
 	} catch (err) {
 		next(err);
