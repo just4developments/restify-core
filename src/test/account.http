@@ -32,6 +32,18 @@
 }
 
 {
+	method: 'POST',
+	url: 'http://localhost:9600/upload-image',
+	requestHeader: {
+		'content-type': 'multipart/form-data',
+		token: '58997ac77e9a4435508973bf-589980092d24aa1dbc5f97ea-58a11dcbc2abe13b0cb1b176'
+	},
+	requestBody: {
+		'file:file': 'D:\\logo.png'
+	}
+}
+
+{
 	des: 'Get list',
 	method: 'GET',
 	url: 'http://localhost:9600/account',

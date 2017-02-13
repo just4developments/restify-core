@@ -19,6 +19,8 @@
   "author": "just4developments@gmail.com",
   "license": "ISC",
   "dependencies": {
+    "fs-path": "0.0.23",
+    "jimp": "^0.2.27",
     "lodash": "^4.17.2",
     "mongodb": "^2.2.22",
     "node-uuid": "^1.4.7",

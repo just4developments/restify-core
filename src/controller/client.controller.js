@@ -52,6 +52,21 @@ server.head('/ping', utils.jsonHandler(), utils.authHandler(true), async(req, re
 	}
 });
 
+server.post('/upload-image', utils.authHandler(true), utils.fileUploadHandler({
+	file: {
+		uploadDir: "`assets/upload/${req.auth.projectId}/`",
+		multiples: false,
+		keepName: false,
+		httpPath: "`/upload/${req.auth.projectId}/${filename}`"
+	}
+}), async(req, res, next) => {
+	try {
+		res.send(req.file.file);
+	} catch (err) {
+		next(err);
+	}
+})
+
 server.get('/project-config', utils.jsonHandler(), utils.authHandler(true), async(req, res, next) => {
 	try {
 		const projectService = require('../service/project.service');
@@ -61,6 +76,20 @@ server.get('/project-config', utils.jsonHandler(), utils.authHandler(true), asyn
 		next(err);
 	}
 });
+
+server.put('/project', utils.jsonHandler(), utils.authHandler(true), async(req, res, next) => {
+	try {
+		let body = {};
+		body._id = req.auth.projectId;
+		if (utils.has(req.body.name)) body.name = req.body.name;
+		if (utils.has(req.body.plugins)) body.plugins = utils.object(req.body.plugins);
+		const projectService = require('../service/project.service');
+		const rs = await projectService.update(body);
+		res.send(rs);
+	} catch (err) {
+		next(err);
+	}
+})
 
 server.get('/me', utils.jsonHandler(), utils.authHandler(true), async(req, res, next) => {
 	try {
