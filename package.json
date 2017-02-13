@@ -1,7 +1,7 @@
 {
-  "name": "restify-core-api",
+  "name": "mcro-core",
   "version": "1.0.0",
-  "description": "It bases on restify nodejs framework. It help us easy to make core project and generate APIs",
+  "description": "It extends restify-core. It help us easy to make core micro service and generate APIs",
   "main": "index.js",
   "scripts": {
     "start": "node --expose-gc --harmony-async-await index.js",
