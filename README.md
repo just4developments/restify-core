@@ -55,8 +55,12 @@ npm run gen
 ```
 
 ## Installation
-1. Use resize image
+1. Use file uploading 
 ```sh
-npm install fs-path
+npm install fs-path --save
+```
+
+2. Use image resizing
+```sh
 npm install jimp --save
 ```
