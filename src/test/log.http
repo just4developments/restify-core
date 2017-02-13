@@ -1,0 +1,53 @@
+{
+	des: 'Add',
+	method: 'POST',
+	url: 'http://localhost:9002/log',
+	requestHeader: {
+		'content-type': 'application/json',
+		token: '58997ac77e9a4435508973bf-589980092d24aa1dbc5f97ea-58a13622a15bc0149032b24e'
+	},
+	requestBody: {
+		status: 1,
+		msg: 'Done',
+		event_type: 'CREATE_VM'
+	}
+}
+
+{
+	des: 'Get list',
+	method: 'GET',
+	url: 'http://localhost:9002/log', //?q={"status": 0}
+	requestHeader: {
+		'content-type': 'application/json',
+		token: '58997ac77e9a4435508973bf-589980092d24aa1dbc5f97ea-58a13622a15bc0149032b24e'
+	}
+}
+
+{
+	des: 'Update',
+	method: 'PUT',
+	url: 'http://localhost:9002/log/58a1396c4736303a6cb38e0f',
+	requestHeader: {
+		'content-type': 'application/json',
+		token: '58997ac77e9a4435508973bf-589980092d24aa1dbc5f97ea-58a13622a15bc0149032b24e'
+	},
+	requestBody: {
+		status: 0
+	}
+}
+
+{
+	des: 'Get detail',
+	method: 'GET',
+	url: 'http://localhost:9002/log/58a1396c4736303a6cb38e0f',
+	requestHeader: {
+		'content-type': 'application/json',
+		token: '58997ac77e9a4435508973bf-589980092d24aa1dbc5f97ea-58a13622a15bc0149032b24e'
+	}
+}
+
+{
+	des: 'Delete',
+	method: 'DELETE',
+	url: 'http://localhost:9002/log/ITEM_ID'
+}
