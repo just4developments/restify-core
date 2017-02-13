@@ -1,16 +1,13 @@
 {
-  "name": "restify-core",
+  "name": "restify-core-api",
   "version": "1.0.0",
-  "description": "",
+  "description": "It bases on restify nodejs framework. It help us easy to make core project and generate APIs",
   "main": "index.js",
   "scripts": {
     "start": "node --expose-gc --harmony-async-await index.js",
     "test": "node --expose-gc --harmony-async-await test.js",
     "gen": "node ./lib/generate/gen.js",
-    "pm2": "pm2 start --node-args=\"--expose-gc --harmony-async-await\" --name restify-core",
-    "dev": "cd ./web && npm run dev",
-    "route": "node ./web/webpack.import",
-    "create": "node ./web/tools-create"
+    "pm2": "pm2 start index.js --node-args=\"--expose-gc --harmony-async-await\" --name restify-core-api"
   },
   "repository": {
     "type": "git",
