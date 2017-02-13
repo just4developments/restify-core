@@ -251,6 +251,7 @@ exports = module.exports = {
 					spendings: {
 						type_spending_id: 1,
 						wallet_id: 1,
+						type: 1
 					}
 				}
 			},
