@@ -231,6 +231,9 @@ exports = module.exports = {
 					"spendings.sign_money": {
 						$ne: 0
 					},
+					"spendings.input_date": {
+						$gte: new Date(new Date().getTime()-(1000*60*60*24*14))
+					},
 					"spendings.udes": { $exists: true, $not: {$size: 0} }
 				}
 			},
@@ -254,9 +257,6 @@ exports = module.exports = {
 						type: 1
 					}
 				}
-			},
-			{
-				$limit: 100
 			}
 		]);
 			return await rs.toArray();
