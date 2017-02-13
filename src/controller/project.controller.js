@@ -14,9 +14,13 @@ const projectService = require('../service/project.service');
 server.get('/project', utils.jsonHandler(), utils.auth('plugin.oauthv2>project', 'FIND'), async(req, res, next) => {
 	try {
 		let where = {};
-		where._id = req.auth.projectId;
+		if(projectService.ROOT_PROJECT_ID !== req.auth.projectId) where._id = req.auth.projectId;
 		const rs = await projectService.find({
-			where: where
+			where: where,
+			sort: {
+				status: -1,
+				updated_at: -1
+			}
 		});
 		res.send(rs);
 	} catch (err) {
@@ -26,6 +30,7 @@ server.get('/project', utils.jsonHandler(), utils.auth('plugin.oauthv2>project',
 
 server.get('/project/:_id', utils.jsonHandler(), utils.auth('plugin.oauthv2>project', 'GET'), async(req, res, next) => {
 	try {
+		if(projectService.ROOT_PROJECT_ID !== req.auth.projectId) throw new restify.UnauthorizedError();
 		const rs = await projectService.get(db.uuid(req.params._id));
 		res.send(rs);
 	} catch (err) {
@@ -35,6 +40,7 @@ server.get('/project/:_id', utils.jsonHandler(), utils.auth('plugin.oauthv2>proj
 
 server.post('/project', utils.jsonHandler(), utils.auth('plugin.oauthv2>project', 'ADD'), async(req, res, next) => {
 	try {
+		if(projectService.ROOT_PROJECT_ID !== req.auth.projectId) throw new restify.UnauthorizedError();
 		let body = {};
 		if (utils.has(req.body.name)) body.name = req.body.name;
 		if (utils.has(req.body.status)) body.status = +req.body.status;
@@ -49,7 +55,8 @@ server.post('/project', utils.jsonHandler(), utils.auth('plugin.oauthv2>project'
 
 server.put('/project/:_id', utils.jsonHandler(), utils.auth('plugin.oauthv2>project', 'UPDATE'), async(req, res, next) => {
 	try {
-		let body = {};
+		if(projectService.ROOT_PROJECT_ID !== req.auth.projectId) throw new restify.UnauthorizedError();
+		let body = {};		
 		body._id = db.uuid(req.params._id);
 		if (utils.has(req.body.name)) body.name = req.body.name;
 		if (utils.has(req.body.status)) body.status = +req.body.status;
@@ -64,6 +71,7 @@ server.put('/project/:_id', utils.jsonHandler(), utils.auth('plugin.oauthv2>proj
 
 server.del('/project/:_id', utils.jsonHandler(), utils.auth('plugin.oauthv2>project', 'DELETE'), async(req, res, next) => {
 	try {
+		if(projectService.ROOT_PROJECT_ID !== req.auth.projectId) throw new restify.UnauthorizedError();
 		const rs = await projectService.delete(db.uuid(req.params._id));
 		res.send(rs);
 	} catch (err) {

@@ -21,6 +21,7 @@ exports = module.exports = {
 		DELETE: 3,
 		FIND: 4,
 	},
+	ROOT_PROJECT_ID: db.uuid(global.appconfig.app.rootProjectId),
 	validate(item, action) {
 		let msg;
 		switch (action) {

@@ -14,6 +14,7 @@ module.exports = {
         }
     },
     app: {
+        rootProjectId: '589c3cd29971853aa803b264',
         imageResize: {
 			product: [
                 {w: -1000 }, // Auto resize origin when width > 1000. If width < 1000 do nothing
