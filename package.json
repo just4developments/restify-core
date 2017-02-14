@@ -19,10 +19,12 @@
   "author": "just4developments@gmail.com",
   "license": "ISC",
   "dependencies": {
+    "amqplib": "^0.5.1",
     "lodash": "^4.17.2",
     "mongodb": "^2.2.22",
     "node-uuid": "^1.4.7",
     "restify": "^4.3.0",
+    "socket.io": "^1.7.2",
     "unirest": "^0.5.1"
   },
   "devDependencies": {

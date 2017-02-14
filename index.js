@@ -49,6 +49,13 @@ fs.readdir(path.join(__dirname, 'src', 'controller'), function (err, files) {
     });
 });
 
-server.listen(appconfig.listen, () => {
+server.listen(appconfig.listen, async () => {
     console.info("Server is running at %d", appconfig.listen);
+
+    const wsocketService = require('./src/service/wsocket.service');
+    wsocketService.listen(server);
+
+    const rabbitService = require('./src/service/rabbit.service');
+    await rabbitService.listen();
+    console.log('Done');
 });

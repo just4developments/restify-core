@@ -7,6 +7,11 @@ module.exports = {
         url: 'http://localhost:9600'
     },
     app: {
-        
+        rabbit: {        
+            url: 'amqp://10.64.0.168',
+            connectTimeout: 20000,
+            closeTimeout: 500,
+            toWebTimeout: 2000
+        }
     }
 }
