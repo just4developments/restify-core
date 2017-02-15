@@ -1,0 +1,114 @@
+<div class="_authLayer">
+  <div class="_component">
+    <label>Role name</label><br>
+    <input placeholder="Enter role name" type="text" ng-model="$ctrl._rname">
+    <button ng-click="$ctrl.addRole()">Add role</button>
+  </div>
+  <p></p>
+  <details ng-repeat="item in $ctrl._roles">
+    <summary>{{item.name}}
+      <button class="_btn-save" ng-click="$ctrl.deleteRole($index,item._id)">Delete</button>
+    </summary>
+    
+    <details class="_details-for">
+      <summary class="_summary-for">API 
+        <button class="_btn-save" ng-click="$ctrl.save($index,'api')">Save</button>
+      </summary>
+        <table class="_table-for">
+          <tr>
+            <td>
+                <label>Path</label>
+                <span class="_noteField" title="Path API to privilege ('.*' for all path) ">? </span>
+            </td>
+            <td>
+              <label>Action</label>
+              <span class="_noteField" title="User privilege ('.*' for all permission)">? </span>
+            </td>
+          </tr>
+          <tr>
+            <td>
+                <input class="form-control" placeholder="account" type="text" ng-model="$ctrl._api[$index].path" ng-blur="$ctrl.addConfigRow($index,'api')">
+            </td>
+            <td>
+                <input class="form-control uppercase" placeholder='ADD,GET,DELETE,...' type="text" ng-model="$ctrl._api[$index].actions" ng-blur="$ctrl.addConfigRow($index,'api')">
+            </td>
+          </tr>
+          <tr ng-repeat="api in item.api">
+            <td>
+                <input class="form-control" type="text" ng-model="item.api[$index].path">
+            </td>
+            <td>
+                <input class="form-control uppercase" type="text" ng-model="item.api[$index].actions">
+            </td>
+          </tr>
+        </table>
+    </details>
+    
+    <details class="_details-for">
+      <summary class="_summary-for">Website<button class="_btn-save" ng-click="$ctrl.save($index,'web')">Save</button></summary>
+        <table class="_table-for">
+          <tr>
+            <td>
+                <label>Path</label>
+                <span class="_noteField" title="Path API to privilege ('.*' for all path) ">? </span>
+            </td>
+            <td>
+              <label>Action</label>
+              <span class="_noteField" title="User privilege ('.*' for all permission)">? </span>
+            </td>
+          </tr>
+          <tr>
+            <td>
+                <input class="form-control" placeholder="/account" type="text" ng-model="$ctrl._web[$index].path" ng-blur="$ctrl.addConfigRow($index,'web')">
+            </td>
+            <td>
+                <input class="form-control  uppercase" placeholder='LOGIN,REGISTER,...' type="text" ng-model="$ctrl._web[$index].actions" ng-blur="$ctrl.addConfigRow($index,'web')">
+            </td>
+          </tr>
+
+          <tr ng-repeat="web in item.web">
+            <td>
+                <input class="form-control" placeholder="{{web.path}}" type="text" ng-model="item.web[$index].path">
+            </td>
+            <td>
+                <input class="form-control uppercase" placeholder="{{web.actions}}" type="text" ng-model="item.web[$index].actions">
+            </td>
+          </tr>
+        </table>
+    </details>
+
+    <details class="_details-for">
+      <summary class="_summary-for">Mobile<button class="_btn-save" ng-click="$ctrl.save($index,'mob')">Save</button></summary>
+        <table class="_table-for">
+          <tr>
+            <td>
+                <label>Path</label>
+                <span class="_noteField" title="Path API to privilege ('.*' for all path) ">? </span>
+            </td>
+            <td>
+              <label>Action</label>
+              <span class="_noteField" title="User privilege ('.*' for all permission)">? </span>
+            </td>
+          </tr>
+          <tr>
+            <td>
+                <input class="form-control" placeholder="/account" type="text" ng-model="$ctrl._mob[$index].path" ng-blur="$ctrl.addConfigRow($index,'mob')">
+            </td>
+            <td>
+                <input class="form-control uppercase" placeholder='LOGIN,REGISTER,...' type="text" ng-model="$ctrl._mob[$index].actions" ng-blur="$ctrl.addConfigRow($index,'mob')">
+            </td>
+          </tr>
+          <tr ng-repeat="mob in item.mob">
+            <td>
+                <input class="form-control" placeholder="{{mob.path}}" type="text" ng-model="item.mob[$index].path">
+            </td>
+            <td>
+                <input class="form-control uppercase" placeholder="{{mob.actions}}" type="text" ng-model="item.mob[$index].actions">
+            </td>
+          </tr>
+        </table>
+    </details>
+    </div>
+  </details>
+
+  <button id='btnApply' ng-click="$ctrl.sendRedirect()" style="display:none"></button>

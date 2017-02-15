@@ -1,0 +1,23 @@
+<div class="_authLayer">
+  <h3>OAuthen Config</h3>
+  <div class="clear"></div>
+  <div>
+    <div class="_component">
+      <label>Session exprire</label>
+      <span class="_noteField" title="Expire time session">? </span>
+      <input class="form-control" placeholder="1800" type="text" ng-model="$ctrl._project.plugins.oauthv2.session_expired">
+      <font style="color: red;" ng-show="$ctrl.err"><i>Session exprire is required</i></font>
+    </div>
+    
+    <div class="_component">
+      <label> Sign-in Mode</label>
+      <span class="_noteField" title="Sign-in Mode (Single = Only one user session exists at a time, Multiply = Multiply User sessions)">? </span>
+       <select class="form-control" style="width: 155px;height: 25px;" ng-model="$ctrl._project.plugins.oauthv2.single_mode" ng-options="(item?'Single':'Multiply') for item in [true, false]"></select>
+    </div>
+
+    <div class="_component">
+        <button ng-click="$ctrl.save()">Apply</button>
+        <button id='btnApply' ng-click="$ctrl.sendRedirect()" style="display:none"></button>
+    </div>
+  </div>
+</div>

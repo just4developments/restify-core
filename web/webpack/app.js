@@ -2,7 +2,8 @@ require('../public/index.htm');
 
 require([]);
 
-require(['angular', 'router'], (angular) => {
+require(['angular', 'router',
+		'../public/assets/js/0.lodash.js'], (angular) => {
     global.app = angular.module('myApp', ['ngComponentRouter']).value('$routerRootComponent', 'myApp');
     require(['../public/components/app-const.js',
 			'../public/components/app-config.js',
@@ -11,8 +12,11 @@ require(['angular', 'router'], (angular) => {
 			'../public/components/app-filter.js',
 			'../public/components/app-provider.js',
 			'../public/components/my-app.js',
+			'../public/components/error/empty.js',
 			'../public/components/product/product-list.js',
-			'../public/components/product/test.js'], (...com) => {
+			'../public/components/product/test.js',
+			'../public/components/project/index.js',
+			'../public/components/project/role.js'], (...com) => {
         for (var i in com) {
             if (i == 0) global.app.constant('$config', com[i]);
             else if (i == 1) global.app.config(com[i]);

@@ -1,0 +1,89 @@
+role {
+._authLayer {
+    width:100%;
+    height:100vh;
+  }
+  .clear {
+    clear : both;
+  }
+  ._component {
+    margin-top: 10px;
+  } 
+  label {
+    display: inline-block;
+    max-width: 100%;
+    margin-bottom: 5px;
+    font-weight: 700;
+  }
+  .form-control {
+    display: block;
+    font-size: 14px;
+    line-height: 1.42857143;
+    color: #555;
+    background-color: #fff;
+    background-image: none;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
+    box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
+    -webkit-transition: border-color ease-in-out .15s,-webkit-box-shadow ease-in-out .15s;
+    -o-transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
+    transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
+    padding-left: 5px;
+    width: 95%;
+  }
+  ._noteField {
+    margin-left: 8px;cursor: pointer;text-decoration: underline;font-weight: bolder;
+  }
+
+  //Detail html
+  summary {
+    outline: none;cursor: pointer;
+  }
+  details {
+    border-radius: 3px;
+    background: #EEE;
+    margin: 1em 0;
+  }
+
+  summary {
+    background: #333;
+    color: #FFF;
+    border-radius: 3px;
+    padding: 5px 10px;
+    outline: none;
+  }
+
+  /* Style the summary when details box is open */
+  details[open] summary {
+    background: #69c773;
+    color: #333;
+  }
+  .detail-title {
+    text-align: left;
+    padding-left: 5px;
+  }
+  ._details-for {
+    margin-left: 10px;margin-top: 5px;
+  }
+
+  ._summary-for {
+    background: none !important;font-weight: 600;
+  }
+
+  ._table-for {
+    margin: 5px 15px 15px 20px;
+    width:100%;
+  }
+  
+  ._table-for td:first-child {
+    width:40%;
+  }
+
+  ._btn-save{
+    float: right;border-radius: 30px;font-size: 12px;
+  }
+  .uppercase {
+      text-transform: uppercase;
+  }
+}
