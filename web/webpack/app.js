@@ -15,6 +15,7 @@ require(['angular', 'router',
 			'../public/components/error/empty.js',
 			'../public/components/product/product-list.js',
 			'../public/components/product/test.js',
+			'../public/components/project/account.js',
 			'../public/components/project/index.js',
 			'../public/components/project/role.js'], (...com) => {
         for (var i in com) {
