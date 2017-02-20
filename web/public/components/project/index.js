@@ -6,11 +6,12 @@ module.exports = {
         let self = this;
         this.$routerOnActivate = (next) => {
             Project.get().then((res) => {
-                self._project = res.data[0];
+                self._project = res.data;
+            }).catch((err) => {
+                setTimeout(function() {
+                    document.querySelector('#btnApply').click();    
+                });
             });
-            // setTimeout(function() {
-            //     document.querySelector('#btnApply').click();    
-            // });
         }
 
         this.save = () => {
@@ -21,7 +22,9 @@ module.exports = {
             }
 
             Project.update(self._project).then((res) => {
-                self._project = res.data[0];
+                // success
+            }).catch((err) => {
+                console.log(err);
             });
         };
 

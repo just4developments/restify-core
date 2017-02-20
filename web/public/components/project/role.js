@@ -12,19 +12,19 @@ module.exports = {
         this.$routerOnActivate = (next) => {
             Role.get().then((res) => {
                 self._roles = res.data;
-
-                if(!self._roles) {
-                    setTimeout(function() {
-                        document.querySelector('#btnApply').click();    
-                    });
-                }
+                
+                if(self._roles) return;
                 
                 for (var i = 0; i < self._roles.length; i++){
                     self._roles[i].api = this.arrInOneLine(self._roles[i].api);
                     self._roles[i].web = this.arrInOneLine(self._roles[i].web);
                     self._roles[i].mob = this.arrInOneLine(self._roles[i].mob);
                 }      
-            });  
+            }).catch((err) => {
+                setTimeout(function() {
+                    document.querySelector('#btnApply').click();    
+                });
+            }); 
         }
         
         this.addRole = () => {

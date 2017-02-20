@@ -1,11 +1,17 @@
 <div class="_authLayer">
+  
   <div class="_component">
     <label>Role name</label><br>
     <input placeholder="Enter role name" type="text" ng-model="$ctrl._rname">
     <button ng-click="$ctrl.addRole()">Add role</button>
   </div>
+
+  <div class="_component">
+    <label>Quick search</label><br>
+    <input placeholder="Enter keyword" type="text" ng-model="$ctrl._kword">
+  </div>
   <p></p>
-  <details ng-repeat="item in $ctrl._roles">
+  <details ng-repeat="item in $ctrl._roles | filter : $ctrl._kword">
     <summary>{{item.name}}
       <button class="_btn-save" ng-click="$ctrl.deleteRole($index,item._id)">Delete</button>
     </summary>

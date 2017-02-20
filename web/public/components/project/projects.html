@@ -3,7 +3,7 @@
   <table style="width:100%">
     <tr>
       <td>
-        <button ng-click="$ctrl.showModal('add',{})" style="padding: 4px 10px;font-size: 15px;margin-top: -6px;">Add user</button>
+        <button ng-click="$ctrl.showModal('add',{})" style="padding: 4px 10px;font-size: 15px;margin-top: -6px;">Add Project</button>
       </td>
       <td>
           <input style="float: right;padding: 5px;width: 250px;" class="form-control" placeholder="Enter keyword for searching" type="text" ng-model="$ctrl._kword">
@@ -14,18 +14,20 @@
     <table class="table">
       <thead>
       <tr>
-        <th>Username</th>
+        <th>ID</th>
+        <th>Project Name</th>
+        <th>Admin email</th>
         <th>Status</th>
-        <th>Role</th>
         <th>Created date</th>
         <th></th>
       </tr>
       </thead>
       <tbody>
-      <tr ng-repeat="item in $ctrl._accounts | filter : $ctrl._kword">
-        <td>{{item.username}}</td>
+      <tr ng-repeat="item in $ctrl._projects | filter : $ctrl._kword">
+        <td>{{item._id}}</td>
+        <td>{{item.name}}</td>
+        <td>{{item.email}}</td>
         <td>{{item.status=='1'?'Activate':'Deactivate'}}</td>
-        <td>{{$ctrl.getID2LabelRole(item.role_ids)}}</td>
         <td>{{item.created_at | date:'yyyy-MM-dd HH:mm'}}</td>
         <td style="text-align: right;">
           <label class="_link padding-right5" ng-click="$ctrl.showModal('edit', item)">Edit</label>
@@ -40,34 +42,21 @@
 	<div ng-show="!$ctrl._isDelete">
     <label ng-click="$ctrl.closeModal()" title="Close" class="close">X</label>
 		<div class="_component">
-      <label>Username</label>
-      <input class="form-control" type="text" ng-model="$ctrl._account.username">
-      <font style="color: red;" ng-show="$ctrl.err.usr"><i>Username is required</i></font>
+      <label>Project name</label>
+      <input class="form-control" type="text" ng-model="$ctrl._project.name">
+      <font style="color: red;" ng-show="$ctrl.err.name"><i>Project name is required</i></font>
     </div>
     
     <div class="_component"> 
-      <label>Password</label>
-      <input class="form-control" type="password" ng-model="$ctrl._account.password">
-      <font style="color: red;" ng-show="$ctrl.err.pwd"><i>Password is required</i></font>
-    </div>
-
-    <div class="_component">
-      <label>Re-Password</label>
-      <input class="form-control" type="password" ng-model="$ctrl._account.repwd">
-      <font style="color: red;" ng-show="$ctrl.err.repwd"><i>Password is not match</i></font>
+      <label>Email</label>
+      <input class="form-control" type="text" ng-model="$ctrl._project.email">
+      <font style="color: red;" ng-show="$ctrl.err.email"><i>Email is required</i></font>
     </div>
     
     <div class="_component">
       <label> Active Status</label>
-      <span class="_noteField" title="Sign-in Mode (Single = Only one user session exists at a time, Multiply = Multiply User sessions)">? </span>
-       <select class="form-control" style="height: 25px;" ng-model="$ctrl._account.status" ng-options="(item?'Activate':'Deactivate') for item in [1, 0]"></select>
+       <select class="form-control" style="height: 25px;" ng-model="$ctrl._project.status" ng-options="(item?'Activate':'Deactivate') for item in [1, 0]"></select>
        <font style="color: red;" ng-show="$ctrl.err.stt"><i>Status is required</i></font>
-    </div>
-
-    <div class="_component">
-      <label> Role </label>
-      <select class="form-control" style="padding-top: 5px;" multiple ng-model="$ctrl._account.role_ids" ng-options="item._id as item.name for item in $ctrl._roles"></select>
-      <font style="color: red;" ng-show="$ctrl.err.role"><i>Role is required</i></font>
     </div>
 
     <div class="_component padding-bottom15" style="margin-top: 20px;">
@@ -78,7 +67,7 @@
 	</div>
   <div ng-show="$ctrl._isDelete">
     <div class="_component">
-      <label> Do you want to delete this account ? </label>
+      <label> Do you want to delete this project ? </label>
     </div>
     <div class="_component padding-bottom15" style="margin-top: 20px;">
         <button class="padding-button5" ng-click="$ctrl.delete()">Delete</button>

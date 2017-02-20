@@ -92,5 +92,40 @@ module.exports = {
                 return $http.delete(`${$config.apiUrl}/role/${id}`);
             }
         };
+    }],
+    Account: ['$http', '$rootScope', '$config', '$q', function($http, $rootScope, $config, $q) {
+        return {
+            get: () => {
+                return $http.get(`${$config.apiUrl}/account`);
+            },
+            login : (data, projectId) => {
+                return $http.post(`${$config.apiUrl}/login`, data, {headers : {pj: projectId}});
+            },
+            add: (data) => {
+                return $http.post(`${$config.apiUrl}/register`, data);
+            },
+            author: (data) => {
+                // data.pj = $config.auth.pj;
+                // headers : {
+                //     'content-type': 'application/json',
+                //     'token': '58997ac77e9a4435508973bf-589980092d24aa1dbc5f97ea-589bd9aafb9ca430b415ee7f',
+                //     'path': '/Login',
+                //     'actions': 'ADD'
+                // }
+                return $http.head(`${$config.apiUrl}/authoriz`, {headers : data});
+            },
+            ping: (data) => {
+                return $http.head(`${$config.apiUrl}/ping`);
+            },
+            update: (account) => {
+                return $http.put(`${$config.apiUrl}/account/${account._id}`, account);
+            },
+            getDetail(id) {
+                return $http.get(`${$config.apiUrl}/account/${id}`);
+            },
+            delete(id) {
+                return $http.delete(`${$config.apiUrl}/account/${id}`);
+            }
+        };
     }]
 }

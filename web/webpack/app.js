@@ -17,6 +17,8 @@ require(['angular', 'router',
 			'../public/components/product/test.js',
 			'../public/components/project/account.js',
 			'../public/components/project/index.js',
+			'../public/components/project/login.js',
+			'../public/components/project/projects.js',
 			'../public/components/project/role.js'], (...com) => {
         for (var i in com) {
             if (i == 0) global.app.constant('$config', com[i]);
