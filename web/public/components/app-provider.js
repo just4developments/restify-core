@@ -102,7 +102,8 @@ module.exports = {
                 return $http.post(`${$config.apiUrl}/login`, data, {headers : {pj: projectId}});
             },
             add: (data) => {
-                return $http.post(`${$config.apiUrl}/register`, data);
+                // return $http.post(`${$config.apiUrl}/register`, data);
+                return $http.post(`${$config.apiUrl}/account`, data);
             },
             author: (data) => {
                 // data.pj = $config.auth.pj;

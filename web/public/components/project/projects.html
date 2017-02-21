@@ -10,14 +10,14 @@
       </td>
     </tr>
   </table>
-
+ 
     <table class="table">
       <thead>
       <tr>
         <th>ID</th>
-        <th>Project Name</th>
-        <th>Admin email</th>
+        <th>Project Name</th>        
         <th>Status</th>
+        <th>Description</th>
         <th>Created date</th>
         <th></th>
       </tr>
@@ -25,12 +25,11 @@
       <tbody>
       <tr ng-repeat="item in $ctrl._projects | filter : $ctrl._kword">
         <td>{{item._id}}</td>
-        <td>{{item.name}}</td>
-        <td>{{item.email}}</td>
+        <td>{{item.name}}</td>        
         <td>{{item.status=='1'?'Activate':'Deactivate'}}</td>
+        <td>{{item.des}}</td>
         <td>{{item.created_at | date:'yyyy-MM-dd HH:mm'}}</td>
         <td style="text-align: right;">
-          <label class="_link padding-right5" ng-click="$ctrl.showModal('edit', item)">Edit</label>
           <label class="_link" ng-click="$ctrl.showModal('delete', item)">Delete</label>
         </td>
       </tr>
@@ -59,15 +58,19 @@
        <font style="color: red;" ng-show="$ctrl.err.stt"><i>Status is required</i></font>
     </div>
 
+    <div class="_component"> 
+      <label>Description</label>
+      <textarea class="form-control" ng-model="$ctrl._project.des" rows="4"></textarea>
+    </div>
+
     <div class="_component padding-bottom15" style="margin-top: 20px;">
         <button class="padding-button5" ng-click="$ctrl.create()" ng-show="$ctrl._isCreate">Create</button>
-        <button  class="padding-button5" ng-click="$ctrl.save()" ng-show="!$ctrl._isCreate">Save</button>
         <button  class="padding-button5" ng-click="$ctrl.closeModal()" >Cancel</button>
     </div>
 	</div>
   <div ng-show="$ctrl._isDelete">
     <div class="_component">
-      <label> Do you want to delete this project ? </label>
+      <label> Do you want to delete "{{$ctrl._project.name}}" project ? </label>
     </div>
     <div class="_component padding-bottom15" style="margin-top: 20px;">
         <button class="padding-button5" ng-click="$ctrl.delete()">Delete</button>

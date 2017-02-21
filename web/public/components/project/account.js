@@ -1,7 +1,7 @@
 module.exports = {
     name: 'account',
     template: require('./account.html'),
-    controller: ['$config', 'Role', 'Account', function ($config, Role, Account) {
+    controller: ['$config', 'Role', 'Account', '$location', function ($config, Role, Account, $location) {
         require('./account.scss');
 
         let self = this;
@@ -9,7 +9,7 @@ module.exports = {
         self.err = {};
         this.$routerOnActivate = (next) => {
             Role.get().then((res) => {
-                self._roles = res.data;
+                if(res.data.constructor === Array) self._roles = res.data;
             }).catch((err) => {
                 setTimeout(function() {
                     document.querySelector('#btnApply').click();    
@@ -70,7 +70,6 @@ module.exports = {
             delete self._account.repwd;
 
             Account.update(self._account).then((res) => {
-                console.log(res);
                 this.closeModal();
             });
         };
@@ -80,7 +79,6 @@ module.exports = {
             
             if(self._accounts[index] && self._accounts[index]._id === self._account._id) {
                 Account.delete(self._account._id).then((res) => {
-                    console.log(res);
                     self._accounts.splice(index,1);
                     this.closeModal();
                 });
@@ -95,7 +93,7 @@ module.exports = {
             document.getElementById('favDialog').showModal();
         } 
         this.sendRedirect = () => {
-            $location.path('/empty');
+            $location.path('/');
         }
         this.closeModal = () => {
 

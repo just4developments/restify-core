@@ -3,7 +3,7 @@ module.exports = {
     name: 'myApp',
     template: require('./my-app.html'),
     $routeConfig: [
-        { path: '/',name: 'Login',component: 'login',useAsDefault: true},
+        { path: '/:id',name: 'Login',component: 'login',useAsDefault: true},
         { path: '/projects',name: 'Projects',component: 'projects'},
         { path: '/index',name: 'Index',component: 'index'},
         { path: '/role',name: 'Role',component: 'role'},

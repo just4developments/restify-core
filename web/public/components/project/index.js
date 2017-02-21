@@ -29,7 +29,7 @@ module.exports = {
         };
 
         this.sendRedirect = () => {
-            $location.path('/empty');
+            $location.path('/');
         }
     }]
 }

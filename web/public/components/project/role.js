@@ -13,7 +13,7 @@ module.exports = {
             Role.get().then((res) => {
                 self._roles = res.data;
                 
-                if(self._roles) return;
+                if(!self._roles) return;
                 
                 for (var i = 0; i < self._roles.length; i++){
                     self._roles[i].api = this.arrInOneLine(self._roles[i].api);
@@ -45,7 +45,8 @@ module.exports = {
         }
         this.addConfigRow = (_index,type) => {
             if(type=='api') {
-                if (!self._api[_index].path || !self._api[_index].actions) return;
+                
+                if (!self._api[_index] || !self._api[_index].path || !self._api[_index].actions) return;
                 self._api[_index].actions = self._api[_index].actions.toUpperCase();
 
                 if(self._roles[_index].api){
@@ -56,7 +57,7 @@ module.exports = {
                 }
                 self._api[_index] = {};
             } else if(type=='web') {
-                if (!self._web[_index].path || !self._web[_index].actions) return;
+                if (!self._web[_index] || !self._web[_index].path || !self._web[_index].actions) return;
                 self._web[_index].actions = self._web[_index].actions.toUpperCase();
                 
                 if(self._roles[_index].web){
@@ -67,7 +68,7 @@ module.exports = {
                 }
                 self._web[_index] = {};
             } else if(type=='mob') {
-                if (!self._mob[_index].path || !self._mob[_index].actions) return;
+                if (!self._mob[_index] || !self._mob[_index].path || !self._mob[_index].actions) return;
                 self._mob[_index].actions = self._mob[_index].actions.toUpperCase();
 
                 if(self._roles[_index].mob){
@@ -135,7 +136,7 @@ module.exports = {
         };
 
         this.sendRedirect = () => {
-            $location.path('/empty');
+            $location.path('/');
         }
 
         this.arrInOneLine = (_obj) => {
