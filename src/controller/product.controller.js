@@ -17,11 +17,16 @@ server.get('/product', utils.jsonHandler(), (req, res, next) => {
         position: 1
     };
     let fields = {};
-    let recordsPerPage = 20;
+    let recordsPerPage = 1000;
     if(!req.headers.isnana) where.status = 1;
     if(!req.headers.isnana) {
         fields.money0 = 0;
         fields.quantity0 = 0;
+    }else {
+        if(req.query.is_input) {
+            delete sortBy.position;
+            sortBy.created_date = -1;
+        }
     }
     if(req.query.recordsPerPage) recordsPerPage = +req.query.recordsPerPage;    
     let type = req.query.type || 'newest';
