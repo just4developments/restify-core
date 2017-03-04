@@ -14,6 +14,7 @@ let productService = require('../service/product.service');
 server.get('/product', utils.jsonHandler(), (req, res, next) => {
     let where = {};
     let sortBy = {
+        status: -1,
         position: 1
     };
     let fields = {};
