@@ -71,7 +71,7 @@ server.post('/product', auth, utils.fileUploadHandler({
     body.position = +req.body.position || 1;
     body.quantity = 0;
     body.quantity0 = 0;
-    body.size = req.body.size;
+    if(req.body.size) body.size = req.body.size;
     body.tags = JSON.parse(req.body.tags);
 	if(req.file.images) body.images = req.file.images;
 	if(req.body.sizes) {
@@ -132,7 +132,7 @@ server.put('/product', auth, utils.fileUploadHandler({
     if(req.body.special !== undefined) body.special = JSON.parse(req.body.special);
 	if(req.body.money !== undefined) body.money = +req.body.money;
     if(req.body.money0 !== undefined) body.money0 = +req.body.money0;
-    body.size = req.body.size;
+    if(req.body.size) body.size = req.body.size;
     body.tags = JSON.parse(req.body.tags);
     body.created_date = new Date(JSON.parse(req.body.created_date));
 	body.updated_date = new Date();
