@@ -70,7 +70,7 @@ server.get('/transaction', utils.jsonHandler(), (req, res, next) => {
         let status = +req.query.status;
         where.created_date = { $gte: from, $lte: to};
         if(status) where.status = status;
-        return transactionService.find({where: where, sortBy: {created_date : -1, status: -1}}).then((rs) => {
+        return transactionService.find({where: where, sort: {created_date : -1, status: -1}}).then((rs) => {
             res.send(rs);
         }).catch(next);
     }else{

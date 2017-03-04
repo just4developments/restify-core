@@ -13,7 +13,7 @@ let productService = require('../service/product.service');
 
 server.get('/product', utils.jsonHandler(), (req, res, next) => {
     let where = {};
-    let sortBy = {
+    let sort = {
         status: -1,
         position: 1
     };
@@ -25,8 +25,8 @@ server.get('/product', utils.jsonHandler(), (req, res, next) => {
         fields.quantity0 = 0;
     }else {
         if(req.query.is_input) {
-            delete sortBy.position;
-            sortBy.created_date = -1;
+            delete sort.position;
+            sort.created_date = -1;
         }
     }
     if(req.query.recordsPerPage) recordsPerPage = +req.query.recordsPerPage;    
@@ -35,7 +35,7 @@ server.get('/product', utils.jsonHandler(), (req, res, next) => {
     if(type === 'hot'){
         where.special = true;
     }
-    return productService.find({where: where, sortBy: sortBy, recordsPerPage: recordsPerPage, fields: fields}).then((rs) => {
+    return productService.find({where: where, sort: sort, recordsPerPage: recordsPerPage, fields: fields}).then((rs) => {
         res.send(rs);
     }).catch(next);
 });
