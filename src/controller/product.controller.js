@@ -50,10 +50,12 @@ server.opts('/product', (req, res, next) => {
 });
 
 server.post('/product', auth, utils.fileUploadHandler({
-	"uploadDir": "assets/images/",
-	"multiples": true,
-	"httpPath": "/images/${filename}",
-	"resize": global.appconfig.app.imageResize.product
+    images: {
+        "uploadDir": "assets/images/",
+        "multiples": true,
+        "httpPath": "/images/${filename}",
+        "resize": global.appconfig.app.imageResize.product
+    }
 }), (req, res, next) => {
     var body = {};
 	if(req.body.name) body.name = req.body.name;
@@ -80,7 +82,7 @@ server.post('/product', auth, utils.fileUploadHandler({
     }    
 
     productService.insert(body).then((rs) => {
-        res.send(rs.ops[0]);
+        res.send(rs);
     }).catch(next);
 });
 
@@ -111,10 +113,12 @@ server.put('/product/:id', auth, utils.jsonHandler(), (req, res, next) => {
 });
 
 server.put('/product', auth, utils.fileUploadHandler({
-	"uploadDir": "assets/images/",
-	"multiples": true,
-	"httpPath": "/images/${filename}",
-	"resize": global.appconfig.app.imageResize.product
+    images: {
+        "uploadDir": "assets/images/",
+        "multiples": true,
+        "httpPath": "/images/${filename}",
+        "resize": global.appconfig.app.imageResize.product
+    }
 }), (req, res, next) => {
     var body = { _id: req.body._id };
     if(req.body.name) body.name = req.body.name;

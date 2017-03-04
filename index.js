@@ -42,9 +42,11 @@ server.opts(/.*/, function (req,res,next) {
 
 fs.readdir(path.join(__dirname, 'src', 'controller'), function (err, files) {
     if (err) return console.error(err);
-    for (var file of files) {
-        require(`./src/controller/${file}`);
-    }
+    files.forEach((file) => {
+        if(file.indexOf('.js') != -1){
+            require(`./src/controller/${file}`);
+        } 
+    });
 });
 
 server.listen(appconfig.listen, () => {
