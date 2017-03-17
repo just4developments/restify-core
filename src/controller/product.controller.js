@@ -32,6 +32,9 @@ server.get('/product', utils.jsonHandler(), (req, res, next) => {
     if(req.query.recordsPerPage) recordsPerPage = +req.query.recordsPerPage;    
     let type = req.query.type || 'newest';
     if(req.query.categoryId) where.category_id=req.query.categoryId;
+    if(req.query.tags) where['tags._id'] = {
+        $in: req.query.tags.split(',')
+    };
     if(type === 'hot'){
         where.special = true;
     }
