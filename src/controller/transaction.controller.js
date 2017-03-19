@@ -104,7 +104,14 @@ server.get('/transaction/buyer', utils.jsonHandler(), (req, res, next) => {
             address: 1
         }
     }).then((rs) => {
-        res.send(_.uniqBy(rs, _.isEqual));
+        let ls = {};
+        res.send(rs.filter((e) => {
+            if(!ls[e.buyer]) {
+                ls[e.buyer] = true;
+                return true;
+            }
+            return false;
+        }));
     }).catch(next);
 });
 
